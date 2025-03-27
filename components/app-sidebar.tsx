@@ -1,28 +1,11 @@
 "use client"
 
-import * as React from "react"
-import {
-  IconCamera,
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
-} from "@tabler/icons-react"
+import * as React from "react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavEvents } from "@/components/nav-events";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -31,7 +14,22 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import {
+  BuildingIcon,
+  CalendarHeartIcon,
+  CalendarIcon,
+  CalendarSearchIcon,
+  CodepenIcon,
+  FilesIcon,
+  FunctionSquareIcon,
+  HelpCircleIcon,
+  LayoutDashboardIcon,
+  SearchIcon,
+  SettingsIcon,
+  TicketIcon,
+} from "lucide-react";
+import { NavAdmin } from "./nav-admin";
 
 const data = {
   user: {
@@ -42,115 +40,83 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
+      url: "/",
+      icon: LayoutDashboardIcon,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Events durchsuchen",
+      url: "/events",
+      icon: CalendarSearchIcon,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
+      title: "Angemeldete Events",
+      url: "/user/events",
+      icon: TicketIcon,
     },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
+
   ],
-  navClouds: [
+  navAdmin: [
     {
-      title: "Capture",
-      icon: IconCamera,
+      title: "Organisation",
+      icon: BuildingIcon,
       isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      url: "/organisation",
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Events",
+      icon: CalendarIcon,
+      url: "/organisation/events",
     },
     {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Prozesse",
+      icon: FunctionSquareIcon,
+      url: "/organisation/processes",
+    },
+    {
+      title: "Dateien",
+      url: "/organisation/files",
+      icon: FilesIcon,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
+      title: "Einstellungen",
+      url: "/user",
+      icon: SettingsIcon,
     },
     {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
+      title: "Dokumentation",
+      url: "/docs",
+      icon: HelpCircleIcon,
     },
     {
-      title: "Search",
+      title: "Suche",
       url: "#",
-      icon: IconSearch,
+      icon: SearchIcon,
     },
   ],
-  documents: [
+  myEvents: [
     {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
+      name: "Cooles Event 1",
+      url: "/events/12345",
+      icon: CalendarHeartIcon,
     },
     {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
+      name: "Cooles Event 3",
+      url: "/events/12345",
+      icon: CalendarHeartIcon,
     },
     {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      name: "Cooles Event 2",
+      url: "/events/12345",
+      icon: CalendarHeartIcon,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const isAdmin = true;
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -161,7 +127,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
+                <CodepenIcon className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
             </SidebarMenuButton>
@@ -169,8 +135,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {isAdmin && (
+          <NavAdmin items={data.navAdmin} />
+        )}
+        <NavMain isAdmin={isAdmin} items={data.navMain} />
+        <NavEvents items={data.myEvents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
