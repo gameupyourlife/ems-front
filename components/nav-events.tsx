@@ -4,82 +4,48 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, FolderIcon, LucideIcon, ShareIcon, TrashIcon } from "lucide-react"
+import { useState } from "react"
 
-export function NavEvents({
-  items,
-}: {
-  items: {
-    name: string
-    url: string
-    icon: LucideIcon
-  }[]
-}) {
-  const { isMobile } = useSidebar()
+export function NavEvents() {
+  const [search, setSearch] = useState("")
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Meine Events</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction
-                  showOnHover
-                  className="data-[state=open]:bg-accent rounded-sm"
-                >
-                  <EllipsisVerticalIcon />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-24 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
-              >
-                <DropdownMenuItem>
-                  <FolderIcon />
-                  <span>Open</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <ShareIcon />
-                  <span>Share</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
-                  <TrashIcon />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <EllipsisVerticalIcon className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarGroup>
+    <div className="bg-gray-200 w-full px-6 py-4 shadow-md rounded-lg">
+      {/* Container für die Navigation */}
+      <div className="flex items-center justify-between gap-3">
+        
+        {/* Center: Search Field */}
+        <div className="flex-1">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search events..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Right: Dropdown Menu */}
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100">
+                Filter
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 rounded-lg shadow-lg">
+              <DropdownMenuItem>
+                <span>Filter by Date</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <span>Filter by Host</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
   )
 }
