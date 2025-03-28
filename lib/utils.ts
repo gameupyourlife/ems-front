@@ -13,5 +13,5 @@ export function getRandomDate() {
   const start = new Date(2020, 0, 1).getTime()
   const end = new Date(2030, 0, 1).getTime()
   const randomDate = new Date(start + Math.random() * (end - start))
-  return randomDate.toISOString().split("T")[0]
+  return randomDate;
 }

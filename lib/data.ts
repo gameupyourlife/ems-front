@@ -1,5 +1,5 @@
 import { EventInfo, Organization, OrgUser } from "./types"
-import { randomImage } from "./utils"
+import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
   {
@@ -662,7 +662,7 @@ export const mockEvents: EventInfo[] = [
   {
     attendees: 100,
     category: "Tech",
-    date: new Date(),
+    date: getRandomDate(),
     description: "A tech event to showcase the latest innovations.",
     id: "1",
     image: randomImage(200, 200),
@@ -673,7 +673,7 @@ export const mockEvents: EventInfo[] = [
   {
     attendees: 50,
     category: "Networking",
-    date: new Date(),
+    date: getRandomDate(),
     description: "A networking event for tech enthusiasts.",
     id: "2",
     image: randomImage(200, 200),
@@ -684,7 +684,7 @@ export const mockEvents: EventInfo[] = [
   {
     attendees: 200, 
     category: "Workshop",
-    date: new Date(),
+    date: getRandomDate(),
     description: "A workshop on the latest tech trends.",
     id: "3",
     image: randomImage(200, 200), 
@@ -695,7 +695,7 @@ export const mockEvents: EventInfo[] = [
   {
     attendees: 150,
     category: "Conference",
-    date: new Date(),
+    date: getRandomDate(),
     description: "A conference on the future of technology.",
     id: "4",
     image: randomImage(200, 200),
@@ -706,7 +706,7 @@ export const mockEvents: EventInfo[] = [
   {
     attendees: 75,
     category: "Seminar",
-    date: new Date(),
+    date: getRandomDate(),
     description: "A seminar on AI and machine learning.",
     id: "5",
     image: randomImage(200, 200),
