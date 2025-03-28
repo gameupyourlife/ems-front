@@ -665,7 +665,7 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A tech event to showcase the latest innovations.",
     id: "1",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Silicon Valley, CA",
     organization: "Tech Innovators",
     title: "Tech Expo 2023"
@@ -676,7 +676,7 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A networking event for tech enthusiasts.",
     id: "2",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "San Francisco, CA",
     organization: "Tech Innovators",
     title: "Tech Networking Night"
@@ -687,7 +687,7 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A workshop on the latest tech trends.",
     id: "3",
-    image: randomImage(200, 200), 
+    image: randomImage(800, 400), 
     location: "Palo Alto, CA",
     organization: "Tech Innovators",
     title: "Tech Workshop 2023"
@@ -698,7 +698,7 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A conference on the future of technology.",
     id: "4",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Mountain View, CA",
     organization: "Tech Innovators",
     title: "Tech Conference 2023"
@@ -709,12 +709,115 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A seminar on AI and machine learning.",
     id: "5",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Sunnyvale, CA",
     organization: "Tech Innovators",
     title: "AI Seminar 2023"
+  },
+  {
+    attendees: 120,
+    category: "Hackathon",
+    date: getRandomDate(),
+    description: "A 48-hour coding challenge for developers.",
+    id: "6",
+    image: randomImage(800, 400),
+    location: "Seattle, WA",
+    organization: "Code Masters",
+    title: "Annual Hackathon 2023"
+  },
+  {
+    attendees: 85,
+    category: "Webinar",
+    date: getRandomDate(),
+    description: "Online session about cybersecurity best practices.",
+    id: "7",
+    image: randomImage(800, 400),
+    location: "Virtual",
+    organization: "Security First",
+    title: "Cybersecurity Essentials"
+  },
+  {
+    attendees: 250,
+    category: "Summit",
+    date: getRandomDate(),
+    description: "Leadership summit for tech executives.",
+    id: "8",
+    image: randomImage(800, 400),
+    location: "New York, NY",
+    organization: "Tech Leaders Association",
+    title: "Tech Leadership Summit"
+  },
+  {
+    attendees: 60,
+    category: "Bootcamp",
+    date: getRandomDate(),
+    description: "Intensive coding bootcamp for beginners.",
+    id: "9",
+    image: randomImage(800, 400),
+    location: "Chicago, IL",
+    organization: "Code Academy",
+    title: "Coding Bootcamp Spring 2023"
+  },
+  {
+    attendees: 180,
+    category: "Exhibition",
+    date: getRandomDate(),
+    description: "Exhibition of cutting-edge technologies.",
+    id: "10",
+    image: randomImage(800, 400),
+    location: "Las Vegas, NV",
+    organization: "Future Tech",
+    title: "Tech Innovation Expo"
+  },
+  {
+    attendees: 90,
+    category: "Panel",
+    date: getRandomDate(),
+    description: "Expert panel on blockchain technology.",
+    id: "11",
+    image: randomImage(800, 400),
+    location: "Austin, TX",
+    organization: "Blockchain Society",
+    title: "Blockchain Revolution Panel"
+  },
+  {
+    attendees: 220,
+    category: "Meetup",
+    date: getRandomDate(),
+    description: "Casual meetup for data scientists.",
+    id: "12",
+    image: randomImage(800, 400),
+    location: "Boston, MA",
+    organization: "Data Science Club",
+    title: "Data Scientists Meetup"
+  },
+  {
+    attendees: 70,
+    category: "Training",
+    date: getRandomDate(),
+    description: "Professional training for cloud computing.",
+    id: "13",
+    image: randomImage(800, 400),
+    location: "Denver, CO",
+    organization: "Cloud Experts",
+    title: "Cloud Computing Certification"
+  },
+  {
+    attendees: 130,
+    category: "Forum",
+    date: getRandomDate(),
+    description: "Open forum on digital transformation.",
+    id: "14",
+    image: randomImage(800, 400),
+    location: "Philadelphia, PA",
+    organization: "Digital Innovators",
+    title: "Digital Transformation Forum"
   }
 ]
+
+
+
+
 export const mockOrgEvents: EventInfo[] = mockEvents.map((event, index) => ({
   ...event,
   id: `${index + 1}`,
