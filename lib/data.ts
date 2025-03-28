@@ -1,3 +1,6 @@
+import { EventInfo, Organization, OrgUser } from "./types"
+import { getRandomDate, randomImage } from "./utils"
+
 export const data = [
   {
     "id": 1,
@@ -612,3 +615,109 @@ export const data = [
     "reviewer": "Assign reviewer"
   }
 ]
+
+export const mockOrg: Organization = {
+  id: "1",
+  numOfMembers: 10,
+  numOfEvents: 5,
+  owner: "John Doe",
+  createdAt: "2023-01-01",
+  updatedAt: "2023-01-02",
+  updatedBy: "Jane Smith",
+  name: "Tech Innovators",
+  address: "123 Tech Lane, Silicon Valley, CA",
+  description: "A leading organization in tech innovation.",
+  profilePicture: randomImage(200, 200),
+  website: "https://techinnovators.com"
+}
+
+export const mockOrgUsers: OrgUser[] = [
+  {
+    user: {
+      createdAt: "2023-01-01",
+      email: "mail@example.com",
+      id: "1",
+      name: "John Doe",
+      updatedAt: "2023-01-02",
+      profilePicture: randomImage(200, 200)
+    },
+    orgId: "1",
+    role: "Admin"
+  },
+  {
+    user: {
+      createdAt: "2023-01-01",
+      email: "aggs@gfd.com",
+      id: "2",
+      name: "Jane Smith",
+      updatedAt: "2023-01-02",
+      profilePicture: randomImage(200, 200)
+    },
+    orgId: "1",
+    role: "Member"
+  }
+]
+
+export const mockEvents: EventInfo[] = [
+  {
+    attendees: 100,
+    category: "Tech",
+    date: getRandomDate(),
+    description: "A tech event to showcase the latest innovations.",
+    id: "1",
+    image: randomImage(200, 200),
+    location: "Silicon Valley, CA",
+    organization: "Tech Innovators",
+    title: "Tech Expo 2023"
+  },
+  {
+    attendees: 50,
+    category: "Networking",
+    date: getRandomDate(),
+    description: "A networking event for tech enthusiasts.",
+    id: "2",
+    image: randomImage(200, 200),
+    location: "San Francisco, CA",
+    organization: "Tech Innovators",
+    title: "Tech Networking Night"
+  },
+  {
+    attendees: 200, 
+    category: "Workshop",
+    date: getRandomDate(),
+    description: "A workshop on the latest tech trends.",
+    id: "3",
+    image: randomImage(200, 200), 
+    location: "Palo Alto, CA",
+    organization: "Tech Innovators",
+    title: "Tech Workshop 2023"
+  },
+  {
+    attendees: 150,
+    category: "Conference",
+    date: getRandomDate(),
+    description: "A conference on the future of technology.",
+    id: "4",
+    image: randomImage(200, 200),
+    location: "Mountain View, CA",
+    organization: "Tech Innovators",
+    title: "Tech Conference 2023"
+  },
+  {
+    attendees: 75,
+    category: "Seminar",
+    date: getRandomDate(),
+    description: "A seminar on AI and machine learning.",
+    id: "5",
+    image: randomImage(200, 200),
+    location: "Sunnyvale, CA",
+    organization: "Tech Innovators",
+    title: "AI Seminar 2023"
+  }
+]
+export const mockOrgEvents: EventInfo[] = mockEvents.map((event, index) => ({
+  ...event,
+  id: `${index + 1}`,
+  organization: mockOrg.name,
+  image: randomImage(200, 200)
+}))
