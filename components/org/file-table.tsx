@@ -19,9 +19,7 @@ import {
     ChevronRight,
     Edit,
     Trash,
-    ArrowUpDown,
-    Plus,
-    FileIcon,
+    ArrowUpDown, FileIcon,
     Download,
     Share2,
     Eye,
@@ -30,7 +28,8 @@ import {
     UserIcon,
     LayoutGrid,
     Check,
-    X
+    X,
+    Upload
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -64,6 +63,7 @@ import {
     CommandList,
     CommandSeparator
 } from "@/components/ui/command";
+import FileUploadDialog from "@/components/org/file-upload-dialog";
 
 interface FileTableProps {
     files: EmsFile[];
@@ -78,6 +78,7 @@ export default function FileTable({ files, orgId }: FileTableProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [columnsOpen, setColumnsOpen] = useState(false);
     const [activeFileType, setActiveFileType] = useState<string | null>(null);
+    const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
     // Map icons to file types
     const getFileTypeIcon = (type: string) => {
@@ -329,6 +330,18 @@ export default function FileTable({ files, orgId }: FileTableProps) {
             createdBy.includes(searchTerm);
     };
 
+    // Handle file upload dialog
+    const openUploadDialog = () => setIsUploadDialogOpen(true);
+    const closeUploadDialog = () => setIsUploadDialogOpen(false);
+    
+    const handleUploadComplete = (uploadedFiles: any[]) => {
+        // In a real application, you would refresh the files list from the server
+        closeUploadDialog();
+        // For now we just close the dialog as we can't modify the files prop directly
+        // We'd either need to lift state up or use a more sophisticated state management approach
+        window.location.reload(); // Temporary solution to refresh the page
+    };
+
     // Create the table instance
     const table = useReactTable({
         data: files,
@@ -529,11 +542,10 @@ export default function FileTable({ files, orgId }: FileTableProps) {
                         </PopoverContent>
                     </Popover>
 
-                    <Button size="sm" className="h-8" asChild>
-                        <Link href={`/organisation/files/upload`}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Upload File
-                        </Link>
+                    {/* Upload Button */}
+                    <Button size="sm" className="h-8" onClick={openUploadDialog}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload
                     </Button>
                 </div>
             </div>
@@ -653,6 +665,14 @@ export default function FileTable({ files, orgId }: FileTableProps) {
                     </Button>
                 </div>
             </div>
+            
+            {/* File Upload Dialog */}
+            <FileUploadDialog 
+                isOpen={isUploadDialogOpen}
+                onClose={closeUploadDialog}
+                orgId={orgId}
+                onUploadComplete={handleUploadComplete}
+            />
         </div>
     );
 }

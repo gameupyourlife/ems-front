@@ -1,21 +1,34 @@
 "use client";
+import { useState } from "react";
 import { mockOrg, mockFiles } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, UploadIcon } from "lucide-react";
 import Link from "next/link";
 import FileTable from "@/components/org/file-table";
+import FileUploadDialog from "@/components/org/file-upload-dialog";
+import { EmsFile } from "@/lib/types";
 
 export default function OrganizationFilesPage({ params }: { params: { orgId: string } }) {
     // In a real application, you would fetch the organization and its files here
     const orgId = params.orgId;
     const org = mockOrg; // This would come from an API call in a real app
+    
+    // State for file list and upload dialog
+    const [files, setFiles] = useState<EmsFile[]>(mockFiles);
+    const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-    // Get total size of files (not all mock files might have size property)
-    // const totalSize = mockFiles.reduce((total, file) => total + (file.size || 0), 0);
+    // Handle upload dialog open/close
+    const openUploadDialog = () => setIsUploadDialogOpen(true);
+    const closeUploadDialog = () => setIsUploadDialogOpen(false);
 
-    // Count shared files (if shared property exists)
-    // const sharedFilesCount = mockFiles.filter(file => file.shared).length;
+    // Handle upload completion
+    const handleUploadComplete = (uploadedFiles: EmsFile[]) => {
+        // In a real app, you'd refresh the file list from the server
+        // Here we'll just add the mock uploaded files to our state
+        setFiles(prevFiles => [...uploadedFiles, ...prevFiles]);
+        closeUploadDialog();
+    };
 
     return (
         <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6 overflow-hidden">
@@ -26,11 +39,9 @@ export default function OrganizationFilesPage({ params }: { params: { orgId: str
                     <p className="text-muted-foreground">Manage all files for {org.name}</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button size="sm" variant="outline" asChild>
-                        <Link href={`/organisation/files/upload`}>
-                            <UploadIcon className="mr-2 h-4 w-4" />
-                            Upload File
-                        </Link>
+                    <Button size="sm" variant="outline" onClick={openUploadDialog}>
+                        <UploadIcon className="mr-2 h-4 w-4" />
+                        Upload File
                     </Button>
                     <Button size="sm" asChild>
                         <Link href={`/organisation/files/create`}>
@@ -49,31 +60,49 @@ export default function OrganizationFilesPage({ params }: { params: { orgId: str
                         <CardDescription>Total number of files</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{mockFiles.length}</div>
-                    </CardContent>
-                </Card>
-                {/* <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xl">Shared Files</CardTitle>
-                        <CardDescription>Files shared with others</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{sharedFilesCount}</div>
+                        <div className="text-3xl font-bold">{files.length}</div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-xl">Storage Used</CardTitle>
-                        <CardDescription>Total storage space used</CardDescription>
+                        <CardTitle className="text-xl">File Types</CardTitle>
+                        <CardDescription>Number of unique file types</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{totalSize.toFixed(1)} MB</div>
+                        <div className="text-3xl font-bold">
+                            {new Set(files.map(file => file.type)).size}
+                        </div>
                     </CardContent>
-                </Card> */}
+                </Card>
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-xl">Last Upload</CardTitle>
+                        <CardDescription>Most recently uploaded file</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {files.length > 0 ? (
+                            <div className="text-xl font-medium truncate">
+                                {files.sort((a, b) => 
+                                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                                )[0].name}
+                            </div>
+                        ) : (
+                            <div className="text-xl font-medium">No files</div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Files Table */}
-            <FileTable files={mockFiles} orgId={orgId} />
+            <FileTable files={files} orgId={orgId} />
+            
+            {/* File Upload Dialog */}
+            <FileUploadDialog 
+                isOpen={isUploadDialogOpen}
+                onClose={closeUploadDialog}
+                orgId={orgId}
+                onUploadComplete={handleUploadComplete}
+            />
         </div>
     );
 }
