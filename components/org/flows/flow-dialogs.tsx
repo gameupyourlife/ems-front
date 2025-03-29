@@ -11,24 +11,67 @@ import {
     Users,
     Tag,
     Check,
-    Mail,
-    Bell,
-    FileText,
-    Image,
-    LayoutList,
-    PencilLine,
-    Clock,
+    Mail, FileText, Clock,
     AlertCircle,
     ChevronRight,
     Percent,
     ChevronLeft,
-    Globe
+    Globe,
+    LayoutList,
+    PencilLine,
+    Bell,
+    Image
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Flow } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const actionTypes = [
+    {
+        id: "email",
+        name: "Send Email",
+        description: "Send an email notification",
+        icon: <Mail className="h-5 w-5" />
+    },
+    {
+        id: "notification",
+        name: "Send Notification",
+        description: "Send an in-app notification",
+        icon: <Bell className="h-5 w-5" />
+    },
+    {
+        id: "statusChange",
+        name: "Change Status",
+        description: "Update the event status",
+        icon: <Tag className="h-5 w-5" />
+    },
+    {
+        id: "fileShare",
+        name: "Share File",
+        description: "Change file sharing settings",
+        icon: <FileText className="h-5 w-5" />
+    },
+    {
+        id: "imageChange",
+        name: "Update Image",
+        description: "Change event image",
+        icon: <Image className="h-5 w-5" />
+    },
+    {
+        id: "titleChange",
+        name: "Change Title",
+        description: "Update event title",
+        icon: <LayoutList className="h-5 w-5" />
+    },
+    {
+        id: "descriptionChange",
+        name: "Change Description",
+        description: "Update event description",
+        icon: <PencilLine className="h-5 w-5" />
+    }
+];
 
 // Selection card component for creating card-based selection UI
 interface SelectionCardProps {
@@ -90,12 +133,14 @@ export function AddTriggerDialog({
     open,
     onOpenChange,
     onAdd,
-    existingFlow
+    existingFlow,
+    itemToEdit
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onAdd: (triggerType: string, details: any) => void;
     existingFlow?: Flow;
+    itemToEdit?: any;
 }) {
     const [triggerType, setTriggerType] = useState<string>("");
     const [details, setDetails] = useState<any>({});
@@ -105,18 +150,50 @@ export function AddTriggerDialog({
 
     // Check if registration trigger already exists
     const registrationTriggerExists = useMemo(() => {
-        return existingFlow?.trigger.some(t => t.type === "registration");
-    }, [existingFlow]);
+        return existingFlow?.trigger.some(t => t.type === "registration" && (!itemToEdit || t.id !== itemToEdit.id));
+    }, [existingFlow, itemToEdit]);
+
+    // Initialize form when editing an existing trigger
+    useEffect(() => {
+        if (open && itemToEdit) {
+            setTriggerType(itemToEdit.type);
+            setDetails(itemToEdit.details || {});
+            
+            // Set specific state based on trigger type
+            if (itemToEdit.type === "date" && itemToEdit.details) {
+                // Determine if relative or absolute date
+                if (itemToEdit.details.reference && itemToEdit.details.direction) {
+                    setDateReferenceType("relative");
+                } else {
+                    setDateReferenceType("absolute");
+                }
+            } else if (itemToEdit.type === "numOfAttendees" && itemToEdit.details) {
+                // Determine value type (percentage or absolute)
+                const isPercentage = itemToEdit.details.value <= 100 && 
+                                    (itemToEdit.details.valueType === "percentage" || 
+                                     itemToEdit.details.unit === "%");
+                setAttendeesValueType(isPercentage ? "percentage" : "absolute");
+            }
+        }
+    }, [open, itemToEdit]);
+
+    // Reset all state when dialog closes
+    useEffect(() => {
+        if (!open && !itemToEdit) {
+            setTimeout(() => {
+                setTriggerType("");
+                setDetails({});
+                setSelectedTrigger("");
+                setDateReferenceType("absolute");
+                setAttendeesValueType("absolute");
+            }, 300); // Small delay to avoid visual glitches during animation
+        }
+    }, [open, itemToEdit]);
 
     const handleAddTrigger = () => {
         onAdd(triggerType, details);
         onOpenChange(false);
-        // Reset form
-        setTriggerType("");
-        setDetails({});
-        setSelectedTrigger("");
-        setDateReferenceType("absolute");
-        setAttendeesValueType("absolute");
+        // Form will be reset when the dialog closes
     };
 
     // Trigger types with their icons and descriptions
@@ -561,12 +638,14 @@ export function AddActionDialog({
     open,
     onOpenChange,
     onAdd,
-    existingFlow
+    existingFlow,
+    itemToEdit
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onAdd: (actionType: string, details: any) => void;
     existingFlow?: Flow;
+    itemToEdit?: any;
 }) {
     const [actionType, setActionType] = useState<string>("");
     const [details, setDetails] = useState<any>({});
@@ -622,9 +701,44 @@ export function AddActionDialog({
         }
     }, [existingFlow]);
 
-    // Reset form when dialog opens/closes
+    // Initialize form when editing an existing action
     useEffect(() => {
-        if (!open) {
+        if (open && itemToEdit) {
+            setActionType(itemToEdit.type);
+            setDetails(itemToEdit.details || {});
+            setActiveTab("config");
+            
+            // Set recipient type based on action details
+            if (itemToEdit.type === "email") {
+                if (typeof itemToEdit.details?.recipients === 'string') {
+                    if (itemToEdit.details.recipients.includes('trigger.')) {
+                        setEmailRecipientType("registeredUser");
+                    } else if (itemToEdit.details.recipients === 'all.users') {
+                        setEmailRecipientType("allUsers");
+                    } else {
+                        setEmailRecipientType("specific");
+                    }
+                }
+            } else if (itemToEdit.type === "notification") {
+                if (Array.isArray(itemToEdit.details?.recipients)) {
+                    if (itemToEdit.details.recipients.length > 0 && 
+                        typeof itemToEdit.details.recipients[0] === 'string' && 
+                        itemToEdit.details.recipients[0].includes('trigger.')) {
+                        setNotificationRecipientType("registeredUser");
+                    } else if (itemToEdit.details.recipients.length > 0 && 
+                             itemToEdit.details.recipients[0] === 'all.users') {
+                        setNotificationRecipientType("allUsers");
+                    } else {
+                        setNotificationRecipientType("specific");
+                    }
+                }
+            }
+        }
+    }, [open, itemToEdit]);
+
+    // Reset form when dialog closes
+    useEffect(() => {
+        if (!open && !itemToEdit) {
             // Reset all states when dialog is closed
             setTimeout(() => {
                 setActionType("");
@@ -634,61 +748,19 @@ export function AddActionDialog({
                 setActiveTab("");
             }, 300); // Small delay to avoid visual glitches during animation
         }
-    }, [open]);
+    }, [open, itemToEdit]);
 
-    // Action types with their icons and descriptions
-    const actionTypes = [
-        {
-            id: "email",
-            name: "Send Email",
-            description: "Send an email notification",
-            icon: <Mail className="h-5 w-5" />
-        },
-        {
-            id: "notification",
-            name: "Send Notification",
-            description: "Send an in-app notification",
-            icon: <Bell className="h-5 w-5" />
-        },
-        {
-            id: "statusChange",
-            name: "Change Status",
-            description: "Update the event status",
-            icon: <Tag className="h-5 w-5" />
-        },
-        {
-            id: "fileShare",
-            name: "Share File",
-            description: "Change file sharing settings",
-            icon: <FileText className="h-5 w-5" />
-        },
-        {
-            id: "imageChange",
-            name: "Update Image",
-            description: "Change event image",
-            icon: <Image className="h-5 w-5" />
-        },
-        {
-            id: "titleChange",
-            name: "Change Title",
-            description: "Update event title",
-            icon: <LayoutList className="h-5 w-5" />
-        },
-        {
-            id: "descriptionChange",
-            name: "Change Description",
-            description: "Update event description",
-            icon: <PencilLine className="h-5 w-5" />
-        }
-    ];
-
+    // Effect to update titles and buttons when editing
     useEffect(() => {
-        // Reset details when action type changes
-        setDetails({});
+        // Only reset details when action type changes if we're not editing an item
+        if (!itemToEdit) {
+            // Reset details when action type changes
+            setDetails({});
 
-        // Reset recipient types
-        setEmailRecipientType("specific");
-        setNotificationRecipientType("specific");
+            // Reset recipient types
+            setEmailRecipientType("specific");
+            setNotificationRecipientType("specific");
+        }
 
         // Set active tab based on action type
         if (actionType) {
@@ -696,7 +768,7 @@ export function AddActionDialog({
         } else {
             setActiveTab("");
         }
-    }, [actionType]);
+    }, [actionType, itemToEdit]);
 
     // Handle going back to action type selection
     const handleBackToActionTypes = () => {

@@ -7,22 +7,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Plus,
-    Save,
-    Zap,
-    Calendar,
-    Users,
-    Tag,
-    Check,
-    Mail,
-    Bell,
-    FileText,
-    Image,
-    LayoutList,
-    PencilLine,
-    Trash2,
-    Edit,
-    MoreHorizontal,
+  Plus,
+  Save,
+  Zap,
+  Calendar,
+  Users,
+  Tag,
+  Check,
+  Mail,
+  Bell,
+  FileText,
+  Image,
+  LayoutList,
+  PencilLine,
+  Trash2,
+  Edit,
+  MoreHorizontal,
 } from "lucide-react";
 import { Flow } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -261,10 +261,24 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
     setEditItemId(id);
     setEditItemType(type);
     
-    if (type === 'trigger') {
-      setIsAddTriggerOpen(true);
-    } else {
-      setIsAddActionOpen(true);
+    // Find the existing item data
+    const existingItem = type === 'trigger' 
+      ? editedFlow.trigger.find(item => item.id === id)
+      : editedFlow.actions.find(item => item.id === id);
+    
+    if (existingItem) {
+      // For triggers, we need to set up some initial states based on the trigger type
+      if (type === 'trigger') {
+        if (existingItem.type === 'date' && existingItem.details) {
+          // Determine if it's an absolute or relative date trigger
+          const isRelative = existingItem.details.reference && existingItem.details.direction;
+          setIsAddTriggerOpen(true);
+        } else {
+          setIsAddTriggerOpen(true);
+        }
+      } else {
+        setIsAddActionOpen(true);
+      }
     }
   };
   
@@ -609,6 +623,9 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         }} 
         onAdd={handleAddTrigger} 
         existingFlow={editedFlow}
+        itemToEdit={editItemId && editItemType === 'trigger' 
+          ? editedFlow.trigger.find(item => item.id === editItemId) 
+          : undefined}
       />
 
       {/* Add Action Dialog - pass the current edited flow to use for variables */}
@@ -623,6 +640,9 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         }} 
         onAdd={handleAddAction}
         existingFlow={editedFlow}
+        itemToEdit={editItemId && editItemType === 'action' 
+          ? editedFlow.actions.find(item => item.id === editItemId) 
+          : undefined}
       />
       
       {/* Delete Confirmation Dialog */}
