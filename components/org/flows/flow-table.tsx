@@ -5,34 +5,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-    DropdownMenuSeparator,
+    DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
     SearchIcon,
     FilterIcon,
-    Calendar,
-    MapPin,
-    Users,
     MoreHorizontal,
     ChevronRight,
     Edit,
-    Trash as TrashIcon,
-    Share as ShareIcon,
-    PlusIcon,
+    Trash,
     ArrowUpDown,
-    Clock,
-    SortAsc,
-    SortDesc,
-    LayoutList,
+    Plus,
+    Mail,
+    Bell,
+    FileText,
     Check,
     X,
+    Image,
+    LayoutList,
+    PencilLine,
+    Activity,
+    Calendar,
+    Users,
+    Tag,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -49,9 +50,9 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { EventInfo } from "@/lib/types";
+import { Flow } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import {
     Popover,
     PopoverContent,
@@ -66,26 +67,72 @@ import {
     CommandList,
     CommandSeparator
 } from "@/components/ui/command";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface EventTableProps {
-    events: EventInfo[];
-    orgId: string;
+interface FlowTableProps {
+    flows: Flow[];
 }
 
-export default function EventTable({ events, orgId }: EventTableProps) {
+export default function FlowTable({ flows }: FlowTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [columnsOpen, setColumnsOpen] = useState(false);
+    const [activeTriggerType, setActiveTriggerType] = useState<string | null>(null);
+    const [activeActionType, setActiveActionType] = useState<string | null>(null);
 
-    // Track active filters for better visualization
-    const [activeStatus, setActiveStatus] = useState<string | null>(null);
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    // Map icons to trigger types
+    const getTriggerIcon = (type: string) => {
+        switch (type) {
+            case 'date':
+                return <Calendar className="h-4 w-4" />;
+            case 'numOfAttendees':
+                return <Users className="h-4 w-4" />;
+            case 'status':
+                return <Tag className="h-4 w-4" />;
+            case 'registration':
+                return <Check className="h-4 w-4" />;
+            default:
+                return <Activity className="h-4 w-4" />;
+        }
+    };
+
+    // Map icons to action types
+    const getActionIcon = (type: string) => {
+        switch (type) {
+            case 'email':
+                return <Mail className="h-4 w-4" />;
+            case 'notification':
+                return <Bell className="h-4 w-4" />;
+            case 'statusChange':
+                return <Tag className="h-4 w-4" />;
+            case 'fileShare':
+                return <FileText className="h-4 w-4" />;
+            case 'imageChange':
+                return <Image className="h-4 w-4" />;
+            case 'titleChange':
+                return <LayoutList className="h-4 w-4" />;
+            case 'descriptionChange':
+                return <PencilLine className="h-4 w-4" />;
+            default:
+                return <Activity className="h-4 w-4" />;
+        }
+    };
+
+    // Define all unique trigger types from the data
+    const triggerTypes = Array.from(new Set(
+        flows.flatMap(flow => flow.trigger.map(trigger => trigger.type))
+    ));
+
+    // Define all unique action types from the data
+    const actionTypes = Array.from(new Set(
+        flows.flatMap(flow => flow.actions.map(action => action.type))
+    ));
 
     // Define the columns for the table
-    const columns: ColumnDef<EventInfo>[] = [
+    const columns: ColumnDef<Flow>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -109,139 +156,19 @@ export default function EventTable({ events, orgId }: EventTableProps) {
             enableHiding: false,
         },
         {
-            accessorKey: "title",
+            accessorKey: "name",
             header: ({ column }) => (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Event Title
+                    Flow Name
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => (
-                <div className="flex items-center gap-2">
-                    <div className="font-medium">{row.original.title}</div>
-                </div>
+                <div className="font-medium">{row.original.name}</div>
             ),
-        },
-        {
-            accessorKey: "category",
-            header: "Category",
-            cell: ({ row }) => <Badge variant="outline">{row.original.category}</Badge>,
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id));
-            },
-        },
-        {
-            accessorKey: "date",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Date
-                    {column.getIsSorted() === "asc" ? (
-                        <SortAsc className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <SortDesc className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            ),
-            cell: ({ row }) => {
-                const date = new Date(row.original.date);
-                const now = new Date();
-                const isToday = date.toDateString() === now.toDateString();
-                const isUpcoming = date > now;
-                const isPast = date < now && !isToday;
-
-                // Format the date
-                const formattedDate = format(date, "MMM dd, yyyy");
-                const formattedTime = format(date, "HH:mm");
-
-                // Get status display
-                let statusDisplay = { text: "", variant: "" as "default" | "destructive" | "secondary" };
-                if (isPast) statusDisplay = { text: "Past", variant: "secondary" };
-                else if (isToday) statusDisplay = { text: "Today", variant: "destructive" };
-                else statusDisplay = { text: `In ${formatDistanceToNow(date)}`, variant: "default" };
-
-                return (
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>{formattedDate}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{formattedTime}</span>
-                            <Badge variant={statusDisplay.variant} className="ml-2">
-                                {statusDisplay.text}
-                            </Badge>
-                        </div>
-                    </div>
-                );
-            },
-            sortingFn: "datetime",
-        },
-        {
-            accessorKey: "location",
-            header: "Location",
-            cell: ({ row }) => (
-                <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{row.original.location}</span>
-                </div>
-            ),
-        },
-        {
-            accessorKey: "attendees",
-            header: ({ column }) => (
-                <div className="text-right">
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Attendees
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                </div>
-            ),
-            cell: ({ row }) => {
-                const attendees = row.original.attendees;
-                const capacityPercent = Math.min(100, (attendees / 100) * 100);
-
-                return (
-                    <div className="text-right w-32">
-                        <div className="flex justify-between mb-1">
-                            <div className="flex items-center">
-                                <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                                <span>{attendees}</span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">{capacityPercent}%</span>
-                        </div>
-                        <Progress
-                            value={capacityPercent}
-                            className={cn("h-1.5 rounded-full", {
-                                "bg-muted": capacityPercent < 70,
-                                "bg-amber-100": capacityPercent >= 70 && capacityPercent < 90,
-                                "bg-red-100": capacityPercent >= 90
-                            })}
-                            indicatorClassName={cn({
-                                "bg-primary": capacityPercent < 70,
-                                "bg-amber-500": capacityPercent >= 70 && capacityPercent < 90,
-                                "bg-red-500": capacityPercent >= 90
-                            })}
-                        />
-                    </div>
-                );
-            },
-        },
-        {
-            accessorKey: "status",
-            header: "Status",
-            cell: ({ cell }) => <div>{cell.getValue() as string}</div>,
         },
         {
             accessorKey: "description",
@@ -253,15 +180,133 @@ export default function EventTable({ events, orgId }: EventTableProps) {
             ),
         },
         {
-            id: "actions",
+            accessorKey: "trigger",
+            header: "Triggers",
+            cell: ({ row }) => {
+                const triggers = row.original.trigger;
+
+                return (
+                    <div className="flex flex-wrap gap-1.5">
+                        {triggers.map((trigger) => (
+                            <TooltipProvider key={trigger.id}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
+                                            {getTriggerIcon(trigger.type)}
+                                            <span className="capitalize">{trigger.type}</span>
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {trigger.details ?
+                                            <div className="text-xs">
+                                                {Object.entries(trigger.details).map(([key, value]) => (
+                                                    <div key={key}>
+                                                        <span className="font-semibold capitalize">{key}:</span> {String(value)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            :
+                                            <span className="text-xs">No additional details</span>
+                                        }
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ))}
+                    </div>
+                );
+            },
+            filterFn: (row, id, value) => {
+                if (!value) return true;
+                const triggerTypes = row.original.trigger.map(t => t.type);
+                return triggerTypes.some(type => type === value);
+            },
+        },
+        {
+            accessorKey: "actions",
             header: "Actions",
             cell: ({ row }) => {
-                const event = row.original;
+                const actions = row.original.actions;
+
+                return (
+                    <div className="flex flex-wrap gap-1.5">
+                        {actions.map((action) => (
+                            <TooltipProvider key={action.id}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
+                                            {getActionIcon(action.type)}
+                                            <span className="capitalize">{action.type}</span>
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {action.details ?
+                                            <div className="text-xs">
+                                                {Object.entries(action.details).map(([key, value]) => (
+                                                    <div key={key}>
+                                                        <span className="font-semibold capitalize">{key}:</span> {String(value)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            :
+                                            <span className="text-xs">No additional details</span>
+                                        }
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ))}
+                    </div>
+                );
+            },
+            filterFn: (row, id, value) => {
+                if (!value) return true;
+                const actionTypes = row.original.actions.map(a => a.type);
+                return actionTypes.some(type => type === value);
+            },
+        },
+        {
+            accessorKey: "createdAt",
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Created At
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => {
+                const date = new Date(row.original.createdAt);
+                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+            },
+            sortingFn: "datetime",
+        },
+        {
+            accessorKey: "updatedAt",
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Updated At
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => {
+                const date = new Date(row.original.updatedAt);
+                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+            },
+            sortingFn: "datetime",
+        },
+        {
+            id: "actions",
+            header: "Options",
+            cell: ({ row }) => {
+                const flow = row.original;
 
                 return (
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
-                            <Link href={`/organisation/events/${event.id}`}>
+                            <Link href={`/organisation/flows/${flow.id}`}>
                                 Manage
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
@@ -275,21 +320,19 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/events/${event.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organisation/flows/${flow.id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit Event</span>
+                                        <span>Edit Flow</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/events/${event.id}`} className="flex cursor-pointer">
-                                        <ShareIcon className="mr-2 h-4 w-4" />
-                                        <span>Share Event</span>
-                                    </Link>
+                                <DropdownMenuItem>
+                                    <Activity className="mr-2 h-4 w-4" />
+                                    <span>View Logs</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                    <span>Delete Event</span>
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    <span>Delete Flow</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -299,24 +342,64 @@ export default function EventTable({ events, orgId }: EventTableProps) {
         },
     ];
 
-    // Get all unique categories from the data
-    const categories = Array.from(new Set(events.map(event => event.category)));
+    // Function to toggle trigger type filter
+    const toggleTriggerTypeFilter = (type: string) => {
+        if (activeTriggerType === type) {
+            setActiveTriggerType(null);
+            setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "trigger"));
+            return;
+        }
+
+        setActiveTriggerType(type);
+        setColumnFilters(prevFilters => {
+            const otherFilters = prevFilters.filter(filter => filter.id !== "trigger");
+            return [...otherFilters, {
+                id: "trigger",
+                value: type
+            }];
+        });
+    };
+
+    // Function to toggle action type filter
+    const toggleActionTypeFilter = (type: string) => {
+        if (activeActionType === type) {
+            setActiveActionType(null);
+            setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "actions"));
+            return;
+        }
+
+        setActiveActionType(type);
+        setColumnFilters(prevFilters => {
+            const otherFilters = prevFilters.filter(filter => filter.id !== "actions");
+            return [...otherFilters, {
+                id: "actions",
+                value: type
+            }];
+        });
+    };
+
+    // Function to check if a filter is active
+    const isFilterActive = (type: 'triggerType' | 'actionType', value: string) => {
+        if (type === 'triggerType') {
+            return activeTriggerType === value;
+        } else {
+            return activeActionType === value;
+        }
+    };
 
     // Custom global filter function for OR logic across columns
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
-        const eventTitle = String(row.original.title).toLowerCase();
-        const eventLocation = String(row.original.location).toLowerCase();
-        const eventDescription = String(row.original.description).toLowerCase();
+        const flowName = String(row.original.name).toLowerCase();
+        const flowDescription = String(row.original.description).toLowerCase();
         const searchTerm = filterValue.toLowerCase();
 
-        return eventTitle.includes(searchTerm) ||
-            eventLocation.includes(searchTerm) ||
-            eventDescription.includes(searchTerm);
+        return flowName.includes(searchTerm) ||
+            flowDescription.includes(searchTerm);
     };
 
     // Create the table instance
     const table = useReactTable({
-        data: events,
+        data: flows,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -341,84 +424,15 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                 pageSize: 10,
             },
             columnVisibility: {
-                organization: false,
-                description: false,
+                updatedAt: false,
             },
         },
     });
 
-    // Get all statuses for filtering
-    const statuses = ["Past", "Today", "Upcoming"];
-
-    // Function to toggle status filter
-    const toggleStatusFilter = (status: string) => {
-        // If the status is already active, remove the filter
-        if (activeStatus === status) {
-            setActiveStatus(null);
-            setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "date"));
-            return;
-        }
-
-        // Otherwise, set the new status filter
-        setActiveStatus(status);
-        const now = new Date();
-        setColumnFilters(prevFilters => {
-            // Remove any existing date filters
-            const otherFilters = prevFilters.filter(filter => filter.id !== "date");
-
-            // Add the new filter based on status
-            if (status === "Past") {
-                // Logic for past events
-                return [...otherFilters, {
-                    id: "date",
-                    value: { type: "past", now }
-                }];
-            } else if (status === "Today") {
-                // Logic for today's events
-                return [...otherFilters, {
-                    id: "date",
-                    value: { type: "today", now }
-                }];
-            } else if (status === "Upcoming") {
-                // Logic for upcoming events
-                return [...otherFilters, {
-                    id: "date",
-                    value: { type: "upcoming", now }
-                }];
-            }
-
-            // If no valid status is provided, return filters without date filter
-            return otherFilters;
-        });
-    };
-
-    // Function to toggle category filter
-    const toggleCategoryFilter = (category: string) => {
-        // If the category is already active, remove the filter
-        if (activeCategory === category) {
-            setActiveCategory(null);
-            setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "category"));
-            return;
-        }
-
-        // Otherwise, set the new category filter
-        setActiveCategory(category);
-        table.getColumn("category")?.setFilterValue(category);
-    };
-
-    // Function to check if a filter is active
-    const isFilterActive = (type: 'status' | 'category', value: string) => {
-        if (type === 'status') {
-            return activeStatus === value;
-        } else {
-            return activeCategory === value;
-        }
-    };
-
     // Clear all filters
     const clearAllFilters = () => {
-        setActiveStatus(null);
-        setActiveCategory(null);
+        setActiveTriggerType(null);
+        setActiveActionType(null);
         setColumnFilters([]);
         setSearchQuery("");
     };
@@ -431,14 +445,14 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search events..."
+                        placeholder="Search flows..."
                         className="pl-8 w-full"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    {/* Unified Filter Menu */}
+                    {/* Filter Menu */}
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
@@ -456,34 +470,46 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                                 <CommandInput placeholder="Search filters..." />
                                 <CommandList>
                                     <CommandEmpty>No filters found.</CommandEmpty>
-                                    <CommandGroup heading="Event Status">
-                                        {statuses.map((status) => (
+                                    <CommandGroup heading="Trigger Types">
+                                        {triggerTypes.map((type) => (
                                             <CommandItem
-                                                key={status}
-                                                onSelect={() => toggleStatusFilter(status)}
+                                                key={type}
+                                                onSelect={() => toggleTriggerTypeFilter(type)}
                                                 className="flex items-center justify-between"
                                             >
-                                                <span className={isFilterActive('status', status) ? "font-medium" : ""}>
-                                                    {status}
-                                                </span>
-                                                {isFilterActive('status', status) && (
+                                                <div className="flex items-center gap-2">
+                                                    {getTriggerIcon(type)}
+                                                    <span className={cn(
+                                                        "capitalize",
+                                                        isFilterActive('triggerType', type) ? "font-medium" : ""
+                                                    )}>
+                                                        {type}
+                                                    </span>
+                                                </div>
+                                                {isFilterActive('triggerType', type) && (
                                                     <Check className="h-4 w-4 text-primary" />
                                                 )}
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
                                     <CommandSeparator />
-                                    <CommandGroup heading="Category">
-                                        {categories.map((category) => (
+                                    <CommandGroup heading="Action Types">
+                                        {actionTypes.map((type) => (
                                             <CommandItem
-                                                key={category}
-                                                onSelect={() => toggleCategoryFilter(category)}
+                                                key={type}
+                                                onSelect={() => toggleActionTypeFilter(type)}
                                                 className="flex items-center justify-between"
                                             >
-                                                <span className={isFilterActive('category', category) ? "font-medium" : ""}>
-                                                    {category}
-                                                </span>
-                                                {isFilterActive('category', category) && (
+                                                <div className="flex items-center gap-2">
+                                                    {getActionIcon(type)}
+                                                    <span className={cn(
+                                                        "capitalize",
+                                                        isFilterActive('actionType', type) ? "font-medium" : ""
+                                                    )}>
+                                                        {type}
+                                                    </span>
+                                                </div>
+                                                {isFilterActive('actionType', type) && (
                                                     <Check className="h-4 w-4 text-primary" />
                                                 )}
                                             </CommandItem>
@@ -491,28 +517,28 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                                     </CommandGroup>
 
                                     {/* Show active filters section if any filters are applied */}
-                                    {(activeStatus || activeCategory || searchQuery) && (
+                                    {(activeTriggerType || activeActionType || searchQuery) && (
                                         <>
                                             <CommandSeparator />
                                             <CommandGroup heading="Active Filters">
-                                                {activeStatus && (
+                                                {activeTriggerType && (
                                                     <CommandItem
-                                                        onSelect={() => toggleStatusFilter(activeStatus)}
+                                                        onSelect={() => toggleTriggerTypeFilter(activeTriggerType)}
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Status: {activeStatus}
+                                                            Trigger: {activeTriggerType}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
                                                 )}
-                                                {activeCategory && (
+                                                {activeActionType && (
                                                     <CommandItem
-                                                        onSelect={() => toggleCategoryFilter(activeCategory)}
+                                                        onSelect={() => toggleActionTypeFilter(activeActionType)}
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Category: {activeCategory}
+                                                            Action: {activeActionType}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
@@ -546,7 +572,7 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                         </PopoverContent>
                     </Popover>
 
-                    {/* Column Visibility Menu - Matching Filter UI */}
+                    {/* Column Visibility Menu */}
                     <Popover open={columnsOpen} onOpenChange={setColumnsOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
@@ -591,8 +617,7 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                                             onSelect={() => {
                                                 // Reset to default visibility
                                                 table.setColumnVisibility({
-                                                    organization: false,
-                                                    description: false,
+                                                    updatedAt: false,
                                                 });
                                             }}
                                             className="justify-center text-center"
@@ -606,33 +631,33 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                     </Popover>
 
                     <Button size="sm" className="h-8" asChild>
-                        <Link href={`/organisation/events/create`}>
-                            <PlusIcon className="mr-2 h-4 w-4" />
-                            Create Event
+                        <Link href={`/organisation/flows/create`}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Flow
                         </Link>
                     </Button>
                 </div>
             </div>
 
             {/* Active Filters Display */}
-            {(activeStatus || activeCategory || searchQuery) && (
+            {(activeTriggerType || activeActionType || searchQuery) && (
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm text-muted-foreground">Active filters:</span>
-                    {activeStatus && (
+                    {activeTriggerType && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Status: {activeStatus}
+                            Trigger: {activeTriggerType}
                             <X
                                 className="h-3 w-3 cursor-pointer"
-                                onClick={() => toggleStatusFilter(activeStatus)}
+                                onClick={() => toggleTriggerTypeFilter(activeTriggerType)}
                             />
                         </Badge>
                     )}
-                    {activeCategory && (
+                    {activeActionType && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Category: {activeCategory}
+                            Action: {activeActionType}
                             <X
                                 className="h-3 w-3 cursor-pointer"
-                                onClick={() => toggleCategoryFilter(activeCategory)}
+                                onClick={() => toggleActionTypeFilter(activeActionType)}
                             />
                         </Badge>
                     )}
@@ -663,7 +688,7 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                 </div>
             )}
 
-            {/* Shadcn Tanstack Table for Events - Made horizontally scrollable */}
+            {/* Tanstack Table for Flows */}
             <div className="rounded-md border w-full overflow-auto">
                 <Table className="min-w-full">
                     <TableHeader>
@@ -699,7 +724,7 @@ export default function EventTable({ events, orgId }: EventTableProps) {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No events found.
+                                    No flows found.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -710,7 +735,7 @@ export default function EventTable({ events, orgId }: EventTableProps) {
             {/* Pagination Controls */}
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    Showing {table.getRowModel().rows.length} of {events.length} events
+                    Showing {table.getRowModel().rows.length} of {flows.length} flows
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button

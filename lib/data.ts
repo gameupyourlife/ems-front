@@ -1,4 +1,4 @@
-import { EventInfo, Organization, OrgUser } from "./types"
+import { EventInfo, Flow, Organization, OrgUser } from "./types"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
@@ -846,9 +846,82 @@ export const mockEvents: EventInfo[] = [
 
 
 
-export const mockOrgEvents: EventInfo[] = mockEvents.map((event, index) => ({
-  ...event,
-  id: `${index + 1}`,
-  organization: mockOrg.name,
-  image: randomImage(200, 200)
-}))
+
+export const mockFlows : Flow[] = [
+  {
+    id: "1",
+    name: "Welcome Mail",
+    description: "Flow for sending a mail after a user registered for an event",
+    trigger: [
+      {
+        id: "1",
+        type: "registration",
+        details: null
+      }
+    ],
+    actions: [
+      {
+        id: "1",
+        type: "email",
+        details: {
+          subject: "Welcome to the Event",
+          body: "Thank you for registering for the event. We look forward to seeing you!",
+          recipients: "trigger.1.user.email"
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    id: "2",
+    name: "Cancel event on low attendance",
+    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
+    trigger: [
+      {
+        id: "2",
+        type: "numOfAttendees",
+        details: {
+          operator: "lessThan",
+          value: 50,
+          valueType: "percentage",
+        }
+      },
+      {
+        id: "3",
+        type: "date",
+        details: {
+          operator: "lessThan",
+          value: 7,
+          valueType: "days",
+          valueRelativeTo: "event.date",
+          valueRelativeOperator: "bevore"
+        }
+      }
+    ],
+    actions: [
+      {
+        id: "2",
+        type: "email",
+        details: {
+          subject: "Unfortunately, the event has been cancelled",
+          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
+          recipients: "event.attendees"
+        }
+      },
+      {
+        id: "3",
+        type: "statusChange",
+        details: {
+          newStatus: "cancelled",
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  }
+]

@@ -60,9 +60,9 @@ const data = {
       url: "/organisation/events",
     },
     {
-      title: "Prozesse",
+      title: "Flows",
       icon: FunctionSquareIcon,
-      url: "/organisation/processes",
+      url: "/organisation/flows",
     },
     {
       title: "Dateien",
