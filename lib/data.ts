@@ -668,7 +668,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Silicon Valley, CA",
     organization: "Tech Innovators",
-    title: "Tech Expo 2023"
+    title: "Tech Expo 2023",
+    capacity: 200,
+    status: "Upcoming"
   },
   {
     attendees: 50,
@@ -679,7 +681,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "San Francisco, CA",
     organization: "Tech Innovators",
-    title: "Tech Networking Night"
+    title: "Tech Networking Night",
+    capacity: 100,
+    status: "Done"
   },
   {
     attendees: 200, 
@@ -690,7 +694,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400), 
     location: "Palo Alto, CA",
     organization: "Tech Innovators",
-    title: "Tech Workshop 2023"
+    title: "Tech Workshop 2023",
+    capacity: 300,
+    status: "Upcoming"
   },
   {
     attendees: 150,
@@ -701,7 +707,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Mountain View, CA",
     organization: "Tech Innovators",
-    title: "Tech Conference 2023"
+    title: "Tech Conference 2023",
+    capacity: 250,
+    status: "Upcoming"
   },
   {
     attendees: 75,
@@ -712,7 +720,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Sunnyvale, CA",
     organization: "Tech Innovators",
-    title: "AI Seminar 2023"
+    title: "AI Seminar 2023",
+    capacity: 150,
+    status: "Cancelled"
   },
   {
     attendees: 120,
@@ -723,7 +733,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Seattle, WA",
     organization: "Code Masters",
-    title: "Annual Hackathon 2023"
+    title: "Annual Hackathon 2023",
+    capacity: 200,
+    status: "Upcoming"
   },
   {
     attendees: 85,
@@ -734,7 +746,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Virtual",
     organization: "Security First",
-    title: "Cybersecurity Essentials"
+    title: "Cybersecurity Essentials",
+    capacity: 100,
+    status: "Upcoming"
   },
   {
     attendees: 250,
@@ -745,7 +759,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "New York, NY",
     organization: "Tech Leaders Association",
-    title: "Tech Leadership Summit"
+    title: "Tech Leadership Summit",
+    capacity: 300,
+    status: "Upcoming"
   },
   {
     attendees: 60,
@@ -756,7 +772,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Chicago, IL",
     organization: "Code Academy",
-    title: "Coding Bootcamp Spring 2023"
+    title: "Coding Bootcamp Spring 2023",
+    capacity: 100,
+    status: "Upcoming"
   },
   {
     attendees: 180,
@@ -767,7 +785,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Las Vegas, NV",
     organization: "Future Tech",
-    title: "Tech Innovation Expo"
+    title: "Tech Innovation Expo",
+    capacity: 300,
+    status: "Upcoming"
   },
   {
     attendees: 90,
@@ -778,7 +798,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Austin, TX",
     organization: "Blockchain Society",
-    title: "Blockchain Revolution Panel"
+    title: "Blockchain Revolution Panel",
+    capacity: 150,
+    status: "Upcoming"
   },
   {
     attendees: 220,
@@ -789,7 +811,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Boston, MA",
     organization: "Data Science Club",
-    title: "Data Scientists Meetup"
+    title: "Data Scientists Meetup",
+    capacity: 300,
+    status: "Upcoming"
   },
   {
     attendees: 70,
@@ -800,7 +824,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Denver, CO",
     organization: "Cloud Experts",
-    title: "Cloud Computing Certification"
+    title: "Cloud Computing Certification",
+    capacity: 100,
+    status: "Upcoming"
   },
   {
     attendees: 130,
@@ -811,7 +837,9 @@ export const mockEvents: EventInfo[] = [
     image: randomImage(800, 400),
     location: "Philadelphia, PA",
     organization: "Digital Innovators",
-    title: "Digital Transformation Forum"
+    title: "Digital Transformation Forum",
+    capacity: 130,
+    status: "Upcoming"
   }
 ]
 

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, FileIcon, GlobeIcon, PlusIcon } from "lucide-react";
+import { CalendarIcon, FileIcon, GlobeIcon, PlusIcon, ListIcon } from "lucide-react";
 import Link from "next/link";
 import StatsCard from "@/components/stats-card";
 import { formatDistanceToNow } from "date-fns";
@@ -53,6 +53,12 @@ export default function Page() {
             <Link href={`/organisation/${org.id}/files`}>
               <FileIcon className="mr-2 h-4 w-4" />
               Files
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/organisation/${org.id}/events`}>
+              <ListIcon className="mr-2 h-4 w-4" />
+              Manage Events
             </Link>
           </Button>
           <Button size="sm" asChild>
