@@ -44,7 +44,7 @@ interface SelectionCardProps {
 
 function SelectionCard({ selected, onClick, icon, title, description, disabled = false, size = "default", className }: SelectionCardProps) {
     return (
-        <div 
+        <div
             className={cn(
                 "border rounded-md p-4 transition-all h-full flex flex-col",
                 selected ? "border-primary bg-primary/5" : "border-border",
@@ -86,14 +86,14 @@ function SelectionCard({ selected, onClick, icon, title, description, disabled =
 }
 
 // Component for adding a new trigger (condition)
-export function AddTriggerDialog({ 
-    open, 
-    onOpenChange, 
+export function AddTriggerDialog({
+    open,
+    onOpenChange,
     onAdd,
     existingFlow
-}: { 
-    open: boolean; 
-    onOpenChange: (open: boolean) => void; 
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onAdd: (triggerType: string, details: any) => void;
     existingFlow?: Flow;
 }) {
@@ -151,7 +151,7 @@ export function AddTriggerDialog({
     useEffect(() => {
         // Reset details when trigger type changes
         setDetails({});
-        
+
         // Reset specific state for trigger types
         if (triggerType === "date") {
             setDateReferenceType("absolute");
@@ -169,14 +169,14 @@ export function AddTriggerDialog({
                         Define when this automation flow should run
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="flex gap-6 py-4">
                     {/* Left side - Trigger type selection */}
                     <div className="w-1/3 space-y-4 border-r pr-4">
                         <div className="text-sm font-medium text-muted-foreground mb-2">Trigger Type</div>
                         <div className="space-y-2">
                             {triggerTypes.map((trigger) => (
-                                <SelectionCard 
+                                <SelectionCard
                                     key={trigger.id}
                                     selected={triggerType === trigger.id}
                                     onClick={() => {
@@ -192,7 +192,7 @@ export function AddTriggerDialog({
                             ))}
                         </div>
                     </div>
-                    
+
                     {/* Right side - Configuration for selected trigger */}
                     <div className="w-2/3 space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
                         {!triggerType && (
@@ -201,7 +201,7 @@ export function AddTriggerDialog({
                                 <p>Select a trigger type to configure</p>
                             </div>
                         )}
-                        
+
                         {triggerType && (
                             <div className="space-y-4">
                                 <div>
@@ -212,9 +212,9 @@ export function AddTriggerDialog({
                                         {triggerTypes.find(t => t.id === triggerType)?.description}
                                     </p>
                                 </div>
-                                
+
                                 <Separator />
-                                
+
                                 {triggerType === "date" && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
@@ -242,7 +242,7 @@ export function AddTriggerDialog({
                                                 />
                                             </div>
                                         </div>
-                                        
+
                                         {dateReferenceType === "absolute" ? (
                                             <>
                                                 <div className="space-y-2">
@@ -401,7 +401,7 @@ export function AddTriggerDialog({
                                                 />
                                             </div>
                                         </div>
-                                        
+
                                         <div className="space-y-2">
                                             <Label htmlFor="attendeesOperator">Condition</Label>
                                             <div className="grid grid-cols-3 gap-2">
@@ -425,7 +425,7 @@ export function AddTriggerDialog({
                                                 />
                                             </div>
                                         </div>
-                                        
+
                                         <div className="space-y-2">
                                             <Label htmlFor="attendeesValue">
                                                 {attendeesValueType === "absolute" ? "Number of Attendees" : "Percentage of Capacity"}
@@ -450,8 +450,8 @@ export function AddTriggerDialog({
                                                 )}
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                {attendeesValueType === "absolute" 
-                                                    ? "This flow will trigger when the attendance count matches your condition" 
+                                                {attendeesValueType === "absolute"
+                                                    ? "This flow will trigger when the attendance count matches your condition"
                                                     : "This flow will trigger when the attendance percentage matches your condition"}
                                             </p>
                                         </div>
@@ -528,7 +528,7 @@ export function AddTriggerDialog({
                         )}
                     </div>
                 </div>
-                
+
                 <DialogFooter className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
                         {triggerType && `Adding a ${triggerTypes.find(t => t.id === triggerType)?.name} trigger`}
@@ -537,10 +537,10 @@ export function AddTriggerDialog({
                         <Button variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handleAddTrigger}
                             disabled={
-                                !triggerType || 
+                                !triggerType ||
                                 (triggerType !== "registration" && Object.keys(details).length === 0) ||
                                 (triggerType === "date" && dateReferenceType === "absolute" && (!details.operator || !details.value)) ||
                                 (triggerType === "date" && dateReferenceType === "relative" && (!details.reference || !details.direction || !details.amount || !details.unit)) ||
@@ -557,14 +557,14 @@ export function AddTriggerDialog({
 }
 
 // Component for adding a new action
-export function AddActionDialog({ 
-    open, 
-    onOpenChange, 
+export function AddActionDialog({
+    open,
+    onOpenChange,
     onAdd,
     existingFlow
-}: { 
-    open: boolean; 
-    onOpenChange: (open: boolean) => void; 
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onAdd: (actionType: string, details: any) => void;
     existingFlow?: Flow;
 }) {
@@ -572,48 +572,48 @@ export function AddActionDialog({
     const [details, setDetails] = useState<any>({});
     const [emailRecipientType, setEmailRecipientType] = useState<string>("specific");
     const [notificationRecipientType, setNotificationRecipientType] = useState<string>("specific");
-    const [availableTriggerVariables, setAvailableTriggerVariables] = useState<{id: string, type: string, label: string, variables?: string[]}[]>([]);
+    const [availableTriggerVariables, setAvailableTriggerVariables] = useState<{ id: string, type: string, label: string, variables?: string[] }[]>([]);
     const [activeTab, setActiveTab] = useState<string>("");
-    
+
     // Parse existing triggers to create available variables
     useEffect(() => {
         if (existingFlow?.trigger) {
             const variables = existingFlow.trigger.map(trigger => {
                 let label = '';
-                switch(trigger.type) {
+                switch (trigger.type) {
                     case 'registration':
                         label = 'New Registered User';
-                        return { 
-                            id: trigger.id, 
-                            type: trigger.type, 
+                        return {
+                            id: trigger.id,
+                            type: trigger.type,
                             label: label,
                             variables: ['email', 'name', 'userId']
                         };
                     case 'date':
                         label = 'Date Trigger';
-                        return { 
-                            id: trigger.id, 
-                            type: trigger.type, 
+                        return {
+                            id: trigger.id,
+                            type: trigger.type,
                             label: label
                         };
                     case 'numOfAttendees':
                         label = 'Attendees Count Trigger';
-                        return { 
-                            id: trigger.id, 
-                            type: trigger.type, 
+                        return {
+                            id: trigger.id,
+                            type: trigger.type,
                             label: label
                         };
                     case 'status':
                         label = 'Status Change Trigger';
-                        return { 
-                            id: trigger.id, 
-                            type: trigger.type, 
+                        return {
+                            id: trigger.id,
+                            type: trigger.type,
                             label: label
                         };
                     default:
-                        return { 
-                            id: trigger.id, 
-                            type: trigger.type, 
+                        return {
+                            id: trigger.id,
+                            type: trigger.type,
                             label: `Trigger ${trigger.id}`
                         };
                 }
@@ -675,7 +675,7 @@ export function AddActionDialog({
             icon: <LayoutList className="h-5 w-5" />
         },
         {
-            id: "descriptionChange", 
+            id: "descriptionChange",
             name: "Change Description",
             description: "Update event description",
             icon: <PencilLine className="h-5 w-5" />
@@ -685,7 +685,7 @@ export function AddActionDialog({
     useEffect(() => {
         // Reset details when action type changes
         setDetails({});
-        
+
         // Reset recipient types
         setEmailRecipientType("specific");
         setNotificationRecipientType("specific");
@@ -706,8 +706,8 @@ export function AddActionDialog({
 
     const handleAddAction = () => {
         // Prepare the details based on recipient types for email and notification
-        let finalDetails = {...details};
-        
+        let finalDetails = { ...details };
+
         if (actionType === "email") {
             if (emailRecipientType === "registeredUser" && details.selectedTriggerId) {
                 finalDetails.recipients = `trigger.${details.selectedTriggerId}.user.email`;
@@ -716,7 +716,7 @@ export function AddActionDialog({
             }
             // For specific emails, use the existing recipients
         }
-        
+
         if (actionType === "notification") {
             if (notificationRecipientType === "registeredUser" && details.selectedTriggerId) {
                 finalDetails.recipients = [`trigger.${details.selectedTriggerId}.user.id`];
@@ -725,7 +725,7 @@ export function AddActionDialog({
             }
             // For specific users, use the existing recipients
         }
-        
+
         onAdd(actionType, finalDetails);
         onOpenChange(false);
     };
@@ -744,17 +744,17 @@ export function AddActionDialog({
                         Define what should happen when this flow runs
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="my-2">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="" onClick={handleBackToActionTypes}>Choose Action Type</TabsTrigger>
                         <TabsTrigger value="config" disabled={!actionType}>Configure Action</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="" className="py-4">
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             {actionTypes.map((action) => (
-                                <Card 
+                                <Card
                                     key={action.id}
                                     className={cn(
                                         "border cursor-pointer transition-all hover:border-primary/50 hover:shadow-sm",
@@ -780,13 +780,13 @@ export function AddActionDialog({
                             ))}
                         </div>
                     </TabsContent>
-                    
-                    <TabsContent value="config" className="py-4">
+
+                    <TabsContent value="config" className="py-4 ">
                         <div className="flex items-center mb-4">
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={handleBackToActionTypes} 
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleBackToActionTypes}
                                 className="mr-2 text-muted-foreground hover:text-foreground"
                             >
                                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -796,8 +796,8 @@ export function AddActionDialog({
                                 Configuring: {actionTypes.find(a => a.id === actionType)?.name}
                             </div>
                         </div>
-                        
-                        <ScrollArea className="max-h-[400px] pr-4">
+
+                        <ScrollArea className="max-h-[calc(100vh-370px)] overflow-auto">
                             {actionType === "email" && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
@@ -819,40 +819,31 @@ export function AddActionDialog({
                                             className="min-h-[120px]"
                                         />
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                         <Label>Recipients</Label>
-                                        <div className="grid grid-cols-1 gap-2">
+                                        <div className={
+                                            cn(
+                                                "grid grid-cols-1 sm:grid-cols-2 gap-2",
+                                                hasRegistrationTrigger && "md:grid-cols-3"
+                                            )
+                                        }>
                                             <SelectionCard
                                                 selected={emailRecipientType === "specific"}
                                                 onClick={() => {
                                                     setEmailRecipientType("specific");
                                                 }}
-                                                title="Specific Email Addresses"
+                                                title="Email Addresses"
                                                 description="Send to individual emails you specify"
                                                 icon={<Mail className="h-5 w-5" />}
                                             />
-                                            
-                                            {emailRecipientType === "specific" && (
-                                                <div className="px-4 py-2 bg-muted/50 rounded-md ml-4 border-l-2 border-primary/30">
-                                                    <Input
-                                                        id="emailRecipients"
-                                                        value={details.recipients || ""}
-                                                        onChange={(e) => setDetails({ ...details, recipients: e.target.value })}
-                                                        placeholder="e.g., user@example.com, another@example.com"
-                                                    />
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Enter email addresses separated by commas
-                                                    </p>
-                                                </div>
-                                            )}
 
                                             {hasRegistrationTrigger && (
                                                 <SelectionCard
                                                     selected={emailRecipientType === "registeredUser"}
                                                     onClick={() => {
                                                         setEmailRecipientType("registeredUser");
-                                                        
+
                                                         // If there's only one registration trigger, select it automatically
                                                         const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
                                                         if (registrationTriggers.length === 1) {
@@ -865,28 +856,6 @@ export function AddActionDialog({
                                                 />
                                             )}
 
-                                            {emailRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === 'registration').length > 1 && (
-                                                <div className="px-4 py-2 bg-muted/50 rounded-md ml-4 border-l-2 border-primary/30">
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="triggerSelect">Select registration trigger</Label>
-                                                        <div className="grid grid-cols-1 gap-2">
-                                                            {availableTriggerVariables
-                                                                .filter(v => v.type === 'registration')
-                                                                .map(trigger => (
-                                                                    <SelectionCard
-                                                                        key={trigger.id}
-                                                                        selected={details.selectedTriggerId === trigger.id}
-                                                                        onClick={() => setDetails({ ...details, selectedTriggerId: trigger.id })}
-                                                                        title={trigger.label}
-                                                                        description={`Trigger ID: ${trigger.id}`}
-                                                                    />
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            
                                             <SelectionCard
                                                 selected={emailRecipientType === "allUsers"}
                                                 onClick={() => {
@@ -896,6 +865,44 @@ export function AddActionDialog({
                                                 description="Send to all users registered for the event"
                                                 icon={<Users className="h-5 w-5" />}
                                             />
+                                        </div>
+
+                                        {/* Details section that appears underneath selected cards */}
+                                        <div className="mt-3">
+                                            {emailRecipientType === "specific" && (
+                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
+                                                    <Label htmlFor="emailRecipients" className="text-sm font-medium mb-2 block">Email addresses</Label>
+                                                    <Input
+                                                        id="emailRecipients"
+                                                        value={details.recipients || ""}
+                                                        onChange={(e) => setDetails({ ...details, recipients: e.target.value })}
+                                                        placeholder="e.g., user@example.com, another@example.com"
+                                                    />
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        Enter email addresses separated by commas
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {emailRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === 'registration').length > 1 && (
+                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
+                                                    <Label htmlFor="triggerSelect" className="text-sm font-medium mb-2 block">Select registration trigger</Label>
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {availableTriggerVariables
+                                                            .filter(v => v.type === 'registration')
+                                                            .map(trigger => (
+                                                                <SelectionCard
+                                                                    key={trigger.id}
+                                                                    selected={details.selectedTriggerId === trigger.id}
+                                                                    onClick={() => setDetails({ ...details, selectedTriggerId: trigger.id })}
+                                                                    title={trigger.label}
+                                                                    description={`Trigger ID: ${trigger.id}`}
+                                                                />
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -913,10 +920,15 @@ export function AddActionDialog({
                                             className="min-h-[120px]"
                                         />
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                         <Label>Recipients</Label>
-                                        <div className="grid grid-cols-1 gap-2">
+                                        <div className={
+                                            cn(
+                                                "grid grid-cols-1 sm:grid-cols-2 gap-2",
+                                                hasRegistrationTrigger && "md:grid-cols-3"
+                                            )
+                                        }>
                                             <SelectionCard
                                                 selected={notificationRecipientType === "specific"}
                                                 onClick={() => {
@@ -926,30 +938,14 @@ export function AddActionDialog({
                                                 description="Send to individual users you specify"
                                                 icon={<Users className="h-5 w-5" />}
                                             />
-                                            
-                                            {notificationRecipientType === "specific" && (
-                                                <div className="px-4 py-2 bg-muted/50 rounded-md ml-4 border-l-2 border-primary/30">
-                                                    <Input
-                                                        id="notificationRecipients"
-                                                        value={details.recipients ? (Array.isArray(details.recipients) ? details.recipients.join(", ") : details.recipients) : ""}
-                                                        onChange={(e) => setDetails({ 
-                                                            ...details, 
-                                                            recipients: e.target.value.split(",").map((item: string) => item.trim())
-                                                        })}
-                                                        placeholder="Enter user IDs, separated by commas"
-                                                    />
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Enter user IDs separated by commas
-                                                    </p>
-                                                </div>
-                                            )}
+
 
                                             {hasRegistrationTrigger && (
                                                 <SelectionCard
                                                     selected={notificationRecipientType === "registeredUser"}
                                                     onClick={() => {
                                                         setNotificationRecipientType("registeredUser");
-                                                        
+
                                                         // If there's only one registration trigger, select it automatically
                                                         const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
                                                         if (registrationTriggers.length === 1) {
@@ -983,7 +979,7 @@ export function AddActionDialog({
                                                     </div>
                                                 </div>
                                             )}
-                                            
+
                                             <SelectionCard
                                                 selected={notificationRecipientType === "allUsers"}
                                                 onClick={() => {
@@ -993,6 +989,30 @@ export function AddActionDialog({
                                                 description="Send to all users registered for the event"
                                                 icon={<Users className="h-5 w-5" />}
                                             />
+
+
+                                        </div>
+
+                                        <div className="mt-3">
+                                        {notificationRecipientType === "specific" && (
+
+                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
+                                                    <Label htmlFor="emailRecipients" className="text-sm font-medium mb-2 block">Users</Label>
+                                                    <Input
+                                                        id="notificationRecipients"
+                                                        value={details.recipients ? (Array.isArray(details.recipients) ? details.recipients.join(", ") : details.recipients) : ""}
+                                                        onChange={(e) => setDetails({
+                                                            ...details,
+                                                            recipients: e.target.value.split(",").map((item: string) => item.trim())
+                                                        })}
+                                                        placeholder="Enter user IDs, separated by commas"
+                                                    />
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        Enter user IDs separated by commas
+                                                    </p>
+                                                </div>
+                                            )}
+
                                         </div>
                                     </div>
                                 </div>
@@ -1134,7 +1154,7 @@ export function AddActionDialog({
                         </ScrollArea>
                     </TabsContent>
                 </Tabs>
-                
+
                 <DialogFooter className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
                         {actionType && activeTab === "config" && actionTypes.find(a => a.id === actionType)?.name}
@@ -1144,7 +1164,7 @@ export function AddActionDialog({
                             Cancel
                         </Button>
                         {activeTab === "config" ? (
-                            <Button 
+                            <Button
                                 onClick={handleAddAction}
                                 disabled={
                                     (emailRecipientType === "registeredUser" && !details.selectedTriggerId) ||
@@ -1161,7 +1181,7 @@ export function AddActionDialog({
                                 Add Action
                             </Button>
                         ) : (
-                            <Button 
+                            <Button
                                 onClick={() => setActiveTab("config")}
                                 disabled={!actionType}
                             >
