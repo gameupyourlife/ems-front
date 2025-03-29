@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState } from "react";
 import { mockFlows } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -7,89 +7,30 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import {
-    Mail,
-    Bell,
-    FileText,
-    Image,
-    LayoutList,
-    PencilLine,
-    Tag,
-    Calendar,
-    Users,
-    Check,
-    Zap,
+    PlayCircle,
     Trash,
     AlertTriangle,
     Copy,
-    Plus,
     Save,
     ArrowLeft,
-    PlayCircle,
     HistoryIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Flow } from "@/lib/types";
 import { format } from "date-fns";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AddActionDialog, AddTriggerDialog } from "@/components/org/flows/flow-dialogs";
+import { FlowForm } from "@/components/org/flows/flow-form";
 
-// Helper to get appropriate icon for trigger types
-const getTriggerIcon = (type: string) => {
-    switch (type) {
-        case 'date':
-            return <Calendar className="h-5 w-5" />;
-        case 'numOfAttendees':
-            return <Users className="h-5 w-5" />;
-        case 'status':
-            return <Tag className="h-5 w-5" />;
-        case 'registration':
-            return <Check className="h-5 w-5" />;
-        default:
-            return <Zap className="h-5 w-5" />;
-    }
-};
-
-// Helper to get appropriate icon for action types
-const getActionIcon = (type: string) => {
-    switch (type) {
-        case 'email':
-            return <Mail className="h-5 w-5" />;
-        case 'notification':
-            return <Bell className="h-5 w-5" />;
-        case 'statusChange':
-            return <Tag className="h-5 w-5" />;
-        case 'fileShare':
-            return <FileText className="h-5 w-5" />;
-        case 'imageChange':
-            return <Image className="h-5 w-5" />;
-        case 'titleChange':
-            return <LayoutList className="h-5 w-5" />;
-        case 'descriptionChange':
-            return <PencilLine className="h-5 w-5" />;
-        default:
-            return <Zap className="h-5 w-5" />;
-    }
-};
-
-
-
-
-
-export default function FlowDetailsPage({flowId}: {flowId: string}) {
+export default function FlowDetailsPage() {
     const params = useParams();
     const router = useRouter();
     
     // Get the flow ID from the URL parameters
-    // const flowId = Array.isArray(params.flowId) ? params.flowId[0] : params.flowId;
-    // const orgId = Array.isArray(params.orgId) ? params.orgId[0] : params.orgId as string;
-
-    flowId = "2";
+    const flowId = Array.isArray(params.flowId) ? params.flowId[0] : params.flowId as string;
     
     // Find the flow in the mock data
     const flow = mockFlows.find(f => f.id === flowId);
@@ -111,16 +52,11 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
         );
     }
     
-    // State for editable flow data
-    const [editedFlow, setEditedFlow] = useState<Flow>({...flow});
+    // State for editable flow data and editing mode
     const [isEditing, setIsEditing] = useState(false);
     
-    // State for dialog control
-    const [isAddTriggerOpen, setIsAddTriggerOpen] = useState(false);
-    const [isAddActionOpen, setIsAddActionOpen] = useState(false);
-    
     // Function to handle saving changes
-    const handleSave = () => {
+    const handleSave = (updatedFlow: Flow) => {
         // In a real app, you would make an API call here
         setIsEditing(false);
         toast.success("Flow updated", {
@@ -151,46 +87,6 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
     const handleDuplicate = () => {
         toast.success("Flow duplicated", {
             description: "A copy of this flow has been created.",
-            duration: 3000,
-        });
-    };
-    
-    // Function to handle adding a new trigger
-    const handleAddTrigger = (triggerType: string, details: any) => {
-        const newTrigger = {
-            id: `trigger-${Date.now()}`,
-            type: triggerType,
-            details: details
-        };
-        
-        //@ts-ignore
-        setEditedFlow(prev => ({
-            ...prev,
-            trigger: [...prev.trigger, newTrigger]
-        }));
-        
-        toast.success("Trigger added", {
-            description: `A new ${triggerType} trigger has been added to the flow.`,
-            duration: 3000,
-        });
-    };
-    
-    // Function to handle adding a new action
-    const handleAddAction = (actionType: string, details: any) => {
-        const newAction = {
-            id: `action-${Date.now()}`,
-            type: actionType,
-            details: details
-        };
-        
-        //@ts-ignore
-        setEditedFlow(prev => ({
-            ...prev,
-            actions: [...prev.actions, newAction]
-        }));
-        
-        toast.success("Action added", {
-            description: `A new ${actionType} action has been added to the flow.`,
             duration: 3000,
         });
     };
@@ -268,13 +164,6 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
                     >
                         {isEditing ? "Cancel Editing" : "Edit Flow"}
                     </Button>
-                    
-                    {isEditing && (
-                        <Button variant="default" onClick={handleSave}>
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Changes
-                        </Button>
-                    )}
                 </div>
             </div>
 
@@ -282,209 +171,17 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
             <Tabs defaultValue="overview" className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="editor">Flow Editor</TabsTrigger>
                     <TabsTrigger value="logs">Execution Logs</TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
                 
-                {/* Overview Tab */}
+                {/* Overview Tab - Using shared Flow Form */}
                 <TabsContent value="overview" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {/* Flow Information */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle>Flow Information</CardTitle>
-                                <CardDescription>Basic details about this automation flow</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name">Flow Name</Label>
-                                        {isEditing ? (
-                                            <Input 
-                                                id="name" 
-                                                value={editedFlow.name} 
-                                                onChange={(e) => setEditedFlow({...editedFlow, name: e.target.value})}
-                                            />
-                                        ) : (
-                                            <div className="rounded-md border px-3 py-2">{flow.name}</div>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                        <Label htmlFor="description">Description</Label>
-                                        {isEditing ? (
-                                            <Textarea 
-                                                id="description" 
-                                                value={editedFlow.description} 
-                                                onChange={(e) => setEditedFlow({...editedFlow, description: e.target.value})}
-                                                className="min-h-[100px]"
-                                            />
-                                        ) : (
-                                            <div className="rounded-md border px-3 py-2 min-h-[100px]">
-                                                {flow.description}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        
-                        {/* Metadata */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle>Metadata</CardTitle>
-                                <CardDescription>Additional information about this flow</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <dl className="space-y-4">
-                                    <div className="flex flex-col">
-                                        <dt className="text-sm font-medium text-muted-foreground">Created At</dt>
-                                        <dd className="font-mono">{createdAtFormatted}</dd>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <dt className="text-sm font-medium text-muted-foreground">Last Updated</dt>
-                                        <dd className="font-mono">{updatedAtFormatted}</dd>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <dt className="text-sm font-medium text-muted-foreground">Created By</dt>
-                                        <dd>{flow.createdBy}</dd>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <dt className="text-sm font-medium text-muted-foreground">Last Updated By</dt>
-                                        <dd>{flow.updatedBy}</dd>
-                                    </div>
-                                </dl>
-                            </CardContent>
-                        </Card>
-                        
-                        {/* Triggers */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle>Triggers</CardTitle>
-                                <CardDescription>Conditions that initiate this flow</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-[200px]">
-                                    <ul className="space-y-4">
-                                        {flow.trigger.map((trigger) => (
-                                            <li key={trigger.id} className="flex items-start gap-3 rounded-md border p-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted">
-                                                    {getTriggerIcon(trigger.type)}
-                                                </div>
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="font-medium capitalize">{trigger.type} Trigger</div>
-                                                    {trigger.details && (
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {Object.entries(trigger.details).map(([key, value]) => (
-                                                                <div key={key}>
-                                                                    <span className="capitalize">{key}:</span> {String(value)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </ScrollArea>
-                            </CardContent>
-                            {isEditing && (
-                                <CardFooter className="pt-0">
-                                    <Button variant="outline" className="w-full" size="sm" onClick={() => setIsAddTriggerOpen(true)}>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Trigger
-                                    </Button>
-                                </CardFooter>
-                            )}
-                        </Card>
-                        
-                        {/* Actions */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle>Actions</CardTitle>
-                                <CardDescription>Actions performed when this flow is triggered</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-[200px]">
-                                    <ul className="space-y-4">
-                                        {flow.actions.map((action) => (
-                                            <li key={action.id} className="flex items-start gap-3 rounded-md border p-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted">
-                                                    {getActionIcon(action.type)}
-                                                </div>
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="font-medium capitalize">{action.type} Action</div>
-                                                    {action.details && (
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {Object.entries(action.details).map(([key, value]) => (
-                                                                <div key={key}>
-                                                                    <span className="capitalize">{key}:</span> {String(value)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </ScrollArea>
-                            </CardContent>
-                            {isEditing && (
-                                <CardFooter className="pt-0">
-                                    <Button variant="outline" className="w-full" size="sm" onClick={() => setIsAddActionOpen(true)}>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Action
-                                    </Button>
-                                </CardFooter>
-                            )}
-                        </Card>
-                    </div>
-                </TabsContent>
-                
-                {/* Flow Editor Tab */}
-                <TabsContent value="editor" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Flow Editor</CardTitle>
-                            <CardDescription>Visual editor for configuring your flow</CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="flex flex-col space-y-4">
-                                {/* Flow editor controls */}
-                                <div className="flex flex-wrap gap-2 justify-end">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsAddTriggerOpen(true)}
-                                    >
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Trigger
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsAddActionOpen(true)}
-                                    >
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Action
-                                    </Button>
-                                </div>
-                                
-                                {/* Visual flow builder placeholder */}
-                                <div className="flex h-[450px] items-center justify-center rounded-md border border-dashed">
-                                    <div className="text-center">
-                                        <Zap className="mx-auto h-10 w-10 text-muted-foreground" />
-                                        <h3 className="mt-2 text-lg font-medium">Visual Flow Builder</h3>
-                                        <p className="mt-1 text-sm text-muted-foreground">
-                                            The visual flow builder would be implemented here, allowing drag-and-drop editing of triggers and actions.
-                                        </p>
-                                        <p className="mt-2 text-sm">
-                                            Use the buttons above to add new triggers and actions to your flow.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <FlowForm 
+                        flow={flow} 
+                        isEditing={isEditing} 
+                        onSave={handleSave}
+                    />
                 </TabsContent>
                 
                 {/* Logs Tab */}
@@ -563,7 +260,7 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
                             <Button 
                                 variant="default" 
                                 disabled={!isEditing}
-                                onClick={handleSave}
+                                onClick={() => handleSave(flow)}
                                 className="ml-auto"
                             >
                                 <Save className="mr-2 h-4 w-4" />
@@ -573,20 +270,6 @@ export default function FlowDetailsPage({flowId}: {flowId: string}) {
                     </Card>
                 </TabsContent>
             </Tabs>
-
-            {/* Add Trigger Dialog */}
-            <AddTriggerDialog 
-                open={isAddTriggerOpen} 
-                onOpenChange={setIsAddTriggerOpen} 
-                onAdd={handleAddTrigger} 
-            />
-
-            {/* Add Action Dialog */}
-            <AddActionDialog 
-                open={isAddActionOpen} 
-                onOpenChange={setIsAddActionOpen} 
-                onAdd={handleAddAction} 
-            />
         </div>
     );
 }
