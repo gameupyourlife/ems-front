@@ -10,6 +10,12 @@ export interface EventInfo {
     capacity: number,
     image: string,
     status: string,
+    start: Date,
+    end: Date,
+    createdAt: Date,
+    updatedAt: Date,
+    createdBy: string,
+    updatedBy: string,
 }
 export interface Organization {
     id: string;
@@ -42,27 +48,52 @@ export interface OrgUser {
 }
 
 export interface Flow {
-    "id": string,
-    "name": string,
-    "description": string,
-    "trigger":
-    {
-        "id": string,
-        "type": "date" | "numOfAttendees" | "status" | "registration",
-        "details": any
+    id: string,
+    name: string,
+    description: string,
+    trigger: {
+        id: string,
+        type: "date" | "numOfAttendees" | "status" | "registration",
+        details: any
     }[],
-    "actions":
-    {
-        "id": string,
-        "type": "email" | "notification" | "statusChange" | "fileShare" | "imageChange" | "titleChange"| "descriptionChange"        ,
-        "details": any
+    actions: {
+        id: string,
+        type: "email" | "notification" | "statusChange" | "fileShare" | "imageChange" | "titleChange" | "descriptionChange",
+        details: any
     }[],
-    "createdAt": Date,
-    "updatedAt": Date,
-    "updatedBy": string,
-    "createdBy": string,
+    createdAt: Date,
+    updatedAt: Date,
+    updatedBy: string,
+    createdBy: string,
 }
 
+export interface EventDetails {
+    metadata: EventInfo;
+    organization: Organization;
+    attendees: User[];
+    flows: Flow[];
+    files: EmsFile[];
+    agenda: AgendaStep[];
+}
+
+export interface EmsFile {
+    id: string;
+    name: string;
+    type: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdBy: string;
+    updatedBy: string;
+    url: string;
+}
+
+export interface AgendaStep {
+    id: string;
+    title: string;
+    description: string;
+    startTime: string;
+    endTime: string;
+}
 
 // Condition:
 // type: object
@@ -188,7 +219,7 @@ export interface Flow {
 //         type: string
 //     status:
 //         type: string
-//         enum: [private, public]              
+//         enum: [private, public]
 // required:
 //     - fileUrl
 //     - recipients

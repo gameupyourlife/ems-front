@@ -1,4 +1,4 @@
-import { EventInfo, Flow, Organization, OrgUser } from "./types"
+import { EmsFile, EventInfo, Flow, Organization, OrgUser } from "./types"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
@@ -670,7 +670,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Tech Innovators",
     title: "Tech Expo 2023",
     capacity: 200,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 50,
@@ -683,20 +689,32 @@ export const mockEvents: EventInfo[] = [
     organization: "Tech Innovators",
     title: "Tech Networking Night",
     capacity: 100,
-    status: "Done"
+    status: "Done",
+    start: new Date(),
+    end: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
-    attendees: 200, 
+    attendees: 200,
     category: "Workshop",
     date: getRandomDate(),
     description: "A workshop on the latest tech trends.",
     id: "3",
-    image: randomImage(800, 400), 
+    image: randomImage(800, 400),
     location: "Palo Alto, CA",
     organization: "Tech Innovators",
     title: "Tech Workshop 2023",
     capacity: 300,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 150,
@@ -709,7 +727,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Tech Innovators",
     title: "Tech Conference 2023",
     capacity: 250,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 75,
@@ -722,7 +746,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Tech Innovators",
     title: "AI Seminar 2023",
     capacity: 150,
-    status: "Cancelled"
+    status: "Cancelled",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 120,
@@ -735,7 +765,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Code Masters",
     title: "Annual Hackathon 2023",
     capacity: 200,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 85,
@@ -748,7 +784,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Security First",
     title: "Cybersecurity Essentials",
     capacity: 100,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 250,
@@ -761,7 +803,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Tech Leaders Association",
     title: "Tech Leadership Summit",
     capacity: 300,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 60,
@@ -774,7 +822,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Code Academy",
     title: "Coding Bootcamp Spring 2023",
     capacity: 100,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 180,
@@ -787,7 +841,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Future Tech",
     title: "Tech Innovation Expo",
     capacity: 300,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 90,
@@ -800,7 +860,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Blockchain Society",
     title: "Blockchain Revolution Panel",
     capacity: 150,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 220,
@@ -813,7 +879,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Data Science Club",
     title: "Data Scientists Meetup",
     capacity: 300,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 70,
@@ -826,7 +898,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Cloud Experts",
     title: "Cloud Computing Certification",
     capacity: 100,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 130,
@@ -839,7 +917,13 @@ export const mockEvents: EventInfo[] = [
     organization: "Digital Innovators",
     title: "Digital Transformation Forum",
     capacity: 130,
-    status: "Upcoming"
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   }
 ]
 
@@ -847,7 +931,7 @@ export const mockEvents: EventInfo[] = [
 
 
 
-export const mockFlows : Flow[] = [
+export const mockFlows: Flow[] = [
   {
     id: "1",
     name: "Welcome Mail",
@@ -923,5 +1007,38 @@ export const mockFlows : Flow[] = [
     updatedAt: getRandomDate(),
     createdBy: "system",
     updatedBy: "system"
+  }
+]
+
+export const mockFiles: EmsFile[] = [
+  {
+    id: "1",
+    name: "Event_Presentation_Slides.pptx",
+    type: "presentation",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+  {
+    id: "2",
+    name: "Event_Agenda.pdf",
+    type: "document",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+  {
+    id: "3",
+    name: "Event_Video.mp4",
+    type: "video",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
   }
 ]
