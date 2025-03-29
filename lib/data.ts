@@ -1040,5 +1040,16 @@ export const mockFiles: EmsFile[] = [
     updatedAt: getRandomDate(),
     updatedBy: "system",
     url: randomImage(800, 400)
-  }
+  },
+  {
+    id: "4",
+    name: "CoolImage.jpg",
+    type: "image",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+
 ]
