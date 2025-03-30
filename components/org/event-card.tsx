@@ -58,7 +58,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
 
                 {/* Category badge */}
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 ">
-                    <Badge className="shadow-sm flex items-center gap-1.5 backdrop-blur-xs   backdrop-brightness-75" variant="outline">
+                    <Badge className="shadow-sm flex items-center gap-1.5 backdrop-blur-xs   dark:backdrop-brightness-75 bg-white/50 dark:bg-transparent" variant="outline">
                         <Tag className="h-3 w-3" />
                         {event.category}
                     </Badge>

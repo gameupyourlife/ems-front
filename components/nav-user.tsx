@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 import {
   Avatar,
   AvatarFallback,
@@ -20,28 +19,35 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { BellIcon, EllipsisVerticalIcon, LogOutIcon, UserCircleIcon } from "lucide-react";
+import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/context/user-org-context";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { currentUser, logout } = useUser();
   const router = useRouter();
-  
+  const { setTheme, resolvedTheme } = useTheme()
+
+  function toggleTheme() {
+    const themeToSet = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(themeToSet)
+  }
+
   // Handle logout
   const handleLogout = () => {
     logout();
     toast.success("Logged out successfully");
     router.push("/login");
   };
-  
+
   if (!currentUser) {
     return null;
   }
-  
+
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
@@ -104,6 +110,11 @@ export function NavUser() {
               <DropdownMenuItem disabled>
                 <BellIcon className="mr-2 h-4 w-4" />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleTheme} >
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span >Toggle theme</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
