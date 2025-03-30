@@ -11,20 +11,20 @@ import { toast } from "sonner";
 // UI Components
 import { Button } from "@/components/ui/button";
 import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@/components/ui/tabs";
 
 // Icons
 import {
-    ArrowLeftIcon,
-    FileText,
-    FunctionSquare,
-    Info,
-    ListTodo,
-    Save,
+  ArrowLeftIcon,
+  FileText,
+  FunctionSquare,
+  Info,
+  ListTodo,
+  Save,
 } from "lucide-react";
 
 // Custom components
@@ -163,7 +163,7 @@ export default function CreateEventPage() {
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-3xl mx-auto p-1 bg-muted">
+          <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
             <TabsTrigger 
               value="basic" 
               className="flex items-center gap-2 data-[state=active]:bg-background"
@@ -196,6 +196,7 @@ export default function CreateEventPage() {
 
           {/* Basic Info Tab */}
           <TabsContent value="basic">
+            {/* ToDo: Fix the issues here with the form */}
             <EventBasicInfoForm 
               form={form} 
               selectedStatus={selectedStatus}

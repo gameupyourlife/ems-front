@@ -168,8 +168,8 @@ export default function FlowDetailsPage() {
             </div>
 
             {/* Main Content Tabs */}
-            <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList>
+            <Tabs defaultValue="overview" className="space-y-4 ">
+                <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="logs">Execution Logs</TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>

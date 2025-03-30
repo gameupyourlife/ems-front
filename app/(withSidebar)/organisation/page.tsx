@@ -50,19 +50,19 @@ export default function Page() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/organisation/${org.id}/files`}>
+            <Link href={`/organisation/files`}>
               <FileIcon className="mr-2 h-4 w-4" />
               Files
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/organisation/${org.id}/events`}>
+            <Link href={`/organisation/events`}>
               <ListIcon className="mr-2 h-4 w-4" />
               Manage Events
             </Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href={`/organisation/${org.id}/events/create`}>
+            <Link href={`/organisation/events/create`}>
               <CalendarIcon className="mr-2 h-4 w-4" />
               Create Event
             </Link>
@@ -102,7 +102,7 @@ export default function Page() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Upcoming Events</h2>
             <Button size="sm" asChild>
-              <Link href={`/organisation/${org.id}/events`}>View All Events</Link>
+              <Link href={`/organisation/events`}>View All Events</Link>
             </Button>
           </div>
           
@@ -112,7 +112,7 @@ export default function Page() {
                 <h3 className="mb-2 font-medium">No upcoming events</h3>
                 <p className="text-muted-foreground">There are no upcoming events for this organization.</p>
                 <Button className="mt-4" asChild>
-                  <Link href={`/organisation/${org.id}/events/create`}>
+                  <Link href={`/organisation/events/create`}>
                     <PlusIcon className="mr-2 h-4 w-4" />
                     Create an Event
                   </Link>

@@ -1,10 +1,9 @@
-"use client";
+"use client";;
 import { useState } from "react";
 import { mockOrg, mockFiles } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusIcon, UploadIcon } from "lucide-react";
-import Link from "next/link";
+import { UploadIcon } from "lucide-react";
 import FileTable from "@/components/org/file-table";
 import FileUploadDialog from "@/components/org/file-upload-dialog";
 import { EmsFile } from "@/lib/types";
@@ -39,15 +38,9 @@ export default function OrganizationFilesPage({ params }: { params: { orgId: str
                     <p className="text-muted-foreground">Manage all files for {org.name}</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={openUploadDialog}>
+                    <Button size="sm"  onClick={openUploadDialog}>
                         <UploadIcon className="mr-2 h-4 w-4" />
                         Upload File
-                    </Button>
-                    <Button size="sm" asChild>
-                        <Link href={`/organisation/files/create`}>
-                            <PlusIcon className="mr-2 h-4 w-4" />
-                            Create Folder
-                        </Link>
                     </Button>
                 </div>
             </div>

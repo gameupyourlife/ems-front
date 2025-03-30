@@ -6,29 +6,29 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-    ArrowLeftIcon,
-    CalendarIcon,
-    Clock,
-    Download,
-    Edit,
-    ExternalLink,
-    FileText,
-    FunctionSquare,
-    ListTodo,
-    Mail,
-    MapPin,
-    MoreHorizontal,
-    Pencil,
-    Share,
-    Tag,
-    Trash2,
-    Upload,
-    Users,
-    Bell,
-    Check,
-    Calendar,
-    Image as ImageIcon,
-    Zap,
+  ArrowLeftIcon,
+  CalendarIcon,
+  Clock,
+  Download,
+  Edit,
+  ExternalLink,
+  FileText,
+  FunctionSquare,
+  ListTodo,
+  Mail,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  Share,
+  Tag,
+  Trash2,
+  Upload,
+  Users,
+  Bell,
+  Check,
+  Calendar,
+  Image as ImageIcon,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -39,11 +39,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 // Get appropriate icon for trigger types
@@ -258,7 +258,7 @@ export default function EventDetailsPage({ params }: { params: { eventId: string
       </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-3xl mx-auto p-1 bg-muted">
+        <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
           <TabsTrigger 
             value="overview" 
             className="flex items-center gap-2 data-[state=active]:bg-background"

@@ -4,16 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { mockFlows } from "@/lib/data";
 import Link from "next/link";
 import {
-    Plus,
-    BarChart3,
-    Zap,
-    Info,
-    ExternalLink,
-    Play,
-    Calendar,
-    Tag,
-    Check,
-    Users
+  Plus,
+  BarChart3,
+  Zap,
+  Info,
+  ExternalLink,
+  Play,
+  Calendar,
+  Tag,
+  Check,
+  Users
 } from "lucide-react";
 import FlowTable from "@/components/org/flows/flow-table";
 import { Badge } from "@/components/ui/badge";
@@ -135,7 +135,7 @@ export default function FlowsOverview() {
               {orderedTriggerTypes.map(([type, count]) => (
                 <div key={type} className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className="mr-2 h-8 w-8 rounded-md border bg-background p-1.5">
+                    <div className="mr-2 h-8 w-8 rounded-md border bg-background flex items-center justify-center">
                       {getTriggerIcon(type)}
                     </div>
                     <div>
@@ -161,7 +161,7 @@ export default function FlowsOverview() {
               {orderedActionTypes.map(([type, count]) => (
                 <div key={type} className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className="mr-2 h-8 w-8 rounded-md border bg-background p-1.5">
+                    <div className="mr-2 h-8 w-8 rounded-md border bg-background flex items-center justify-center">
                       <Info className="h-4 w-4" />
                     </div>
                     <div>
