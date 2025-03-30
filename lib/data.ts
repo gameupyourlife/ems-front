@@ -1,4 +1,4 @@
-import { EmsFile, EventInfo, Flow, Organization, OrgUser } from "./types"
+import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, Organization, OrgUser } from "./types"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
@@ -1053,3 +1053,36 @@ export const mockFiles: EmsFile[] = [
   },
 
 ]
+
+const mockAgenda : AgendaStep[] = [
+  {
+    id: "1",
+    title: "Opening Remarks",
+    description: "Introduction to the event and its objectives.",
+    startTime: new Date("01.01.2023 09:00"),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000), 
+  },
+  {
+    id: "2",
+    title: "Keynote Speech",
+    description: "Keynote speech by a renowned speaker.",
+    startTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 2), 
+  },
+  {
+    id: "3",
+    title: "Networking Session",
+    description: "Opportunity for attendees to network and connect.",
+    startTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 2),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 4), 
+  }
+]
+
+export const mockedEventDetails: EventDetails = {
+  metadata: mockEvents[0],
+  organization: mockOrg,
+  attendees: mockOrgUsers.map((orgUser) => orgUser.user),
+  flows: mockFlows,
+  files: mockFiles,
+  agenda: mockAgenda
+}
