@@ -12,7 +12,7 @@ export function NavEvents() {
   const [search, setSearch] = useState("")
 
   return (
-    <div className=" w-full px-6 py-4 shadow-md rounded-lg">
+    <div className="w-full px-6 py-4 shadow-md rounded-lg">
       {/* Container für die Navigation */}
       <div className="flex items-center justify-between gap-3">
         
@@ -31,7 +31,7 @@ export function NavEvents() {
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="px-4 py-2 border-gray-300 rounded-lg shadow-sm hover:bg-gray-100">
+              <button className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 Filter
               </button>
             </DropdownMenuTrigger>
