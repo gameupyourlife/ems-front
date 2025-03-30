@@ -180,7 +180,7 @@ export default function CreateEventPage() {
               id="description"
               placeholder="Describe your event..."
               className="resize-none h-24"
-              style={{ minHeight: "96px", maxHeight: "96px" }}
+              style={{ minHeight: "105px", maxHeight: "200px" }}
               value={eventData.description || ""}
               onChange={(e) => handleInputChange("description", e.target.value)}
             />
