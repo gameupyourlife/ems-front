@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { UserOrgProvider } from "@/lib/context/user-org-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +36,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen overflow-x-hidden">
-            {children}
-          </div>
+          <UserOrgProvider>
+            <div className="flex min-h-screen overflow-x-hidden">
+              {children}
+            </div>
+            <Toaster />
+          </UserOrgProvider>
         </ThemeProvider>
       </body>
     </html>

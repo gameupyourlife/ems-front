@@ -1,6 +1,5 @@
-"use client";;
+"use client";
 import * as React from "react";
-
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -10,8 +9,6 @@ import {
   CalendarHeartIcon,
   CalendarIcon,
   CalendarSearchIcon,
-  CodepenIcon,
-  CodesandboxIcon,
   FilesIcon,
   FunctionSquareIcon,
   HelpCircleIcon,
@@ -22,13 +19,9 @@ import {
 } from "lucide-react";
 import { NavAdmin } from "./nav-admin";
 import { TeamSwitcher } from "./team-switcher";
+import { useOrg } from "@/lib/context/user-org-context";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -45,7 +38,6 @@ const data = {
       url: "/user/events",
       icon: TicketIcon,
     },
-
   ],
   navAdmin: [
     {
@@ -106,26 +98,16 @@ const data = {
   ],
 }
 
-const teams = [
-  {
-    id: "1",
-    name: "Org 1",
-    logo: CodepenIcon,
-  },
-  {
-    id: "2",
-    name: "Org 2",
-    logo: CodesandboxIcon
-  },
-]
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const isAdmin = true;
+  const { currentOrgUser } = useOrg();
+  
+  // Check if user is admin in current organization
+  const isAdmin = currentOrgUser?.role === "Admin";
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={teams} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         {isAdmin && (
@@ -136,7 +118,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )

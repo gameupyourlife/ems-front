@@ -1,7 +1,6 @@
-"use client"
-
-import * as React from "react"
-import { ChevronDown, Plus } from "lucide-react"
+"use client";
+import { ChevronDown, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import {
     DropdownMenu,
@@ -11,27 +10,42 @@ import {
     DropdownMenuSeparator,
     DropdownMenuShortcut,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useOrg } from "@/lib/context/user-org-context";
 
-export function TeamSwitcher({
-    teams,
-}: {
-    teams: {
-        id: string
-        name: string
-        logo: React.ElementType
-    }[]
-}) {
-    const [activeTeam, setActiveTeam] = React.useState(teams[0])
+export function TeamSwitcher() {
+    const { currentOrg, userOrgs, switchOrg } = useOrg();
+    
+    // Handle organization switching
+    const handleTeamChange = async (orgId: string) => {
+        const success = await switchOrg(orgId);
+        if (success) {
+            toast.success("Organization switched successfully");
+        } else {
+            toast.error("Failed to switch organization");
+        }
+    };
 
-    if (!activeTeam) {
-        return null
+    if (!currentOrg) {
+        return null;
     }
+    
+    // Create the logo component from org name (fallback if no real logo available)
+    const getLogoComponent = (name: string) => {
+        // This is a simple function to simulate a logo component
+        // In a real app, you would use actual logos
+        const LogoComponent = () => (
+            <div className="flex items-center justify-center w-full h-full">
+                {name.substring(0, 2).toUpperCase()}
+            </div>
+        );
+        return LogoComponent;
+    };
 
     return (
         <SidebarMenu>
@@ -40,9 +54,9 @@ export function TeamSwitcher({
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton className="w-fit px-1.5">
                             <div className="flex aspect-square size-5 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                                <activeTeam.logo className="size-3" />
+                                {currentOrg.name.substring(0, 2).toUpperCase()}
                             </div>
-                            <span className="truncate font-semibold">{activeTeam.name}</span>
+                            <span className="truncate font-semibold">{currentOrg.name}</span>
                             <ChevronDown className="opacity-50" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
@@ -53,18 +67,18 @@ export function TeamSwitcher({
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            Teams
+                            Your Organizations
                         </DropdownMenuLabel>
-                        {teams.map((team, index) => (
+                        {userOrgs.map((org, index) => (
                             <DropdownMenuItem
-                                key={team.name}
-                                onClick={() => setActiveTeam(team)}
+                                key={org.id}
+                                onClick={() => handleTeamChange(org.id)}
                                 className="gap-2 p-2"
                             >
                                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                                    <team.logo className="size-4 shrink-0" />
+                                    {org.name.substring(0, 2).toUpperCase()}
                                 </div>
-                                {team.name}
+                                {org.name}
                                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                             </DropdownMenuItem>
                         ))}
@@ -73,7 +87,7 @@ export function TeamSwitcher({
                             <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                                 <Plus className="size-4" />
                             </div>
-                            <div className="font-medium text-muted-foreground">Organisation erstellen</div>
+                            <div className="font-medium text-muted-foreground">Create Organization</div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
