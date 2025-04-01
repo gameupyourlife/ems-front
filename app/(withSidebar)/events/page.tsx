@@ -1,5 +1,5 @@
 import EventCard from "@/components/event-card";
-import { NavEvents } from "@/components/event-filter-search";
+import NavEvents from "@/components/event-filter-search";
 import { EventInfo } from "@/lib/types";
 import { randomImage } from "@/lib/utils";
 
