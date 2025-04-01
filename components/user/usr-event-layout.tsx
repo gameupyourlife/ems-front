@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Search, SlidersHorizontal, Grid, List } from "lucide-react"
+import { Grid, List, Search, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,6 +25,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import EventCard from "@/components/event-card";
+import { EventInfo } from "@/lib/types";
+import { randomImage } from "@/lib/utils"
 
 interface EventNavbarProps {
   onSearch?: (query: string) => void
@@ -51,15 +54,119 @@ export default function EventNavbar({ onSearch, onViewChange, onFilterChange }: 
       }
     }
   }
+  const events: EventInfo[] = [
+    {
+      id: "1",
+      title: "Music Festival",
+      description: "A great music festival with live performances.",
+      date: new Date(),
+      organization: "Music Org",
+      location: "Berlin, Germany",
+      category: "Music",
+      attendees: 200,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "2",
+      title: "Tech Conference",
+      description: "Explore the latest in technology and innovation.",
+      date: new Date(),
+      organization: "Tech World",
+      location: "Munich, Germany",
+      category: "Technology",
+      attendees: 500,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "3",
+      title: "Art Exhibition",
+      description: "Discover amazing artworks from talented artists.",
+      date: new Date(),
+      organization: "Art Gallery",
+      location: "Hamburg, Germany",
+      category: "Art",
+      attendees: 150,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "4",
+      title: "Food Festival",
+      description: "Taste delicious food from around the world.",
+      date: new Date(),
+      organization: "Food Lovers",
+      location: "Cologne, Germany",
+      category: "Food & Drink",
+      attendees: 300,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "5",
+      title: "Startup Meetup",
+      description: "Network with entrepreneurs and investors.",
+      date: new Date(),
+      organization: "Startup Hub",
+      location: "Frankfurt, Germany",
+      category: "Business",
+      attendees: 100,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "6",
+      title: "Sports Championship",
+      description: "Watch the best teams compete for the title.",
+      date: new Date(),
+      organization: "Sports League",
+      location: "Stuttgart, Germany",
+      category: "Sports",
+      attendees: 1000,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "7",
+      title: "Book Fair",
+      description: "Explore a wide range of books and meet authors.",
+      date: new Date(),
+      organization: "Book World",
+      location: "Leipzig, Germany",
+      category: "Literature",
+      attendees: 400,
+      image: randomImage(800, 400),
+    },
+    {
+      id: "8",
+      title: "Film Festival",
+      description: "Enjoy screenings of award-winning films.",
+      date: new Date(),
+      organization: "Cinema Club",
+      location: "Dresden, Germany",
+      category: "Film",
+      attendees: 250,
+      image: randomImage(800, 400),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-4 w-full mb-6 px-4">
+      
+
+      <form onSubmit={handleSearch} className="flex w-full max-w-full items-center space-x-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search events..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Button type="submit">Search</Button>
+      </form>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold">Events</h1>
-        <div className="flex items-center gap-">
+        <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                 Filters
               </Button>
@@ -134,30 +241,34 @@ export default function EventNavbar({ onSearch, onViewChange, onFilterChange }: 
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <ToggleGroup type="single" value={currentView} onValueChange={handleViewChange}>
-            <ToggleGroupItem value="grid" aria-label="Grid view">
-              <Grid className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="list" aria-label="List view">
-              <List className="h-4 w-4" />
-            </ToggleGroupItem>
+          <ToggleGroup
+            type="single"
+            value={currentView}
+            onValueChange={handleViewChange}
+            className="flex border rounded-md h-9"
+          >
+            <ToggleGroupItem
+              value="grid"
+              aria-label="Grid view"
+              className="px-4 flex items-center justify-center rounded-md"
+            >
+            <Grid className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="list"
+            aria-label="List view"
+            className="px-4 flex items-center justify-center rounded-md"
+          >
+            <List className="h-4 w-4" />
+          </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>
-
-      <form onSubmit={handleSearch} className="flex w-full max-w-full items-center space-x-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search events..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Button type="submit">Search</Button>
-      </form>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+        {events.map((event) => (
+          <EventCard key={event.id} event={event} />
+        ))}
+      </div>
     </div>
   )
 }
