@@ -154,10 +154,10 @@ export function EventFilesForm({
       <CardFooter className="flex justify-between border-t p-6">
         <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("basic")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Previous: Basic Info
+          Zurück
         </Button>
         <Button variant="default" type="button" onClick={() => onTabChange && onTabChange("flows")}>
-          Next: Flows
+          {submitLabel}
           <ArrowLeftIcon className="ml-2 h-4 w-4 rotate-180" />
         </Button>
       </CardFooter>

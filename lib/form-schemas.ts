@@ -11,29 +11,23 @@ const dateSchema = z.string().refine(
 
 // Event Basic Info Schema
 export const eventBasicInfoSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  category: z.string().min(1, "Please select a category"),
-  capacity: z.coerce.number().int().min(1, "Capacity must be at least 1"),
-  location: z.string().min(3, "Location must be at least 3 characters"),
-  start: dateSchema,
-  end: dateSchema,
-  startDate: z.string().min(1, "Start date is required"),
-  startTime: z.string().min(1, "Start time is required"),
-  endDate: z.string().min(1, "End date is required"),
-  endTime: z.string().min(1, "End time is required"),
+  title: z.string().min(3, "Der Titel muss mindestens 3 Zeichen lang sein"),
+  description: z.string().min(10, "Die Beschreibung muss mindestens 10 Zeichen lang sein"),
+  category: z.string().min(1, "Bitte wählen Sie eine Kategorie aus"),
+  capacity: z.coerce.number().int().min(1, "Die Kapazität muss mindestens 1 sein"),
+  location: z.string().min(3, "Der Ort muss mindestens 3 Zeichen lang sein"),
+  start: z.date(),
+  end: z.date(),
   image: z.string().optional(),
-  status: z.string().optional(),
+  status: z.string().optional().default("bevorstehend"),
 }).refine(
   (data) => {
-    // Check if date+time combinations are valid
-    const startDateTime = new Date(`${data.startDate}T${data.startTime}`);
-    const endDateTime = new Date(`${data.endDate}T${data.endTime}`);
-    return endDateTime > startDateTime;
+    // Check if date combinations are valid
+    return data.end > data.start;
   },
   {
     message: "End time must be after start time",
-    path: ["endTime"]
+    path: ["end"]
   }
 );
 

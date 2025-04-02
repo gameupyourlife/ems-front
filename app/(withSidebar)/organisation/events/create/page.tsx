@@ -1,10 +1,8 @@
-"use client";
-
+"use client";;
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -48,7 +46,7 @@ export default function CreateEventPage() {
   const [agendaItems, setAgendaItems] = useState<Partial<AgendaStep>[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("upcoming");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Initialize the form with default values using our shared schema
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -57,31 +55,20 @@ export default function CreateEventPage() {
       description: "",
       location: "",
       category: "",
-      startDate: format(new Date(), "yyyy-MM-dd"),
-      startTime: "12:00",
-      endDate: format(new Date(), "yyyy-MM-dd"),
-      endTime: "13:00",
+      start: new Date(),
+      end: new Date(new Date().getTime() + 3600000), // 1 hour later
       capacity: 100,
       image: "",
       status: "upcoming"
     }
   });
 
-  // Make sure form's status state is synced with our selected status
-  const onStatusChange = (status: string) => {
-    setSelectedStatus(status);
-    form.setValue("status", status, { shouldValidate: true });
-  };
-
   // Handle form submission
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
-    
+
     try {
-      // Combine date and time fields
-      const startDateTime = new Date(`${data.startDate}T${data.startTime}`);
-      const endDateTime = new Date(`${data.endDate}T${data.endTime}`);
-      
+
       // Prepare the event data
       const newEvent = {
         title: data.title,
@@ -90,25 +77,24 @@ export default function CreateEventPage() {
         category: data.category,
         capacity: data.capacity,
         image: data.image,
-        start: startDateTime,
-        end: endDateTime,
-        date: startDateTime, // For backward compatibility
+        start: data.start,
+        end: data.end,
         status: data.status,
         attendees: 0
       };
-      
+
       // In a real application, you would send this data to an API
       console.log("Creating new event:", newEvent);
       console.log("Selected files:", selectedFiles);
       console.log("Selected flows:", selectedFlows);
       console.log("Agenda:", agendaItems);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Show success message
-      toast.success("Event created successfully");
-      
+      toast.success("Event erfolgreich erstellt");
+
       // Redirect to the events page
       router.push("/organisation/events");
     } catch (error) {
@@ -134,15 +120,15 @@ export default function CreateEventPage() {
           </div>
           <p className="text-muted-foreground ml-10">Fill in the details to create a new event</p>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push("/organisation/events")}
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={form.handleSubmit(onSubmit)}
             disabled={isSubmitting || !form.formState.isValid}
           >
@@ -161,84 +147,83 @@ export default function CreateEventPage() {
         </div>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
-            <TabsTrigger 
-              value="basic" 
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <Info className="h-4 w-4" />
-              <span>Basic Info</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="files" 
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <FileText className="h-4 w-4" />
-              <span>Files</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="flows" 
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <FunctionSquare className="h-4 w-4" />
-              <span>Flows</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="agenda" 
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <ListTodo className="h-4 w-4" />
-              <span>Agenda</span>
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
+          <TabsTrigger
+            value="basic"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <Info className="h-4 w-4" />
+            <span>Basic Info</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="files"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <FileText className="h-4 w-4" />
+            <span>Files</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="flows"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <FunctionSquare className="h-4 w-4" />
+            <span>Flows</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="agenda"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <ListTodo className="h-4 w-4" />
+            <span>Agenda</span>
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Basic Info Tab */}
-          <TabsContent value="basic">
-            {/* ToDo: Fix the issues here with the form */}
-            <EventBasicInfoForm 
-              form={form} 
-              selectedStatus={selectedStatus}
-              onStatusChange={onStatusChange}
-              onTabChange={setActiveTab}
-              showNextButton={true}
-            />
-          </TabsContent>
-          
-          {/* Files Tab */}
-          <TabsContent value="files">
-            <EventFilesForm 
-              selectedFiles={selectedFiles} 
-              availableFiles={mockFiles}
-              onFilesChange={setSelectedFiles}
-              onTabChange={setActiveTab}
-            />
-          </TabsContent>
-          
-          {/* Flows Tab */}
-          <TabsContent value="flows">
-            <EventFlowsForm 
-              selectedFlows={selectedFlows} 
-              availableFlows={mockFlows}
-              onFlowsChange={setSelectedFlows}
-              onTabChange={setActiveTab}
-            />
-          </TabsContent>
-          
-          {/* Agenda Tab */}
-          <TabsContent value="agenda">
-            <EventAgendaForm 
-              agendaItems={agendaItems} 
-              onAgendaItemsChange={setAgendaItems}
-              onTabChange={setActiveTab}
-              isFinalStep={true}
-              submitLabel="Create Event"
-              isSubmitting={isSubmitting}
-            />
-          </TabsContent>
-        </Tabs>
-      </form>
+        {/* Basic Info Tab */}
+        <TabsContent value="basic">
+          {/* ToDo: Fix the issues here with the form */}
+          <EventBasicInfoForm
+            form={form}
+            onTabChange={setActiveTab}
+            submitLabel="Nächster Schritt: Dateien"
+          />
+        </TabsContent>
+
+        {/* Files Tab */}
+        <TabsContent value="files">
+          <EventFilesForm
+            selectedFiles={selectedFiles}
+            availableFiles={mockFiles}
+            onFilesChange={setSelectedFiles}
+            onTabChange={setActiveTab}
+            submitLabel="Nächster Schritt: Flows"
+          />
+        </TabsContent>
+
+        {/* Flows Tab */}
+        <TabsContent value="flows">
+          <EventFlowsForm
+            selectedFlows={selectedFlows}
+            availableFlows={mockFlows}
+            onFlowsChange={setSelectedFlows}
+            onTabChange={setActiveTab}
+            submitLabel="Nächster Schritt: Agenda"
+          />
+        </TabsContent>
+
+        {/* Agenda Tab */}
+        <TabsContent value="agenda">
+          <EventAgendaForm
+            agendaItems={agendaItems}
+            onAgendaItemsChange={setAgendaItems}
+            onTabChange={setActiveTab}
+            isFinalStep={true}
+            submitLabel="Event erstellen"
+            isSubmitting={isSubmitting}
+          />
+        </TabsContent>
+      </Tabs>
+
     </div>
   );
 }

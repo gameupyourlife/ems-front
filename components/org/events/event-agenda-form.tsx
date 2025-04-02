@@ -11,33 +11,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle
 } from "@/components/ui/sheet";
 
 // Icons
 import {
-    ArrowLeftIcon,
-    Clock,
-    ListTodo,
-    Plus,
-    Save,
-    Trash2
+  ArrowLeftIcon,
+  Clock,
+  ListTodo,
+  Plus,
+  Save,
+  Trash2
 } from "lucide-react";
 
 // Types and Schemas
@@ -295,8 +295,8 @@ export function EventAgendaForm({
         {isFinalStep ? (
           <Button
             type="button"
-            onClick={() => onTabChange && onTabChange("basic")}
-            disabled={isSubmitting}
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isSubmitting || !form.formState.isValid}
           >
             {isSubmitting ? (
               <div className="flex items-center">
