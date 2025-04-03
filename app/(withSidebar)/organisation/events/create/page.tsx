@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import EventCard from "@/components/event-card" // Using the provided EventCard component
+import EventCard from "@/components/event-card"
 import type { EventInfo } from "@/lib/types"
 import { randomImage } from "@/lib/utils"
 
