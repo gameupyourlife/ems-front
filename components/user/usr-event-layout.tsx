@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Grid, List, Search, SlidersHorizontal, CalendarIcon, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+// Update the EventLayoutProps interface to include a searchable property
 interface EventLayoutProps {
   events: EventInfo[]
   title?: string
@@ -39,8 +40,10 @@ interface EventLayoutProps {
     }
     location: string
   }
+  searchable?: boolean // Add this property
 }
 
+// Update the function parameters to include searchable with a default value of true
 export default function EventLayout({
   events,
   title = "Events",
@@ -49,6 +52,7 @@ export default function EventLayout({
   onFilterChange,
   initialView = "grid",
   initialFilters,
+  searchable = true,
 }: EventLayoutProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentView, setCurrentView] = useState<"grid" | "list">(initialView)
@@ -88,12 +92,48 @@ export default function EventLayout({
   const [endDateError, setEndDateError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"single" | "range">(initialFilters?.dateType || "single")
 
+  // Add a new state for filtered events
+  const [filteredEvents, setFilteredEvents] = useState<EventInfo[]>(events)
+
+  // Update the handleSearch function to filter events
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Filter events based on search query
+    if (searchable) {
+      const filtered = events.filter(
+        (event) =>
+          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.organization.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+      setFilteredEvents(filtered)
+    }
+
     if (onSearch) {
       onSearch(searchQuery)
     }
   }
+
+  // Add a useEffect to reset filtered events when the events prop changes
+  useEffect(() => {
+    setFilteredEvents(events)
+  }, [events])
+
+  // Add a useEffect to handle search as user types (optional)
+  useEffect(() => {
+    if (searchable && searchQuery) {
+      const filtered = events.filter(
+        (event) =>
+          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.organization.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+      setFilteredEvents(filtered)
+    } else {
+      setFilteredEvents(events)
+    }
+  }, [searchQuery, events, searchable])
 
   const handleViewChange = (value: string) => {
     if (value && (value === "grid" || value === "list")) {
@@ -638,9 +678,13 @@ export default function EventLayout({
       <div
         className={`${currentView === "grid" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "flex flex-col gap-4"} mt-4`}
       >
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
+        {filteredEvents.length > 0 ? (
+          filteredEvents.map((event) => <EventCard key={event.id} event={event} />)
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">No events found matching your search criteria.</p>
+          </div>
+        )}
       </div>
     </div>
   )
