@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -22,7 +21,6 @@ import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Update the EventLayoutProps interface to include a searchable property
 interface EventLayoutProps {
   events: EventInfo[]
   title?: string
@@ -40,10 +38,9 @@ interface EventLayoutProps {
     }
     location: string
   }
-  searchable?: boolean // Add this property
+  searchable?: boolean
 }
 
-// Update the function parameters to include searchable with a default value of true
 export default function EventLayout({
   events,
   title = "Events",
@@ -91,49 +88,74 @@ export default function EventLayout({
   const [startDateError, setStartDateError] = useState<string | null>(null)
   const [endDateError, setEndDateError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"single" | "range">(initialFilters?.dateType || "single")
-
-  // Add a new state for filtered events
   const [filteredEvents, setFilteredEvents] = useState<EventInfo[]>(events)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
-  // Update the handleSearch function to filter events
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Function to apply all filters (search, category, date, location)
+  const applyFilters = () => {
+    let filtered = [...events]
 
-    // Filter events based on search query
-    if (searchable) {
-      const filtered = events.filter(
+    // Apply search filter
+    if (searchable && searchQuery.trim()) {
+      const normalizedQuery = searchQuery.trim().toLowerCase() // Normalisiere die Suchanfrage
+      filtered = filtered.filter(
         (event) =>
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.organization.toLowerCase().includes(searchQuery.toLowerCase()),
+          event.title.toLowerCase().includes(normalizedQuery) || // Normalisiere Titel
+          event.description.toLowerCase().includes(normalizedQuery) || // Normalisiere Beschreibung
+          event.organization.toLowerCase().includes(normalizedQuery), // Normalisiere Organisation
       )
-      setFilteredEvents(filtered)
     }
 
+    // Apply category filter
+    if (selectedFilters.category.length > 0) {
+      filtered = filtered.filter((event) =>
+        selectedFilters.category.some((cat) => event.category.toLowerCase().includes(cat.toLowerCase())),
+      )
+    }
+
+    // Apply date filter
+    if (selectedFilters.dateType === "single" && selectedFilters.singleDate) {
+      const filterDate = selectedFilters.singleDate
+      filtered = filtered.filter((event) => {
+        const eventDate = new Date(event.date)
+        return (
+          eventDate.getFullYear() === filterDate.getFullYear() &&
+          eventDate.getMonth() === filterDate.getMonth() &&
+          eventDate.getDate() === filterDate.getDate()
+        )
+      })
+    } else if (selectedFilters.dateType === "range") {
+      if (selectedFilters.dateRange.start) {
+        filtered = filtered.filter((event) => new Date(event.date) >= selectedFilters.dateRange.start!)
+      }
+      if (selectedFilters.dateRange.end) {
+        filtered = filtered.filter((event) => new Date(event.date) <= selectedFilters.dateRange.end!)
+      }
+    }
+
+    // Apply location filter
+    if (selectedFilters.location.trim()) {
+      const normalizedLocation = selectedFilters.location.trim().toLowerCase() // Normalisiere den Standort
+      filtered = filtered.filter((event) =>
+        event.location.toLowerCase().includes(normalizedLocation),
+      )
+    }
+
+    setFilteredEvents(filtered)
+  }
+
+  // Apply filters when events or filters change
+  useEffect(() => {
+    applyFilters()
+  }, [events, searchQuery, selectedFilters])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    applyFilters()
     if (onSearch) {
       onSearch(searchQuery)
     }
   }
-
-  // Add a useEffect to reset filtered events when the events prop changes
-  useEffect(() => {
-    setFilteredEvents(events)
-  }, [events])
-
-  // Add a useEffect to handle search as user types (optional)
-  useEffect(() => {
-    if (searchable && searchQuery) {
-      const filtered = events.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.organization.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-      setFilteredEvents(filtered)
-    } else {
-      setFilteredEvents(events)
-    }
-  }, [searchQuery, events, searchable])
 
   const handleViewChange = (value: string) => {
     if (value && (value === "grid" || value === "list")) {
@@ -146,16 +168,13 @@ export default function EventLayout({
 
   const toggleCategory = (category: string) => {
     setSelectedFilters((prev) => {
-      if (prev.category.includes(category)) {
-        return {
-          ...prev,
-          category: prev.category.filter((c) => c !== category),
-        }
-      } else {
-        return {
-          ...prev,
-          category: [...prev.category, category],
-        }
+      const newCategories = prev.category.includes(category)
+        ? prev.category.filter((c) => c !== category)
+        : [...prev.category, category]
+
+      return {
+        ...prev,
+        category: newCategories,
       }
     })
   }
@@ -346,6 +365,72 @@ export default function EventLayout({
     }
   }
 
+  const applyLocationFilter = () => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      location: locationInput,
+    }))
+  }
+
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      category: [],
+      dateType: "single",
+      singleDate: null,
+      dateRange: {
+        start: null,
+        end: null,
+      },
+      location: "",
+    })
+    setLocationInput("")
+    setSingleDateInput("")
+    setStartDateInput("")
+    setEndDateInput("")
+    setSingleDateError(null)
+    setStartDateError(null)
+    setEndDateError(null)
+  }
+
+  const handleApplyFilters = () => {
+    let isValid = true
+
+    // Validate based on active tab
+    if (activeTab === "single") {
+      if (singleDateInput && singleDateInput.length === 10) {
+        isValid = validateAndSetSingleDate(singleDateInput)
+      }
+    } else {
+      // Validate dates if present
+      if (startDateInput && startDateInput.length === 10) {
+        isValid = validateAndSetStartDate(startDateInput) && isValid
+      }
+
+      if (endDateInput && endDateInput.length === 10) {
+        isValid = validateAndSetEndDate(endDateInput) && isValid
+      }
+
+      if (isValid && startDateInput && endDateInput) {
+        isValid = validateDateRange() && isValid
+      }
+    }
+
+    if (isValid) {
+      // Apply the current location input value to the filters
+      applyLocationFilter()
+
+      if (onFilterChange) {
+        onFilterChange({
+          ...selectedFilters,
+          location: locationInput,
+        })
+      }
+
+      // Close the dropdown
+      setIsDropdownOpen(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4 w-full mb-6 px-4">
       {title && <h1 className="text-2xl font-bold">{title}</h1>}
@@ -364,7 +449,7 @@ export default function EventLayout({
       </form>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
-          <DropdownMenu>
+          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
                 <SlidersHorizontal className="h-4 w-4 mr-2" />
@@ -517,62 +602,25 @@ export default function EventLayout({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault()
-                        setSelectedFilters((prev) => ({
-                          ...prev,
-                          location: locationInput,
-                        }))
+                        applyLocationFilter()
                       }
                     }}
                   />
                 </div>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+              <div className="p-2 flex flex-col gap-2">
                 <Button
                   variant="default"
                   className="w-full justify-center"
-                  onClick={() => {
-                    let isValid = true
-
-                    // Validate based on active tab
-                    if (activeTab === "single") {
-                      if (singleDateInput && singleDateInput.length === 10) {
-                        isValid = validateAndSetSingleDate(singleDateInput)
-                      }
-                    } else {
-                      // Validate dates if present
-                      if (startDateInput && startDateInput.length === 10) {
-                        isValid = validateAndSetStartDate(startDateInput) && isValid
-                      }
-
-                      if (endDateInput && endDateInput.length === 10) {
-                        isValid = validateAndSetEndDate(endDateInput) && isValid
-                      }
-
-                      if (isValid && startDateInput && endDateInput) {
-                        isValid = validateDateRange() && isValid
-                      }
-                    }
-
-                    if (isValid) {
-                      // Apply the current location input value to the filters
-                      setSelectedFilters((prev) => ({
-                        ...prev,
-                        location: locationInput,
-                      }))
-
-                      if (onFilterChange) {
-                        onFilterChange({
-                          ...selectedFilters,
-                          location: locationInput,
-                        })
-                      }
-                    }
-                  }}
+                  onClick={handleApplyFilters}
                 >
                   Apply Filters
                 </Button>
-              </DropdownMenuItem>
+                <Button variant="outline" className="w-full justify-center" onClick={clearAllFilters}>
+                  Clear All Filters
+                </Button>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -598,7 +646,23 @@ export default function EventLayout({
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
+
+        {/* Show active filter count if any filters are applied */}
+        {(selectedFilters.category.length > 0 ||
+          selectedFilters.singleDate ||
+          selectedFilters.dateRange.start ||
+          selectedFilters.dateRange.end ||
+          selectedFilters.location) && (
+          <div className="flex items-center">
+            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm text-muted-foreground">
+              Clear all filters
+              <X className="ml-1 h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Active filters display */}
       {(selectedFilters.category.length > 0 ||
         selectedFilters.singleDate ||
         selectedFilters.dateRange.start ||
@@ -675,6 +739,13 @@ export default function EventLayout({
           )}
         </div>
       )}
+
+      {/* Results count */}
+      <div className="text-sm text-muted-foreground mt-2">
+        {filteredEvents.length} {filteredEvents.length === 1 ? "event" : "events"} found
+      </div>
+
+      {/* Event grid/list */}
       <div
         className={`${currentView === "grid" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "flex flex-col gap-4"} mt-4`}
       >
@@ -682,7 +753,10 @@ export default function EventLayout({
           filteredEvents.map((event) => <EventCard key={event.id} event={event} />)
         ) : (
           <div className="col-span-full text-center py-8">
-            <p className="text-muted-foreground">No events found matching your search criteria.</p>
+            <p className="text-muted-foreground">No events found matching your criteria.</p>
+            <Button variant="link" onClick={clearAllFilters} className="mt-2">
+              Clear all filters
+            </Button>
           </div>
         )}
       </div>
