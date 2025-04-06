@@ -40,7 +40,7 @@ export function NavUser() {
   // Handle logout
   const handleLogout = () => {
     logout();
-    toast.success("Logged out successfully");
+    toast.success("Erfolgreich abgemeldet");
     router.push("/login");
   };
 
@@ -104,23 +104,23 @@ export function NavUser() {
               <Link href="/user">
                 <DropdownMenuItem>
                   <UserCircleIcon className="mr-2 h-4 w-4" />
-                  Account
+                  Konto
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuItem disabled>
                 <BellIcon className="mr-2 h-4 w-4" />
-                Notifications
+                Benachrichtigungen
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleTheme} >
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span >Toggle theme</span>
+                <span>Farbmodus wechseln</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon className="mr-2 h-4 w-4" />
-              Log out
+              Abmelden
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

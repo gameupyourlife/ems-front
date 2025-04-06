@@ -20,31 +20,22 @@ import { useOrg } from "@/lib/context/user-org-context";
 
 export function TeamSwitcher() {
     const { currentOrg, userOrgs, switchOrg } = useOrg();
-    
-    // Handle organization switching
-    const handleTeamChange = async (orgId: string) => {
-        const success = await switchOrg(orgId);
-        if (success) {
-            toast.success("Organization switched successfully");
-        } else {
-            toast.error("Failed to switch organization");
-        }
-    };
 
-    if (!currentOrg) {
+    if (!currentOrg || userOrgs.length === 0) {
         return null;
     }
-    
-    // Create the logo component from org name (fallback if no real logo available)
-    const getLogoComponent = (name: string) => {
-        // This is a simple function to simulate a logo component
-        // In a real app, you would use actual logos
-        const LogoComponent = () => (
-            <div className="flex items-center justify-center w-full h-full">
-                {name.substring(0, 2).toUpperCase()}
-            </div>
-        );
-        return LogoComponent;
+
+    const handleTeamChange = async (orgId: string) => {
+        try {
+            const result = await switchOrg(orgId);
+            if (result) {
+                toast.success("Organisation gewechselt");
+            } else {
+                toast.error("Fehler beim Wechseln der Organisation");
+            }
+        } catch (error) {
+            toast.error("Fehler beim Wechseln der Organisation");
+        }
     };
 
     return (
@@ -67,7 +58,7 @@ export function TeamSwitcher() {
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            Your Organizations
+                            Deine Organisationen
                         </DropdownMenuLabel>
                         {userOrgs.map((org, index) => (
                             <DropdownMenuItem
@@ -87,7 +78,7 @@ export function TeamSwitcher() {
                             <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                                 <Plus className="size-4" />
                             </div>
-                            <div className="font-medium text-muted-foreground">Create Organization</div>
+                            <div className="font-medium text-muted-foreground">Organisation erstellen</div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

@@ -52,19 +52,19 @@ export default function Page() {
           <Button variant="outline" size="sm" asChild>
             <Link href={`/organisation/files`}>
               <FileIcon className="mr-2 h-4 w-4" />
-              Files
+              Dateien
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/organisation/events`}>
               <ListIcon className="mr-2 h-4 w-4" />
-              Manage Events
+              Events verwalten
             </Link>
           </Button>
           <Button size="sm" asChild>
             <Link href={`/organisation/events/create`}>
               <CalendarIcon className="mr-2 h-4 w-4" />
-              Create Event
+              Event erstellen
             </Link>
           </Button>
         </div>
@@ -79,17 +79,17 @@ export default function Page() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Members" description="+3 in the last month" value={org.numOfMembers} />
-        <StatsCard title="Total Events" description="+2 in the last month" value={org.numOfEvents} />
-        <StatsCard title="Upcoming Events" description={`Next event in ${formatDistanceToNow(mockEvents[1].date)}`} value={upcomingEvents.length} />
-        <StatsCard title="Total Attendees" description="Across all events" value={mockEvents.reduce((sum, event) => sum + event.attendees, 0)} />
+        <StatsCard title="Anzahl Teammitglieder" description="+3 im letzten Monat" value={org.numOfMembers} />
+        <StatsCard title="Anzahl Events" description="+2 im Letzten Monat" value={org.numOfEvents} />
+        <StatsCard title="Anstehende Events" description={`Nächste Event in ${formatDistanceToNow(mockEvents[1].date)}`} value={upcomingEvents.length} />
+        <StatsCard title="Anzahl Teilnehmende" description="Über alle Events" value={mockEvents.reduce((sum, event) => sum + event.attendees, 0)} />
       </div>
 
       {/* Tabs for Members and Events */}
       <Tabs defaultValue="members" className="w-full">
         <TabsList className="mb-4 grid w-full grid-cols-2">
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="events">Upcoming Events</TabsTrigger>
+          <TabsTrigger value="members">Teammitglieder</TabsTrigger>
+          <TabsTrigger value="events">Anstehende Events</TabsTrigger>
         </TabsList>
 
         {/* Members Tab - Using the TeamMembers component */}
@@ -100,21 +100,21 @@ export default function Page() {
         {/* Events Tab */}
         <TabsContent value="events" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Upcoming Events</h2>
+            <h2 className="text-xl font-semibold">Anstehende Events</h2>
             <Button size="sm" asChild>
-              <Link href={`/organisation/events`}>View All Events</Link>
+              <Link href={`/organisation/events`}>Alle Events verwalten</Link>
             </Button>
           </div>
           
           {upcomingEvents.length === 0 ? (
             <Card className="p-6 text-center">
               <CardContent>
-                <h3 className="mb-2 font-medium">No upcoming events</h3>
-                <p className="text-muted-foreground">There are no upcoming events for this organization.</p>
+                <h3 className="mb-2 font-medium">Keine anstehenden Events</h3>
+                <p className="text-muted-foreground">Es gibt keine Anstehende Events für diese Organisation</p>
                 <Button className="mt-4" asChild>
                   <Link href={`/organisation/events/create`}>
                     <PlusIcon className="mr-2 h-4 w-4" />
-                    Create an Event
+                    Ein Event erstellen
                   </Link>
                 </Button>
               </CardContent>

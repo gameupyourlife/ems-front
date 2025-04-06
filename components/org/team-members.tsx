@@ -80,7 +80,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         {
             accessorKey: "role",
             id: "role",
-            header: "Role",
+            header: "Rolle",
             cell: ({ cell }) => {
                 const role = cell.getValue() as string;
                 return (
@@ -93,7 +93,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         {
             accessorKey: "user.email",
             id: "email",
-            header: "Email",
+            header: "E-Mail",
             cell: ({ cell }) => {
                 return (
                     <div className="flex items-center text-muted-foreground">
@@ -105,7 +105,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         {
             accessorKey: "user.createdAt",
             id: "joined",
-            header: "Joined",
+            header: "Beigetreten",
             cell: ({ cell }) => {
                 const date = new Date(cell.getValue() as string);
                 return <div>{date.toLocaleDateString()}</div>;
@@ -120,7 +120,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">Open menu</span>
+                                    <span className="sr-only">Menü öffnen</span>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -128,29 +128,29 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                                 <DropdownMenuItem asChild>
                                     <Link href={`/user/${member.user.id}`} className="flex cursor-pointer items-center">
                                         <UserIcon className="mr-2 h-4 w-4" />
-                                        View Profile
+                                        Profil anzeigen
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <ClipboardIcon className="mr-2 h-4 w-4" />
-                                    Copy Email
+                                    E-Mail kopieren
                                 </DropdownMenuItem>
                                 {member.role !== "Admin" && (
                                     <DropdownMenuItem>
                                         <ShieldIcon className="mr-2 h-4 w-4" />
-                                        Make Admin
+                                        Zum Admin machen
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator />
                                 {member.role === "Admin" && (
                                     <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
                                         <ShieldIcon className="mr-2 h-4 w-4 " />
-                                        Remove Admin
+                                        Admin-Status entfernen
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
                                     <XIcon className="mr-2 h-4 w-4" />
-                                    Remove
+                                    Entfernen
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -210,10 +210,10 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     return (
         <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Team Members</h2>
+                <h2 className="text-xl font-semibold">Teammitglieder</h2>
                 <Button size="sm">
                     <UserPlusIcon className="mr-2 h-4 w-4" />
-                    Invite Member
+                    Mitglied einladen
                 </Button>
             </div>
 
@@ -222,7 +222,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 <div className="relative flex-1">
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search members by name or email..."
+                        placeholder="Mitglieder nach Name oder E-Mail suchen..."
                         className="pl-8"
                         value={searchQuery}
                         onChange={handleSearch}
@@ -233,18 +233,18 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm" className="gap-1.5">
                             <FilterIcon className="h-4 w-4" />
-                            Filter by Role
+                            Nach Rolle filtern
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue(undefined)}>
-                            All Roles
+                            Alle Rollen
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Admin")}>
                             Admin
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Member")}>
-                            Member
+                            Mitglied
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -286,7 +286,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No members found.
+                                    Keine Mitglieder gefunden.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -302,12 +302,12 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                 >
-                    Previous
+                    Zurück
                 </Button>
                 <div className="text-sm">
-                    Page{" "}
+                    Seite{" "}
                     <strong>
-                        {table.getState().pagination.pageIndex + 1} of{" "}
+                        {table.getState().pagination.pageIndex + 1} von{" "}
                         {table.getPageCount()}
                     </strong>
                 </div>
@@ -317,7 +317,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                 >
-                    Next
+                    Weiter
                 </Button>
             </div>
         </div>

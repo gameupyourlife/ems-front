@@ -48,7 +48,7 @@ export function NavEvents({
                   className="data-[state=open]:bg-accent rounded-sm"
                 >
                   <EllipsisVerticalIcon />
-                  <span className="sr-only">More</span>
+                  <span className="sr-only">Mehr</span>
                 </SidebarMenuAction>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -58,16 +58,16 @@ export function NavEvents({
               >
                 <DropdownMenuItem>
                   <FolderIcon />
-                  <span>Open</span>
+                  <span>Öffnen</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <ShareIcon />
-                  <span>Share</span>
+                  <span>Teilen</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">
                   <TrashIcon />
-                  <span>Delete</span>
+                  <span>Löschen</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -76,7 +76,7 @@ export function NavEvents({
         <SidebarMenuItem>
           <SidebarMenuButton className="text-sidebar-foreground/70">
             <EllipsisVerticalIcon className="text-sidebar-foreground/70" />
-            <span>More</span>
+            <span>Mehr</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

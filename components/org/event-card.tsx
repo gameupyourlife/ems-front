@@ -14,25 +14,30 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId: string }) {
-    // Calculate if event is upcoming, ongoing, or past
-    const now = new Date();
+    // Convert date string to Date object
     const eventDate = new Date(event.date);
-    const isToday = eventDate.toDateString() === now.toDateString();
-    const isUpcoming = eventDate > now;
-    const isPast = eventDate < now && !isToday;
 
-    // Calculate days until event
-    const daysUntil = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    // Get days until the event
+    const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Calculate attendance percentage
+    const capacityPercent = Math.min(100, (event.attendees / event.capacity) * 100);
 
-    // Calculate capacity percentage
-    const capacityPercent = Math.min(100, (event.attendees / 100) * 100);
-
-    // Get status display
+    // Get status display information
     const getStatusDisplay = () => {
-        if (isPast) return { text: "Past event", variant: "secondary" as const };
-        if (isToday) return { text: "Today", variant: "destructive" as const };
-        if (daysUntil === 1) return { text: "Tomorrow", variant: "default" as const };
-        return { text: `In ${daysUntil} days`, variant: "default" as const };
+        // Is the event in the past?
+        if (eventDate < new Date()) {
+            return { text: "Vergangen", variant: "secondary" as const };
+        }
+        
+        // Is the event today?
+        if (eventDate.toDateString() === new Date().toDateString()) {
+            return { text: "Heute", variant: "destructive" as const };
+        }
+        
+        // Is the event tomorrow?
+        if (daysUntil === 1) return { text: "Morgen", variant: "default" as const };
+        return { text: `In ${daysUntil} Tagen`, variant: "default" as const };
     };
 
     const status = getStatusDisplay();
@@ -90,16 +95,14 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                         </div>
                     </div>
 
-                    {/* <Separator className="my-1" /> */}
-
-                    {/* Attendance tracking */}
-                    <div>
-                        <div className="flex justify-between mb-1.5">
+                    {/* Attendance */}
+                    <div className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center mb-1">
                             <div className="flex items-center">
                                 <Users className="mr-2 h-4 w-4 text-primary" />
-                                <span className="text-sm font-medium">{event.attendees} attendees</span>
+                                <span className="text-sm">{event.attendees} von {event.capacity}</span>
                             </div>
-                            <span className="text-xs text-muted-foreground">{capacityPercent}% capacity</span>
+                            <span className="text-xs text-muted-foreground">{Math.round(capacityPercent)}%</span>
                         </div>
                         <Progress
                             value={capacityPercent}
@@ -123,8 +126,8 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
 
             <CardFooter className="p-4 pt-0 flex gap-3 justify-between items-center">
                 <Button variant="default" className="flex-1" asChild>
-                    <Link href={`/organisation/${orgId}/events/${event.id}`} className="flex items-center justify-center">
-                        <span>Manage Event</span>
+                    <Link href={`/organisation/events/${event.id}`} className="flex items-center justify-center">
+                        <span>Event verwalten</span>
                         <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
                 </Button>
@@ -133,24 +136,25 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="icon" className="h-9 w-9">
                             <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Aktionen</span>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/organisation/${orgId}/events/${event.id}`} className="flex cursor-pointer">
+                            <Link href={`/organisation/events/${event.id}/edit`} className="flex cursor-pointer">
                                 <Edit className="mr-2 h-4 w-4" />
-                                <span>Invite to Event</span>
+                                <span>Bearbeiten</span>
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href={`/organisation/${orgId}/events/${event.id}`} className="flex cursor-pointer">
+                            <Link href={`#`} className="flex cursor-pointer">
                                 <ShareIcon className="mr-2 h-4 w-4" />
-                                <span>Share Event</span>
+                                <span>Teilen</span>
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive focus:text-destructive">
                             <TrashIcon className="mr-2 h-4 w-4" />
-                            <span>Delete Event</span>
+                            <span>Löschen</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
