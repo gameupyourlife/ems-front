@@ -6,24 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Plus,
-  Save,
-  Zap,
-  Calendar,
-  Users,
-  Tag,
-  Check,
-  Mail,
-  Bell,
-  FileText,
-  Image,
-  LayoutList,
-  PencilLine,
-  Trash2,
-  Edit,
-  MoreHorizontal,
-} from "lucide-react";
+import { Plus, Save, Trash2, Edit, MoreHorizontal } from "lucide-react";
 import { Flow } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AddActionDialog, AddTriggerDialog } from "@/components/org/flows/flow-dialogs";
@@ -31,151 +14,15 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { formatDetailsLabel, formatDetailsValue, getActionIcon, getItemSummary, getItemTitle, getTriggerIcon } from "@/lib/flows/utils";
 
-// Helper to get appropriate icon for trigger types
-export const getTriggerIcon = (type: string) => {
-  switch (type) {
-    case 'date':
-      return <Calendar className="h-5 w-5" />;
-    case 'numOfAttendees':
-      return <Users className="h-5 w-5" />;
-    case 'status':
-      return <Tag className="h-5 w-5" />;
-    case 'registration':
-      return <Check className="h-5 w-5" />;
-    default:
-      return <Zap className="h-5 w-5" />;
-  }
-};
 
-// Helper to get appropriate icon for action types
-export const getActionIcon = (type: string) => {
-  switch (type) {
-    case 'email':
-      return <Mail className="h-5 w-5" />;
-    case 'notification':
-      return <Bell className="h-5 w-5" />;
-    case 'statusChange':
-      return <Tag className="h-5 w-5" />;
-    case 'fileShare':
-      return <FileText className="h-5 w-5" />;
-    case 'imageChange':
-      return <Image className="h-5 w-5" />;
-    case 'titleChange':
-      return <LayoutList className="h-5 w-5" />;
-    case 'descriptionChange':
-      return <PencilLine className="h-5 w-5" />;
-    default:
-      return <Zap className="h-5 w-5" />;
-  }
-};
 
-// Format the details object to a more readable form
-export const formatDetailsLabel = (key: string): string => {
-  // Handle special cases
-  if (key === 'selectedTriggerId') return 'Trigger';
-  if (key === 'newStatus') return 'New Status';
-  if (key === 'newTitle') return 'New Title';
-  if (key === 'newDescription') return 'New Description';
-  if (key === 'newImage') return 'New Image';
-  
-  // General formatting - replace camelCase with spaces and capitalize first letter
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase());
-};
 
-// Format the details value to a more readable form
-export const formatDetailsValue = (key: string, value: any): string => {
-  if (value === null || value === undefined) return 'Not specified';
-  
-  // Format different types of values
-  if (key === 'recipients' && typeof value === 'string' && value.includes('trigger.')) {
-    return 'Registered User';
-  }
-  if (key === 'recipients' && value === 'all.users') {
-    return 'All Users';
-  }
-  if (Array.isArray(value)) {
-    return value.join(', ');
-  }
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-  
-  return String(value);
-};
 
-// Helper function to get a human-readable title for trigger and action types
-export const getItemTitle = (type: string): string => {
-  switch (type) {
-    // Triggers
-    case 'date': return 'Date & Time';
-    case 'numOfAttendees': return 'Attendees Count';
-    case 'status': return 'Status Change';
-    case 'registration': return 'New Registration';
-    
-    // Actions
-    case 'email': return 'Send Email';
-    case 'notification': return 'Send Notification';
-    case 'statusChange': return 'Change Status';
-    case 'fileShare': return 'Share File';
-    case 'imageChange': return 'Update Image';
-    case 'titleChange': return 'Change Title';
-    case 'descriptionChange': return 'Change Description';
-    
-    default: return type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  }
-};
 
-// Get a summary of the trigger or action details
-export const getItemSummary = (type: string, details: any): string => {
-  if (!details) return '';
-  
-  switch (type) {
-    case 'date':
-      if (details.operator && details.value) {
-        return `${details.operator === 'on' ? 'Exactly on' : details.operator === 'before' ? 'Before' : 'After'} ${details.value}`;
-      }
-      if (details.reference && details.direction && details.amount && details.unit) {
-        return `${details.amount} ${details.unit} ${details.direction} ${details.reference === 'start' ? 'event start' : 'event end'}`;
-      }
-      return '';
-      
-    case 'numOfAttendees':
-      if (details.operator && details.value !== undefined) {
-        const opText = details.operator === 'equals' ? 'equals' : details.operator === 'less' ? 'less than' : 'greater than';
-        return `When attendance ${opText} ${details.value}`;
-      }
-      return '';
-      
-    case 'status':
-      return details.status ? `When status changes to ${details.status}` : '';
-      
-    case 'registration':
-      return 'When a new user registers';
-      
-    case 'email':
-      return details.subject ? `"${details.subject.slice(0, 30)}${details.subject.length > 30 ? '...' : ''}"` : '';
-      
-    case 'notification':
-      return details.message ? `"${details.message.slice(0, 30)}${details.message.length > 30 ? '...' : ''}"` : '';
-      
-    case 'statusChange':
-      return details.newStatus ? `Change to ${details.newStatus}` : '';
-      
-    case 'fileShare':
-      return details.status ? `Make file ${details.status}` : '';
-      
-    case 'imageChange':
-    case 'titleChange':
-    case 'descriptionChange':
-      return 'Update event content';
-      
-    default:
-      return '';
-  }
-};
+
+
 
 interface FlowFormProps {
   flow: Flow;

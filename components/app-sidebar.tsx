@@ -13,6 +13,7 @@ import {
   FunctionSquareIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
+  MailsIcon,
   SearchIcon,
   SettingsIcon,
   TicketIcon,
@@ -60,6 +61,11 @@ const data = {
       title: "Dateien",
       url: "/organisation/files",
       icon: FilesIcon,
+    },
+    {
+      title: "Mails",
+      url: "/organisation/email-templates",
+      icon: MailsIcon,
     },
   ],
   navSecondary: [

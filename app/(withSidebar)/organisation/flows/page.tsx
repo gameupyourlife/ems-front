@@ -3,20 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockFlowTemplates } from "@/lib/data";
 import Link from "next/link";
-import {
-  Plus,
-  BarChart3,
-  Zap,
-  Info,
-  ExternalLink,
-  Play,
-  Calendar,
-  Tag,
-  Check,
-  Users
-} from "lucide-react";
+import { Plus, BarChart3, Zap, Info, ExternalLink, Play } from "lucide-react";
 import FlowTable from "@/components/org/flows/flow-table";
 import { Badge } from "@/components/ui/badge";
+import { getTriggerIcon } from "@/lib/flows/utils";
 
 export default function FlowsOverview() {
   const activeFlows = mockFlowTemplates.length;
@@ -49,21 +39,7 @@ export default function FlowsOverview() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4); // Show top 4 action types
 
-  // Helper to get icon for trigger type
-  const getTriggerIcon = (type: string) => {
-    switch (type) {
-      case 'date':
-        return <Calendar className="h-4 w-4" />;
-      case 'numOfAttendees':
-        return <Users className="h-4 w-4" />;
-      case 'status':
-        return <Tag className="h-4 w-4" />;
-      case 'registration':
-        return <Check className="h-4 w-4" />;
-      default:
-        return <Info className="h-4 w-4" />;
-    }
-  };
+
 
   return (
     <div className="flex-1 space-y-6 p-6">
