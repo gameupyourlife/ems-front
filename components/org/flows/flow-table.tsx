@@ -50,7 +50,7 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { Flow } from "@/lib/types";
+import { Flow, FlowTemplate } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -70,7 +70,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface FlowTableProps {
-    flows: Flow[];
+    flows: Flow[] | FlowTemplate[];
 }
 
 export default function FlowTable({ flows }: FlowTableProps) {
@@ -132,7 +132,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     ));
 
     // Define the columns for the table
-    const columns: ColumnDef<Flow>[] = [
+    const columns: ColumnDef<Flow | FlowTemplate>[] = [
         {
             id: "select",
             header: ({ table }) => (

@@ -142,6 +142,8 @@ export interface Flow {
     updatedAt: Date,
     updatedBy: string,
     createdBy: string,
+    templateId: string,
+    eventId: string,
 }
 
 export interface EventDetails {
@@ -171,6 +173,27 @@ export interface AgendaStep {
     description: string;
     startTime: Date;
     endTime: Date;
+}
+
+export interface FlowTemplate {
+    id: string;
+    name: string;
+    description: string;
+    trigger: Condition[];
+    actions: Action[];
+    createdAt: Date;
+    updatedAt: Date;
+    createdBy: string;
+    updatedBy: string;
+    isUserCreated: boolean; // true if created by the user, false if default template
+}
+export interface EmailTemplate {
+    id: string;
+    name: string;
+    subject: string;
+    body: string;
+    description: string;
+    isUserCreated: boolean; // true if created by the user, false if default template
 }
 
 export interface Email {

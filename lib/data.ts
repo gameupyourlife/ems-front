@@ -1,4 +1,4 @@
-import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, Organization, OrgUser } from "./types"
+import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, FlowTemplate, Organization, OrgUser } from "./types"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
@@ -930,86 +930,6 @@ export const mockEvents: EventInfo[] = [
 
 
 
-
-export const mockFlows: Flow[] = [
-  {
-    id: "1",
-    name: "Welcome Mail",
-    description: "Flow for sending a mail after a user registered for an event",
-    trigger: [
-      {
-        id: "1",
-        type: "registration",
-        details: null
-      }
-    ],
-    actions: [
-      {
-        id: "1",
-        type: "email",
-        details: {
-          subject: "Welcome to the Event",
-          body: "Thank you for registering for the event. We look forward to seeing you!",
-          recipients: "trigger.1.user.email"
-        }
-      }
-    ],
-    createdAt: getRandomDate(),
-    updatedAt: getRandomDate(),
-    createdBy: "system",
-    updatedBy: "system"
-  },
-  {
-    id: "2",
-    name: "Cancel event on low attendance",
-    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
-    trigger: [
-      {
-        id: "2",
-        type: "numOfAttendees",
-        details: {
-          operator: "lessThan",
-          value: 50,
-          valueType: "percentage",
-        }
-      },
-      {
-        id: "3",
-        type: "date",
-        details: {
-          operator: "lessThan",
-          value: 7,
-          valueType: "days",
-          valueRelativeTo: "event.date",
-          valueRelativeOperator: "bevore"
-        }
-      }
-    ],
-    actions: [
-      {
-        id: "2",
-        type: "email",
-        details: {
-          subject: "Unfortunately, the event has been cancelled",
-          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
-          recipients: "event.attendees"
-        }
-      },
-      {
-        id: "3",
-        type: "statusChange",
-        details: {
-          newStatus: "cancelled",
-        }
-      }
-    ],
-    createdAt: getRandomDate(),
-    updatedAt: getRandomDate(),
-    createdBy: "system",
-    updatedBy: "system"
-  }
-]
-
 export const mockFiles: EmsFile[] = [
   {
     id: "1",
@@ -1075,6 +995,173 @@ const mockAgenda : AgendaStep[] = [
     description: "Opportunity for attendees to network and connect.",
     startTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 2),
     endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 4), 
+  }
+]
+
+
+
+
+export const mockFlowTemplates: FlowTemplate[] = [
+  {
+    id: "1",
+    name: "Welcome Mail",
+    description: "Flow for sending a mail after a user registered for an event",
+    isUserCreated: false,
+    trigger: [
+      {
+        id: "1",
+        type: "registration",
+        details: {}
+      }
+    ],
+    actions: [
+      {
+        id: "1",
+        type: "email",
+        details: {
+          subject: "Welcome to the Event",
+          body: "Thank you for registering for the event. We look forward to seeing you!",
+          recipients: ["trigger.1.user.email"]
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    id: "2",
+    name: "Cancel event on low attendance",
+    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
+    isUserCreated: false,
+    trigger: [
+      {
+        id: "2",
+        type: "numOfAttendees",
+        details: {
+          operator: "lessThan",
+          value: 50,
+          valueType: "percentage",
+        }
+      },
+      {
+        id: "3",
+        type: "date",
+        details: {
+          operator: "lessThan",
+          value: 7,
+          valueType: "days",
+          valueRelativeTo: "event.date",
+          valueRelativeOperator: "bevore"
+        }
+      }
+    ],
+    actions: [
+      {
+        id: "2",
+        type: "email",
+        details: {
+          subject: "Unfortunately, the event has been cancelled",
+          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
+          recipients: ["event.attendees"],
+        }
+      },
+      {
+        id: "3",
+        type: "statusChange",
+        details: {
+          newStatus: "cancelled",
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  }
+]
+
+export const mockFlows: Flow[] = [
+  {
+    id: "1",
+    templateId: "1",
+    eventId: "1",
+    name: "Welcome Mail",
+    description: "Flow for sending a mail after a user registered for an event",
+    trigger: [
+      {
+        id: "1",
+        type: "registration",
+        details: {}
+      }
+    ],
+    actions: [
+      {
+        id: "1",
+        type: "email",
+        details: {
+          subject: "Welcome to the Event",
+          body: "Thank you for registering for the event. We look forward to seeing you!",
+          recipients: ["trigger.1.user.email"]
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    id: "2",
+    templateId: "2",
+    eventId: "1",
+    name: "Cancel event on low attendance",
+    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
+    trigger: [
+      {
+        id: "2",
+        type: "numOfAttendees",
+        details: {
+          operator: "lessThan",
+          value: 50,
+          valueType: "percentage",
+        }
+      },
+      {
+        id: "3",
+        type: "date",
+        details: {
+          operator: "lessThan",
+          value: 7,
+          valueType: "days",
+          valueRelativeTo: "event.date",
+          valueRelativeOperator: "bevore"
+        }
+      }
+    ],
+    actions: [
+      {
+        id: "2",
+        type: "email",
+        details: {
+          subject: "Unfortunately, the event has been cancelled",
+          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
+          recipients: ["event.attendees"],
+        }
+      },
+      {
+        id: "3",
+        type: "statusChange",
+        details: {
+          newStatus: "cancelled",
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   }
 ]
 

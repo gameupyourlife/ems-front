@@ -1,7 +1,7 @@
 "use client";;
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockFlows } from "@/lib/data";
+import { mockFlowTemplates } from "@/lib/data";
 import Link from "next/link";
 import {
   Plus,
@@ -19,12 +19,12 @@ import FlowTable from "@/components/org/flows/flow-table";
 import { Badge } from "@/components/ui/badge";
 
 export default function FlowsOverview() {
-  const activeFlows = mockFlows.length;
-  const triggersCount = mockFlows.reduce((acc, flow) => acc + flow.trigger.length, 0);
-  const actionsCount = mockFlows.reduce((acc, flow) => acc + flow.actions.length, 0);
+  const activeFlows = mockFlowTemplates.length;
+  const triggersCount = mockFlowTemplates.reduce((acc, flow) => acc + flow.trigger.length, 0);
+  const actionsCount = mockFlowTemplates.reduce((acc, flow) => acc + flow.actions.length, 0);
   
   // Count flows by trigger type
-  const triggerTypeCounts = mockFlows.reduce((acc, flow) => {
+  const triggerTypeCounts = mockFlowTemplates.reduce((acc, flow) => {
     flow.trigger.forEach(trigger => {
       acc[trigger.type] = (acc[trigger.type] || 0) + 1;
     });
@@ -37,7 +37,7 @@ export default function FlowsOverview() {
     .slice(0, 4); // Show top 4 trigger types
 
   // Count flows by action type  
-  const actionTypeCounts = mockFlows.reduce((acc, flow) => {
+  const actionTypeCounts = mockFlowTemplates.reduce((acc, flow) => {
     flow.actions.forEach(action => {
       acc[action.type] = (acc[action.type] || 0) + 1;
     });
@@ -180,7 +180,7 @@ export default function FlowsOverview() {
       </div>
       
       {/* Flows List */}
-      <FlowTable flows={mockFlows} />
+      <FlowTable flows={mockFlowTemplates} />
 
     </div>
   );
