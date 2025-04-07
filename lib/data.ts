@@ -1,4 +1,4 @@
-import { EventInfo, Organization, OrgUser } from "./types"
+import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, FlowTemplate, Organization, OrgUser } from "./types"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [
@@ -665,10 +665,18 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A tech event to showcase the latest innovations.",
     id: "1",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Silicon Valley, CA",
     organization: "Tech Innovators",
-    title: "Tech Expo 2023"
+    title: "Tech Expo 2023",
+    capacity: 200,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 50,
@@ -676,21 +684,37 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A networking event for tech enthusiasts.",
     id: "2",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "San Francisco, CA",
     organization: "Tech Innovators",
-    title: "Tech Networking Night"
+    title: "Tech Networking Night",
+    capacity: 100,
+    status: "Done",
+    start: new Date(),
+    end: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
-    attendees: 200, 
+    attendees: 200,
     category: "Workshop",
     date: getRandomDate(),
     description: "A workshop on the latest tech trends.",
     id: "3",
-    image: randomImage(200, 200), 
+    image: randomImage(800, 400),
     location: "Palo Alto, CA",
     organization: "Tech Innovators",
-    title: "Tech Workshop 2023"
+    title: "Tech Workshop 2023",
+    capacity: 300,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 150,
@@ -698,10 +722,18 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A conference on the future of technology.",
     id: "4",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Mountain View, CA",
     organization: "Tech Innovators",
-    title: "Tech Conference 2023"
+    title: "Tech Conference 2023",
+    capacity: 250,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   },
   {
     attendees: 75,
@@ -709,15 +741,435 @@ export const mockEvents: EventInfo[] = [
     date: getRandomDate(),
     description: "A seminar on AI and machine learning.",
     id: "5",
-    image: randomImage(200, 200),
+    image: randomImage(800, 400),
     location: "Sunnyvale, CA",
     organization: "Tech Innovators",
-    title: "AI Seminar 2023"
+    title: "AI Seminar 2023",
+    capacity: 150,
+    status: "Cancelled",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 120,
+    category: "Hackathon",
+    date: getRandomDate(),
+    description: "A 48-hour coding challenge for developers.",
+    id: "6",
+    image: randomImage(800, 400),
+    location: "Seattle, WA",
+    organization: "Code Masters",
+    title: "Annual Hackathon 2023",
+    capacity: 200,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 85,
+    category: "Webinar",
+    date: getRandomDate(),
+    description: "Online session about cybersecurity best practices.",
+    id: "7",
+    image: randomImage(800, 400),
+    location: "Virtual",
+    organization: "Security First",
+    title: "Cybersecurity Essentials",
+    capacity: 100,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 250,
+    category: "Summit",
+    date: getRandomDate(),
+    description: "Leadership summit for tech executives.",
+    id: "8",
+    image: randomImage(800, 400),
+    location: "New York, NY",
+    organization: "Tech Leaders Association",
+    title: "Tech Leadership Summit",
+    capacity: 300,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 60,
+    category: "Bootcamp",
+    date: getRandomDate(),
+    description: "Intensive coding bootcamp for beginners.",
+    id: "9",
+    image: randomImage(800, 400),
+    location: "Chicago, IL",
+    organization: "Code Academy",
+    title: "Coding Bootcamp Spring 2023",
+    capacity: 100,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 180,
+    category: "Exhibition",
+    date: getRandomDate(),
+    description: "Exhibition of cutting-edge technologies.",
+    id: "10",
+    image: randomImage(800, 400),
+    location: "Las Vegas, NV",
+    organization: "Future Tech",
+    title: "Tech Innovation Expo",
+    capacity: 300,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 90,
+    category: "Panel",
+    date: getRandomDate(),
+    description: "Expert panel on blockchain technology.",
+    id: "11",
+    image: randomImage(800, 400),
+    location: "Austin, TX",
+    organization: "Blockchain Society",
+    title: "Blockchain Revolution Panel",
+    capacity: 150,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 220,
+    category: "Meetup",
+    date: getRandomDate(),
+    description: "Casual meetup for data scientists.",
+    id: "12",
+    image: randomImage(800, 400),
+    location: "Boston, MA",
+    organization: "Data Science Club",
+    title: "Data Scientists Meetup",
+    capacity: 300,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 70,
+    category: "Training",
+    date: getRandomDate(),
+    description: "Professional training for cloud computing.",
+    id: "13",
+    image: randomImage(800, 400),
+    location: "Denver, CO",
+    organization: "Cloud Experts",
+    title: "Cloud Computing Certification",
+    capacity: 100,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    attendees: 130,
+    category: "Forum",
+    date: getRandomDate(),
+    description: "Open forum on digital transformation.",
+    id: "14",
+    image: randomImage(800, 400),
+    location: "Philadelphia, PA",
+    organization: "Digital Innovators",
+    title: "Digital Transformation Forum",
+    capacity: 130,
+    status: "Upcoming",
+    start: getRandomDate(),
+    end: getRandomDate(),
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
   }
 ]
-export const mockOrgEvents: EventInfo[] = mockEvents.map((event, index) => ({
-  ...event,
-  id: `${index + 1}`,
-  organization: mockOrg.name,
-  image: randomImage(200, 200)
-}))
+
+
+
+
+export const mockFiles: EmsFile[] = [
+  {
+    id: "1",
+    name: "Event_Presentation_Slides.pptx",
+    type: "presentation",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+  {
+    id: "2",
+    name: "Event_Agenda.pdf",
+    type: "document",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+  {
+    id: "3",
+    name: "Event_Video.mp4",
+    type: "video",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+  {
+    id: "4",
+    name: "CoolImage.jpg",
+    type: "image",
+    createdAt: getRandomDate(),
+    createdBy: "system",
+    updatedAt: getRandomDate(),
+    updatedBy: "system",
+    url: randomImage(800, 400)
+  },
+
+]
+
+const mockAgenda : AgendaStep[] = [
+  {
+    id: "1",
+    title: "Opening Remarks",
+    description: "Introduction to the event and its objectives.",
+    startTime: new Date("01.01.2023 09:00"),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000), 
+  },
+  {
+    id: "2",
+    title: "Keynote Speech",
+    description: "Keynote speech by a renowned speaker.",
+    startTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 2), 
+  },
+  {
+    id: "3",
+    title: "Networking Session",
+    description: "Opportunity for attendees to network and connect.",
+    startTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 2),
+    endTime: new Date(new Date("01.01.2023 09:00").getTime() + 60 * 60 * 1000 * 4), 
+  }
+]
+
+
+
+
+export const mockFlowTemplates: FlowTemplate[] = [
+  {
+    id: "1",
+    name: "Welcome Mail",
+    description: "Flow for sending a mail after a user registered for an event",
+    isUserCreated: false,
+    trigger: [
+      {
+        id: "1",
+        type: "registration",
+        details: {}
+      }
+    ],
+    actions: [
+      {
+        id: "1",
+        type: "email",
+        details: {
+          subject: "Welcome to the Event",
+          body: "Thank you for registering for the event. We look forward to seeing you!",
+          recipients: ["trigger.1.user.email"]
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    id: "2",
+    name: "Cancel event on low attendance",
+    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
+    isUserCreated: false,
+    trigger: [
+      {
+        id: "2",
+        type: "numOfAttendees",
+        details: {
+          operator: "lessThan",
+          value: 50,
+          valueType: "percentage",
+        }
+      },
+      {
+        id: "3",
+        type: "date",
+        details: {
+          operator: "lessThan",
+          value: 7,
+          valueType: "days",
+          valueRelativeTo: "event.date",
+          valueRelativeOperator: "bevore"
+        }
+      }
+    ],
+    actions: [
+      {
+        id: "2",
+        type: "email",
+        details: {
+          subject: "Unfortunately, the event has been cancelled",
+          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
+          recipients: ["event.attendees"],
+        }
+      },
+      {
+        id: "3",
+        type: "statusChange",
+        details: {
+          newStatus: "cancelled",
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  }
+]
+
+export const mockFlows: Flow[] = [
+  {
+    id: "1",
+    templateId: "1",
+    eventId: "1",
+    name: "Welcome Mail",
+    description: "Flow for sending a mail after a user registered for an event",
+    trigger: [
+      {
+        id: "1",
+        type: "registration",
+        details: {}
+      }
+    ],
+    actions: [
+      {
+        id: "1",
+        type: "email",
+        details: {
+          subject: "Welcome to the Event",
+          body: "Thank you for registering for the event. We look forward to seeing you!",
+          recipients: ["trigger.1.user.email"]
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  },
+  {
+    id: "2",
+    templateId: "2",
+    eventId: "1",
+    name: "Cancel event on low attendance",
+    description: "Flow for cancelling an event if the number of attendees is 50% 1 week in advance",
+    trigger: [
+      {
+        id: "2",
+        type: "numOfAttendees",
+        details: {
+          operator: "lessThan",
+          value: 50,
+          valueType: "percentage",
+        }
+      },
+      {
+        id: "3",
+        type: "date",
+        details: {
+          operator: "lessThan",
+          value: 7,
+          valueType: "days",
+          valueRelativeTo: "event.date",
+          valueRelativeOperator: "bevore"
+        }
+      }
+    ],
+    actions: [
+      {
+        id: "2",
+        type: "email",
+        details: {
+          subject: "Unfortunately, the event has been cancelled",
+          body: "We regret to inform you that the event has been cancelled due to low attendance. We apologize for any inconvenience caused.",
+          recipients: ["event.attendees"],
+        }
+      },
+      {
+        id: "3",
+        type: "statusChange",
+        details: {
+          newStatus: "cancelled",
+        }
+      }
+    ],
+    createdAt: getRandomDate(),
+    updatedAt: getRandomDate(),
+    createdBy: "system",
+    updatedBy: "system"
+  }
+]
+
+export const mockedEventDetails: EventDetails = {
+  metadata: mockEvents[0],
+  organization: mockOrg,
+  attendees: mockOrgUsers.map((orgUser) => orgUser.user),
+  flows: mockFlows,
+  files: mockFiles,
+  agenda: mockAgenda
+}

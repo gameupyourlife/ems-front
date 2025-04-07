@@ -35,9 +35,10 @@ export default function RootLayout({
           "--header-height": "calc(var(--spacing) * 12)",
         } as React.CSSProperties
       }
+      className="flex-1 overflow-hidden"
     >
       <AppSidebar variant="sidebar" collapsible="icon" />
-      <SidebarInset>
+      <SidebarInset className="flex-1 overflow-hidden">
         <SiteHeader />
         {children}
       </SidebarInset>
