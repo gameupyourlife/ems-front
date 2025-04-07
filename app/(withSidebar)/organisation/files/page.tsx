@@ -8,9 +8,8 @@ import FileTable from "@/components/org/file-table";
 import FileUploadDialog from "@/components/org/file-upload-dialog";
 import { EmsFile } from "@/lib/types";
 
-export default function OrganizationFilesPage({ params }: { params: { orgId: string } }) {
+export default function OrganizationFilesPage() {
     // In a real application, you would fetch the organization and its files here
-    const orgId = params.orgId;
     const org = mockOrg; // This would come from an API call in a real app
     
     // State for file list and upload dialog
@@ -87,13 +86,12 @@ export default function OrganizationFilesPage({ params }: { params: { orgId: str
             </div>
 
             {/* Files Table */}
-            <FileTable files={files} orgId={orgId} />
+            <FileTable files={files}  />
             
             {/* File Upload Dialog */}
             <FileUploadDialog 
                 isOpen={isUploadDialogOpen}
                 onClose={closeUploadDialog}
-                orgId={orgId}
                 onUploadComplete={handleUploadComplete}
             />
         </div>

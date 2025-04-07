@@ -1,39 +1,39 @@
-"use client";
-
+"use client";;
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { 
+import {
   Card,
   CardContent,
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from "@/components/ui/popover";
 import { DateTimePicker24h } from "@/components/ui/date-time-picker";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { CalendarIcon, ChevronLeft, Send, Users, UserPlus, Mail, TemplateIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { CalendarIcon, ChevronLeft, Send, Users, UserPlus, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Email, User, EventInfo } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -512,10 +512,8 @@ export function EventEmailForm({
                   <div className="flex flex-col space-y-2">
                     <Label htmlFor="scheduledDate">Select date and time</Label>
                     <DateTimePicker24h
-                      granularity="minute"
-                      value={scheduledDate}
-                      onChange={setScheduledDate}
-                      className="w-full"
+                      initialDate={scheduledDate}
+                      onDateChange={(date => setScheduledDate(date))}
                     />
                   </div>
                 </TabsContent>

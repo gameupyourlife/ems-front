@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+"use client"
+import { redirect, useParams } from "next/navigation";
 
-export default function Page({ params }: { params: { eventId: string } }) {
+export default function Page() {
+    const params = useParams();
     redirect(`/organisation/events/${params.eventId}?tab=emails`);
 }

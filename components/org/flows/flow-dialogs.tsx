@@ -867,7 +867,7 @@ export function AddActionDialog({
                                                         // If there's only one registration trigger, select it automatically
                                                         const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
                                                         if (registrationTriggers.length === 1) {
-                                                            setDetails(prev => ({ ...prev, selectedTriggerId: registrationTriggers[0].id }));
+                                                            setDetails((prev: any)=> ({ ...prev, selectedTriggerId: registrationTriggers[0].id }));
                                                         }
                                                     }}
                                                     title="New Registered User"
@@ -969,7 +969,7 @@ export function AddActionDialog({
                                                         // If there's only one registration trigger, select it automatically
                                                         const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
                                                         if (registrationTriggers.length === 1) {
-                                                            setDetails(prev => ({ ...details, selectedTriggerId: registrationTriggers[0].id }));
+                                                            setDetails((prev: any) => ({ ...details, selectedTriggerId: registrationTriggers[0].id }));
                                                         }
                                                     }}
                                                     title="New Registered User"

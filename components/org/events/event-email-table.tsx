@@ -1,5 +1,4 @@
-"use client";
-
+"use client";;
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,21 +13,16 @@ import {
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
-    SearchIcon,
     FilterIcon,
     MoreHorizontal,
     ChevronRight,
     Edit,
     Trash,
     ArrowUpDown,
-    Plus,
     Mail,
     Clock,
-    Check,
-    X,
     Copy,
-    AlertCircle,
-    Send
+    Send,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -46,7 +40,6 @@ import {
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
 import { Email } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
     Popover,
@@ -55,23 +48,22 @@ import {
 } from "@/components/ui/popover";
 import {
     Command,
-    CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
-    CommandSeparator
+    CommandSeparator,
 } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { 
-    AlertDialog, 
-    AlertDialogAction, 
-    AlertDialogCancel, 
-    AlertDialogContent, 
-    AlertDialogDescription, 
-    AlertDialogFooter, 
-    AlertDialogHeader, 
-    AlertDialogTitle 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 
 interface EmailTableProps {
@@ -359,7 +351,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         value={searchQuery}
                         onChange={handleSearch}
                         className="max-w-sm"
-                        prefix={<SearchIcon className="h-4 w-4 text-muted-foreground" />}
+                        // prefix={<SearchIcon className="h-4 w-4 text-muted-foreground" />}
                     />
                     
                     <Popover>

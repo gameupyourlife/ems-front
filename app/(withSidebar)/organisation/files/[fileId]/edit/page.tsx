@@ -1,7 +1,7 @@
 "use client";
 
 import { mockFiles } from "@/lib/data";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,10 @@ interface FileFormData {
   type: string;
 }
 
-export default function FileEditPage({ params }: { params: { fileId: string } }) {
-  const router = useRouter();
+export default function FileEditPage() {
+  const params = useParams();
+  const router = useRouter();  
+  
   const fileId = params.fileId;
   
   // Find the file by ID from mockFiles

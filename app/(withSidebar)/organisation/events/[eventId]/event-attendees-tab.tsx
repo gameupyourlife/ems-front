@@ -104,9 +104,6 @@ const generateMockAttendees = (baseUsers: User[]): Attendee[] => {
             createdAt: "2023-03-12",
             updatedAt: "2023-03-12",
             profilePicture: "",
-            status: "attending",
-            registeredAt: new Date(2023, 2, 15),
-            checkedIn: true
         },
         {
             id: "4",
@@ -115,9 +112,6 @@ const generateMockAttendees = (baseUsers: User[]): Attendee[] => {
             createdAt: "2023-04-05",
             updatedAt: "2023-04-05",
             profilePicture: "",
-            status: "pending",
-            registeredAt: new Date(2023, 3, 10),
-            checkedIn: false
         },
         {
             id: "5",
@@ -126,15 +120,12 @@ const generateMockAttendees = (baseUsers: User[]): Attendee[] => {
             createdAt: "2023-02-20",
             updatedAt: "2023-02-20",
             profilePicture: "",
-            status: "attending",
-            registeredAt: new Date(2023, 2, 25),
-            checkedIn: true
         }
     ]).map((user, idx) => ({
         ...user,
-        status: user.status || statuses[idx % statuses.length],
-        registeredAt: user.registeredAt || new Date(),
-        checkedIn: user.checkedIn !== undefined ? user.checkedIn : idx % 3 === 0
+        status: statuses[idx % statuses.length],
+        registeredAt: new Date(),
+        checkedIn: idx % 3 === 0
     }));
 };
 

@@ -18,6 +18,8 @@ export default function CreateFlowPage() {
   
   // Create a new empty flow template
   const emptyFlow: Flow = {
+    templateId: "1",
+    eventId: "event-123", // This would come from the auth context in a real app
     id: "",
     name: "",
     description: "",

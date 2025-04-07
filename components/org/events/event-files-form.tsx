@@ -166,7 +166,6 @@ export function EventFilesForm({
       <FileUploadDialog 
         isOpen={isUploadDialogOpen}
         onClose={closeUploadDialog}
-        orgId="1" // In a real app, you would use the actual organization ID
         onUploadComplete={handleUploadComplete}
       />
     </Card>

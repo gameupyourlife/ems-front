@@ -118,7 +118,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
       if (type === 'trigger') {
         if (existingItem.type === 'date' && existingItem.details) {
           // Determine if it's an absolute or relative date trigger
-          const isRelative = existingItem.details.reference && existingItem.details.direction;
+          // const isRelative = existingItem.details.reference && existingItem.details.direction;
           setIsAddTriggerOpen(true);
         } else {
           setIsAddTriggerOpen(true);

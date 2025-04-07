@@ -12,11 +12,10 @@ import { cn } from "@/lib/utils";
 interface FileUploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  orgId: string;
   onUploadComplete?: (files: any[]) => void;
 }
 
-export default function FileUploadDialog({ isOpen, onClose, orgId, onUploadComplete }: FileUploadDialogProps) {
+export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: FileUploadDialogProps) {
   const [uploadingFiles, setUploadingFiles] = useState<{
     file: File;
     progress: number;

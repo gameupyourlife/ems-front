@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import EventTable from "@/components/org/event-table";
+import { useParams } from "next/navigation";
 
-export default function OrganizationEventsPage({ params }: { params: { orgId: string } }) {
+export default function OrganizationEventsPage() {
     // In a real application, you would fetch the organization and its events here
-    const orgId = params.orgId;
+    const params = useParams();
+    const orgId = params.orgId;    
+
     const org = mockOrg; // This would come from an API call in a real app
 
     // Filter for past, current, and future events
@@ -73,7 +76,7 @@ export default function OrganizationEventsPage({ params }: { params: { orgId: st
 
             {/* Events Table with Tabs */}
 
-            <EventTable events={allEvents} orgId={orgId} />
+            <EventTable events={allEvents}  />
 
             {/* <Tabs defaultValue="all" className="flex-1 overflow-hidden">
                 <TabsList className="mb-4 grid w-full grid-cols-3">

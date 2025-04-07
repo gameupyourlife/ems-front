@@ -1,6 +1,6 @@
 "use client";;
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +40,12 @@ import EventAttendeesTab from "./event-attendees-tab";
 import EventEmailsTab from "./event-emails-tab";
 
 
-export default function EventDetailsPage({ params }: { params: { eventId: string } }) {
+export default function EventDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams()
-  const eventId = params.eventId;
+  const params = useParams();
+  const eventId = params.eventId;    
+  
   
   // In a real app, you would fetch the event details by ID
   const eventDetails = mockedEventDetails;

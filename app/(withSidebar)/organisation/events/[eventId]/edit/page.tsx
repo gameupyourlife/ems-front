@@ -1,10 +1,8 @@
-"use client";
-
+"use client";;
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -53,9 +51,11 @@ import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventF
 
 
 export default function EditEventPage() {
+  
   const params = useParams();
   const router = useRouter();
   const eventId = params.eventId as string;
+  // redirect(`/organisation/events/${eventId}?tab=basic`);
   
   // In a real app, you would fetch the event details by ID
   const eventDetails = mockedEventDetails;
@@ -77,10 +77,8 @@ export default function EditEventPage() {
       description: event.description,
       category: event.category,
       location: event.location,
-      startDate: format(new Date(event.start), "yyyy-MM-dd"),
-      startTime: format(new Date(event.start), "HH:mm"),
-      endDate: format(new Date(event.end), "yyyy-MM-dd"),
-      endTime: format(new Date(event.end), "HH:mm"),
+      start: new Date(event.start),
+      end: new Date(event.end),
       status: event.status.toLowerCase(),
       capacity: event.capacity,
       image: event.image,
@@ -93,15 +91,9 @@ export default function EditEventPage() {
     
     try {
       // Combine date and time fields
-      const startDateTime = new Date(`${data.startDate}T${data.startTime}`);
-      const endDateTime = new Date(`${data.endDate}T${data.endTime}`);
       
       // In a real app, you would call an API to update the event
-      console.log("Updating event with values:", {
-        ...data,
-        startDateTime,
-        endDateTime
-      });
+
       console.log("Agenda items:", agendaItems);
       console.log("Selected files:", selectedFiles);
       console.log("Selected flows:", selectedFlows);
@@ -228,11 +220,8 @@ export default function EditEventPage() {
           <TabsContent value="basic">
             {/* ToDo: Fix the issues here with the form */}
             <EventBasicInfoForm 
-              form={form} 
-              selectedStatus={selectedStatus}
-              onStatusChange={onStatusChange}
-              onTabChange={setActiveTab}
-              showNextButton={true}
+              form={form}
+               
             />
           </TabsContent>
           

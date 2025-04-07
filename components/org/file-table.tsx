@@ -67,10 +67,9 @@ import FileUploadDialog from "@/components/org/file-upload-dialog";
 
 interface FileTableProps {
     files: EmsFile[];
-    orgId: string;
 }
 
-export default function FileTable({ files, orgId }: FileTableProps) {
+export default function FileTable({ files }: FileTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -670,7 +669,6 @@ export default function FileTable({ files, orgId }: FileTableProps) {
             <FileUploadDialog 
                 isOpen={isUploadDialogOpen}
                 onClose={closeUploadDialog}
-                orgId={orgId}
                 onUploadComplete={handleUploadComplete}
             />
         </div>

@@ -1171,5 +1171,7 @@ export const mockedEventDetails: EventDetails = {
   attendees: mockOrgUsers.map((orgUser) => orgUser.user),
   flows: mockFlows,
   files: mockFiles,
-  agenda: mockAgenda
+  agenda: mockAgenda,
+  emails: [],
+
 }

@@ -43,7 +43,7 @@ export default function CreateEventPage() {
   const [activeTab, setActiveTab] = useState("basic");
   const [selectedFiles, setSelectedFiles] = useState<EmsFile[]>([]);
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>([]);
-  const [agendaItems, setAgendaItems] = useState<Partial<AgendaStep>[]>([]);
+  const [agendaItems, setAgendaItems] = useState<AgendaStep[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("upcoming");
   const [isSubmitting, setIsSubmitting] = useState(false);
 

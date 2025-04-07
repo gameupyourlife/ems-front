@@ -45,8 +45,8 @@ import { AgendaStep } from "@/lib/types";
 import { AgendaStepFormData, agendaStepSchema } from "@/lib/form-schemas";
 
 interface EventAgendaFormProps {
-  agendaItems: Partial<AgendaStep>[];
-  onAgendaItemsChange: (items: Partial<AgendaStep>[]) => void;
+  agendaItems: AgendaStep[];
+  onAgendaItemsChange: (items: AgendaStep[]) => void;
   onTabChange?: (tab: string) => void;
   eventId?: string;
   isFinalStep?: boolean;
@@ -84,7 +84,7 @@ export function EventAgendaForm({
   // Handle adding a new agenda item
   const handleAddItem = (data: AgendaStepFormData) => {
     // Create new agenda item with random ID
-    const newItem: Partial<AgendaStep> = {
+    const newItem: AgendaStep = {
       id: `${Math.random().toString(36).substr(2, 9)}`,
       title: data.title,
       description: data.description || "",
@@ -295,7 +295,7 @@ export function EventAgendaForm({
         {isFinalStep ? (
           <Button
             type="button"
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={form.handleSubmit(() => { console.log("Final step") })}
             disabled={isSubmitting || !form.formState.isValid}
           >
             {isSubmitting ? (

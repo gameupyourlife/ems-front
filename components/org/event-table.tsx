@@ -69,10 +69,9 @@ import {
 
 interface EventTableProps {
     events: EventInfo[];
-    orgId: string;
 }
 
-export default function EventTable({ events, orgId }: EventTableProps) {
+export default function EventTable({ events  }: EventTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});

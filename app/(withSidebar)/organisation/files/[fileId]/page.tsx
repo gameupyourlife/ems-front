@@ -2,45 +2,47 @@
 
 import { useState } from "react";
 import { mockFiles } from "@/lib/data";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import {
-    FileIcon,
-    ArrowLeftIcon,
-    Download,
-    Share2,
-    Trash,
-    FileType,
-    LayoutGrid,
-    Eye,
-    LayoutList,
-    Check,
-    Copy
+  FileIcon,
+  ArrowLeftIcon,
+  Download,
+  Share2,
+  Trash,
+  FileType,
+  LayoutGrid,
+  Eye,
+  LayoutList,
+  Check,
+  Copy
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogClose
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-export default function FileDetailPage({ params }: { params: { fileId: string } }) {
+export default function FileDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-  const fileId = params.fileId;
+  const params = useParams();
+  const fileId = params.fileId;    
+  
   
   // Find the file by ID from mockFiles
   const file = mockFiles.find(f => f.id === fileId);
