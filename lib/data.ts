@@ -635,8 +635,20 @@ export const mockOrgUsers: OrgUser[] = [
   {
     user: {
       createdAt: "2023-01-01",
-      email: "mail@example.com",
+      email: "test@mail.de",
       id: "1",
+      name: "Test User",
+      updatedAt: "2023-01-02",
+      profilePicture: randomImage(200, 200)
+    },
+    orgId: "1",
+    role: "Admin"
+  },
+  {
+    user: {
+      createdAt: "2023-01-01",
+      email: "mail@example.com",
+      id: "123",
       name: "John Doe",
       updatedAt: "2023-01-02",
       profilePicture: randomImage(200, 200)
@@ -644,6 +656,7 @@ export const mockOrgUsers: OrgUser[] = [
     orgId: "1",
     role: "Admin"
   },
+  
   {
     user: {
       createdAt: "2023-01-01",

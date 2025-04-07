@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/context/user-org-context";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { clearAuthCookie } from "@/lib/auth-utils";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -39,6 +40,10 @@ export function NavUser() {
 
   // Handle logout
   const handleLogout = () => {
+    // Clear the auth cookie first
+    clearAuthCookie();
+    
+    // Then log out from the user context
     logout();
     toast.success("Erfolgreich abgemeldet");
     router.push("/login");
@@ -112,8 +117,10 @@ export function NavUser() {
                 Benachrichtigungen
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleTheme} >
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <div className="mr-2 h-4 w-4 relative">
+                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                </div>
                 <span>Farbmodus wechseln</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>

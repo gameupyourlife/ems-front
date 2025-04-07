@@ -4,40 +4,66 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUser } from "@/lib/context/user-org-context"
-import { redirect, useParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
+import { validateCredentials, setAuthCookie, isAuthenticatedByCookie } from "@/lib/auth-utils"
+import { useState, useEffect } from "react"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
   const { isAuthenticated, login } = useUser()
-  const params = useParams()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirectTo") || "/"
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
-  if (isAuthenticated) {
-    const redirectTo = params.redirectTo ? params.redirectTo[0] : "/"
-    redirect(redirectTo)
-  }
+  // Check if already authenticated via cookie or user context
+  useEffect(() => {
+    // If authenticated by user context, redirect
+    if (isAuthenticated) {
+      router.push(redirectTo)
+    }
+    // If authenticated by cookie but not by context, we need to sync them
+    else if (isAuthenticatedByCookie()) {
+      // This is a simple redirect; in a real app, you might want to 
+      // try refreshing the user session using the token
+      router.push(redirectTo)
+    }
+  }, [isAuthenticated, redirectTo, router])
 
-  function onSubmit (event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-
-    toast.promise(
-      login(email, password),
-      {
-        loading: "Logging in...",
-        success: "Logged in successfully!",
-        error: "Login failed. Please try again.",
-      },
-      
-    )
+    setIsSubmitting(true)
+    
+    try {
+      const formData = new FormData(event.currentTarget)
+      const email = formData.get("email") as string
+      const password = formData.get("password") as string
+  
+      // First validate against our test credentials
+      if (validateCredentials(email, password)) {
+        // Set auth cookie for middleware
+        setAuthCookie()
+        
+        // Then attempt to login with the app's user context
+        await login(email, password)
+        toast.success("Logged in successfully!")
+        router.push(redirectTo)
+      } else {
+        toast.error("Invalid credentials. Please try again.")
+      }
+    } catch (error) {
+      toast.error("Error during login. Please try again.")
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} onSubmit={(f) =>  onSubmit(f)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -47,7 +73,7 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input id="email" name="email" type="email" placeholder="m@example.com" required />
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
@@ -59,10 +85,10 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input id="password" name="password" type="password" required />
         </div>
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Logging in..." : "Login"}
         </Button>
         {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
