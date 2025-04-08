@@ -147,7 +147,7 @@ export default function FilterDropdown({
           Filter
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-72" sideOffset={5}>
+      <DropdownMenuContent className="w-64" sideOffset={5}>
         {/* Überschrift des Dropdown-Menüs */}
         <DropdownMenuLabel>Veranstaltungen filtern</DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -164,44 +164,108 @@ export default function FilterDropdown({
                   <SlidersHorizontal className="h-4 w-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64">
-                <div className="p-2 space-y-2">
-                  {/* Checkboxen für Kategorien */}
-                  <Label className="flex items-center gap-2 font-normal">
-                    <Checkbox
-                      checked={selectedFilters.category.includes("music")}
-                      onCheckedChange={() => toggleCategory("music")}
-                    />
-                    Musik
-                  </Label>
-                  <Label className="flex items-center gap-2 font-normal">
-                    <Checkbox
-                      checked={selectedFilters.category.includes("art")}
-                      onCheckedChange={() => toggleCategory("art")}
-                    />
-                    Kunst & Kultur
-                  </Label>
-                  <Label className="flex items-center gap-2 font-normal">
-                    <Checkbox
-                      checked={selectedFilters.category.includes("tech")}
-                      onCheckedChange={() => toggleCategory("tech")}
-                    />
-                    Technologie
-                  </Label>
-                  <Label className="flex items-center gap-2 font-normal">
-                    <Checkbox
-                      checked={selectedFilters.category.includes("food")}
-                      onCheckedChange={() => toggleCategory("food")}
-                    />
-                    Essen & Trinken
-                  </Label>
-                  <Label className="flex items-center gap-2 font-normal">
-                    <Checkbox
-                      checked={selectedFilters.category.includes("sports")}
-                      onCheckedChange={() => toggleCategory("sports")}
-                    />
-                    Sport
-                  </Label>
+              <DropdownMenuContent className="w-48 p-3">
+                <h4 className="font-medium mb-3 text-sm">Kategorien auswählen</h4>
+                <div className="flex flex-col gap-3">
+                  <div
+                    className={`p-3 rounded-lg border shadow-sm transition-colors ${
+                      selectedFilters.category.includes("tech")
+                        ? "bg-primary/10 border-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                    onClick={() => toggleCategory("tech")}
+                  >
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer w-full">
+                      <Checkbox
+                        checked={selectedFilters.category.includes("tech")}
+                        onCheckedChange={() => toggleCategory("tech")}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Technologie</span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div
+                    className={`p-3 rounded-lg border shadow-sm transition-colors ${
+                      selectedFilters.category.includes("design")
+                        ? "bg-primary/10 border-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                    onClick={() => toggleCategory("design")}
+                  >
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer w-full">
+                      <Checkbox
+                        checked={selectedFilters.category.includes("design")}
+                        onCheckedChange={() => toggleCategory("design")}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Design</span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div
+                    className={`p-3 rounded-lg border shadow-sm transition-colors ${
+                      selectedFilters.category.includes("business")
+                        ? "bg-primary/10 border-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                    onClick={() => toggleCategory("business")}
+                  >
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer w-full">
+                      <Checkbox
+                        checked={selectedFilters.category.includes("business")}
+                        onCheckedChange={() => toggleCategory("business")}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Business</span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div
+                    className={`p-3 rounded-lg border shadow-sm transition-colors ${
+                      selectedFilters.category.includes("finanzen")
+                        ? "bg-primary/10 border-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                    onClick={() => toggleCategory("finanzen")}
+                  >
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer w-full">
+                      <Checkbox
+                        checked={selectedFilters.category.includes("finanzen")}
+                        onCheckedChange={() => toggleCategory("finanzen")}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Finanzen</span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div
+                    className={`p-3 rounded-lg border shadow-sm transition-colors ${
+                      selectedFilters.category.includes("sports")
+                        ? "bg-primary/10 border-primary"
+                        : "border-border hover:bg-accent"
+                    }`}
+                    onClick={() => toggleCategory("sport")}
+                  >
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer w-full">
+                      <Checkbox
+                        checked={selectedFilters.category.includes("sport")}
+                        onCheckedChange={() => toggleCategory("sport")}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Sport</span>
+                      </div>
+                    </Label>
+                  </div>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -212,8 +276,8 @@ export default function FilterDropdown({
             <p className="text-sm font-medium mb-2">Datum</p>
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-2">
-                <TabsTrigger value="single">Bestimmtes Datum</TabsTrigger>
-                <TabsTrigger value="range">Datumsbereich</TabsTrigger>
+                <TabsTrigger value="single">Datum</TabsTrigger>
+                <TabsTrigger value="range">Zeitraum</TabsTrigger>
               </TabsList>
               <TabsContent value="single" className="mt-0">
                 <div className="space-y-4">
