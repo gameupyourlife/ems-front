@@ -15,7 +15,7 @@ export default function AllEvents() {
       date: new Date("2025-05-15"), // Use Date object directly
       organization: "Code Akademie",
       location: "Berlin, Deutschland",
-      category: "tech", // Using the category value that matches our filter
+      category: "Technologie", // Using the category value that matches our filter
       image: randomImage(800, 400),
       attendees: 200
     },
@@ -26,7 +26,7 @@ export default function AllEvents() {
       date: new Date("2025-05-20"),
       organization: "Design Hub",
       location: "Hamburg, Deutschland",
-      category: "art", // Using the category value that matches our filter
+      category: "Design", // Using the category value that matches our filter
       image: randomImage(800, 400),
       attendees: 50
     },
@@ -37,7 +37,7 @@ export default function AllEvents() {
       date: new Date("2025-06-01"),
       organization: "Dateninstitut",
       location: "München, Deutschland",
-      category: "tech", // Using the category value that matches our filter
+      category: "Technologie", // Using the category value that matches our filter
       image: randomImage(800, 400),
       attendees: 100
     },
