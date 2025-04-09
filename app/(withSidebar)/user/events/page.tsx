@@ -2,11 +2,11 @@
 import { useState } from "react";
 import EventLayout from "@/components/user/event-layout";
 import type { EventInfo } from "@/lib/types";
-import { mockEvents } from "@/lib/data";
+import { mockEventsUsr } from "@/lib/data";
 
 export default function AllEvents() {
   // Zustand für alle Events initialisieren
-  const [allEvents] = useState<EventInfo[]>(mockEvents)
+  const [allEvents] = useState<EventInfo[]>(mockEventsUsr)
 
   // Funktion zum Verarbeiten von Suchanfragen
   const handleSearch = (query: string) => {
