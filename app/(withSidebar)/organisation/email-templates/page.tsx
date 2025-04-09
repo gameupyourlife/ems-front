@@ -370,10 +370,12 @@ export default function EmailTemplates() {
         const template = row.original;
         return (
           <div className="flex justify-end">
-            <Button variant="outline" size="sm" className="mr-2" onClick={() => handlePreview(template)}>
-              View
-              <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
+            <Link href={`/organisation/email-templates/${template.id}`} className="flex items-center">
+              <Button variant="outline" size="sm" className="mr-2" >
+                View
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -775,9 +777,9 @@ export default function EmailTemplates() {
 
               <div className="space-y-1">
                 <h3 className="text-sm font-medium text-muted-foreground">Email Body</h3>
-                <div className="border rounded-md p-4 bg-white">
+                <div className="border rounded-md p-4 ">
                   <div
-                    className="prose max-w-none text-sm"
+                    className="prose dark:prose-invert max-w-none text-sm"
                     dangerouslySetInnerHTML={{ __html: templateToPreview?.body || "" }}
                   />
                 </div>

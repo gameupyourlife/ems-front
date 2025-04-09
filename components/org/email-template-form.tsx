@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
+import {
   Card,
   CardContent,
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -278,7 +278,7 @@ export default function EmailTemplateForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex items-center gap-2">
         <Button 
           variant="outline" 
@@ -365,7 +365,7 @@ export default function EmailTemplateForm({
                   {editor && <EmailEditorToolbar editor={editor} />}
                   <EditorContent
                     editor={editor}
-                    className="prose max-w-none p-4 min-h-[300px]"
+                    className="prose dark:prose-invert max-w-none p-4 min-h-[300px]"
                   />
                 </div>
                 {errors.body && (

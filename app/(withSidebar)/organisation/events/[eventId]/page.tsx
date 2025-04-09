@@ -1,6 +1,6 @@
 "use client";;
 import { useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -44,15 +44,23 @@ export default function EventDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams()
   const params = useParams();
-  const eventId = params.eventId;    
-  
-  
+  const path = usePathname();
+  const eventId = params.eventId;
+
+
   // In a real app, you would fetch the event details by ID
   const eventDetails = mockedEventDetails;
   const event = eventDetails.metadata;
-  
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || "overview");
-  
+
+  const [activeTab, setActiveTabState] = useState(searchParams.get('tab') || "overview");
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    let params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    router.push(path + '?' + params.toString());
+  };
+
   // Handle event deletion
   const handleDeleteEvent = () => {
     // In a real app, you would call an API to delete the event
@@ -95,7 +103,7 @@ export default function EventDetailsPage() {
             {event.organization} • {format(new Date(event.date), "MMMM dd, yyyy")}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href={`/organisation/events/${eventId}/edit`}>
@@ -103,7 +111,7 @@ export default function EventDetailsPage() {
               Edit Event
             </Link>
           </Button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="h-9 w-9">
@@ -133,8 +141,8 @@ export default function EventDetailsPage() {
 
       {/* Event Hero Section */}
       <div className="relative rounded-lg overflow-hidden h-40 md:h-60">
-        <img 
-          src={event.image || "https://via.placeholder.com/1200x400"} 
+        <img
+          src={event.image || "https://via.placeholder.com/1200x400"}
           alt={event.title}
           className="object-cover w-full h-full"
         />
@@ -160,43 +168,43 @@ export default function EventDetailsPage() {
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="flex w-full mx-auto bg-muted">
-          <TabsTrigger 
-            value="overview" 
+          <TabsTrigger
+            value="overview"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <CalendarIcon className="h-4 w-4" />
             <span>Overview</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="files" 
+          <TabsTrigger
+            value="files"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <FileText className="h-4 w-4" />
             <span>Files</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="flows" 
+          <TabsTrigger
+            value="flows"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <FunctionSquare className="h-4 w-4" />
             <span>Flows</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="agenda" 
+          <TabsTrigger
+            value="agenda"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <ListTodo className="h-4 w-4" />
             <span>Agenda</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="emails" 
+          <TabsTrigger
+            value="emails"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <MailsIcon className="h-4 w-4" />
             <span>Mails</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="attendees" 
+          <TabsTrigger
+            value="attendees"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <UsersIcon className="h-4 w-4" />
@@ -211,7 +219,7 @@ export default function EventDetailsPage() {
 
         {/* Files Tab */}
         <TabsContent value="files" className="space-y-6">
-          <EventFilesTab eventDetails={eventDetails}  />
+          <EventFilesTab eventDetails={eventDetails} />
         </TabsContent>
 
         {/* Flows Tab - IMPROVED VISUALIZATION */}
@@ -223,12 +231,12 @@ export default function EventDetailsPage() {
         <TabsContent value="agenda" className="space-y-6">
           <EventAgendaTab eventDetails={eventDetails} />
         </TabsContent>
-        
+
         {/* Attendees Tab */}
         <TabsContent value="attendees" className="space-y-6">
           <EventAttendeesTab eventDetails={eventDetails} />
         </TabsContent>
-        
+
         {/* emails Tab */}
         <TabsContent value="emails" className="space-y-6">
           <EventEmailsTab eventDetails={eventDetails} />
