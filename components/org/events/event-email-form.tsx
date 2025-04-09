@@ -2,36 +2,36 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
 } from "@/components/ui/tabs";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
+    Popover,
+    PopoverContent,
+    PopoverTrigger
 } from "@/components/ui/popover";
 import { DateTimePicker24h } from "@/components/ui/date-time-picker";
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CalendarIcon, ChevronLeft, Send, Users, UserPlus, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -526,7 +526,7 @@ export function EventEmailForm({
                 {editor && <EmailEditorToolbar editor={editor} />}
                 <EditorContent
                   editor={editor}
-                  className="prose max-w-none p-4 min-h-[300px]"
+                  className="prose dark:prose-invert max-w-none p-4 min-h-[300px]"
                 />
               </div>
             </div>

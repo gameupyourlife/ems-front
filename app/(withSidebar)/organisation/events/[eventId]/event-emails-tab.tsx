@@ -3,18 +3,12 @@ import { useEffect, useState } from "react";
 import { Email, EventDetails } from "@/lib/types";
 import EmailTable from "@/components/org/events/event-email-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, FileText, Plus, Edit, Copy, Pencil } from "lucide-react";
+import { Mail, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { emailTemplates } from "@/lib/mock/email-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import EmailTemplateView from "@/components/org/email-template-view";
 
 // Mock data for emails (instances of email templates sent to recipients)
 const mockEmails: Email[] = [
@@ -263,55 +257,21 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
 
                   {/* Event-specific templates */}
                   {eventTemplates.length > 0 ? (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+                    <div className="grid gap-4 md:grid-cols-2 mb-8">
                       {eventTemplates.map((template) => (
-                        <div 
+                        <EmailTemplateView
                           key={template.id}
-                          className="border rounded-md p-4 hover:border-primary transition-colors relative"
-                        >
-                          <div className="absolute top-4 right-4">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/organisation/events/${eventId}/templates/${template.id}/edit`} className="flex cursor-pointer">
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>Edit Template</span>
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => handleDeleteTemplate(template.id)}
-                                  className="text-red-600 focus:text-red-600"
-                                >
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>Delete Template</span>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-
-                          <Badge 
-                            variant="outline" 
-                            className="bg-green-50 text-green-800 mb-2"
-                          >
-                            Event Template
-                          </Badge>
-
-                          <h3 className="font-medium mb-2 pr-8">{template.name}</h3>
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{template.description}</p>
-                          <p className="text-xs text-muted-foreground mb-4 line-clamp-1">
-                            Subject: <span className="text-foreground">{template.subject}</span>
-                          </p>
-                          <Link href={`/organisation/events/${eventId}/emails/create?template=${template.id}`} 
-                            className="flex items-center justify-center w-full px-3 py-2 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Email
-                          </Link>
-                        </div>
+                          template={template}
+                          onEdit={() => {
+                            window.location.href = `/organisation/events/${eventId}/templates/${template.id}/edit`;
+                          }}
+                          onDelete={() => handleDeleteTemplate(template.id)}
+                          onCreateEmail={() => {
+                            window.location.href = `/organisation/events/${eventId}/emails/create?template=${template.id}`;
+                          }}
+                          isEvent={true}
+                          eventId={eventId}
+                        />
                       ))}
                     </div>
                   ) : (
@@ -332,56 +292,17 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
                   )}
 
                   <h3 className="text-lg font-medium mb-4">Organization Templates</h3>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-4 md:grid-cols-2">
                     {orgTemplates.map((template) => (
-                      <div 
+                      <EmailTemplateView
                         key={template.id}
-                        className="border rounded-md p-4 hover:border-primary transition-colors relative"
-                      >
-                        <div className="absolute top-4 right-4">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleDuplicateTemplate(template)}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                <span>Duplicate as Event Template</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <Badge 
-                          variant="outline" 
-                          className="bg-blue-50 text-blue-800 mb-2"
-                        >
-                          Organization Template
-                        </Badge>
-
-                        <h3 className="font-medium mb-2 pr-8">{template.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{template.description}</p>
-                        <p className="text-xs text-muted-foreground mb-4 line-clamp-1">
-                          Subject: <span className="text-foreground">{template.subject}</span>
-                        </p>
-                        <div className="flex gap-2">
-                          <Link href={`/organisation/events/${eventId}/emails/create?template=${template.id}`} 
-                            className="flex items-center justify-center flex-1 px-3 py-2 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Email
-                          </Link>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="px-3 py-2"
-                            onClick={() => handleDuplicateTemplate(template)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+                        template={template}
+                        onDuplicate={() => handleDuplicateTemplate(template)}
+                        onCreateEmail={() => {
+                          window.location.href = `/organisation/events/${eventId}/emails/create?template=${template.id}`;
+                        }}
+                        eventId={eventId}
+                      />
                     ))}
                   </div>
                 </>

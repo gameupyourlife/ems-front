@@ -5,39 +5,37 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Email } from "@/lib/types";
 import { format } from "date-fns";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ChevronLeft, 
-  Clock, 
-  Edit, 
-  Mail, 
-  Send, 
-  Trash, 
-  Copy, 
-  User, 
-  CalendarIcon,
-  CheckCircle,
-  AlertCircle
+import {
+    ChevronLeft,
+    Clock,
+    Edit, Send,
+    Trash,
+    Copy,
+    User,
+    CalendarIcon,
+    CheckCircle,
+    AlertCircle
 } from "lucide-react";
 
 // Mock data for emails
@@ -337,7 +335,7 @@ export default function ViewEmail() {
           <div className="space-y-2">
             <h3 className="text-lg font-medium">Email Content</h3>
             <div 
-              className="prose max-w-none border rounded-md p-6 bg-white"
+              className="prose dark:prose-invert max-w-none border rounded-md p-6 bg-white dark:bg-gray-900"
               dangerouslySetInnerHTML={{ __html: email.body }}
             />
           </div>
