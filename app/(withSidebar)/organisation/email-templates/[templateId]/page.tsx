@@ -10,40 +10,40 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-    ChevronLeft,
-    Mail,
-    Calendar,
-    FileText,
-    Code,
-    Settings,
-    Edit,
-    Copy,
-    Trash,
-    Eye,
-    User,
-    Tag,
-    Clock,
-    CheckCircle2,
-    AlertTriangle,
+  ChevronLeft,
+  Mail,
+  Calendar,
+  FileText,
+  Code,
+  Settings,
+  Edit,
+  Copy,
+  Trash,
+  Eye,
+  User,
+  Tag,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { emailTemplates } from "@/lib/mock/email-data";
 
@@ -523,7 +523,7 @@ export default function TemplateDetailPage() {
                           <CardTitle className="text-sm font-medium">Events Using</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-3xl font-bold">{Math.ceil(template.usageCount / 3)}</div>
+                          <div className="text-3xl font-bold">{Math.ceil((template.usageCount ?? 0) / 3)}</div>
                           <p className="text-xs text-muted-foreground mt-1">Events using this template</p>
                         </CardContent>
                       </Card>

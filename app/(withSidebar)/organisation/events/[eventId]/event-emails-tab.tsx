@@ -103,7 +103,7 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
             id: "event-template-1",
             name: "Custom Event Welcome",
             subject: "Welcome to [Event Name] - Special Information",
-            body: `<h2>Welcome to ${eventDetails.title}!</h2><p>This is a custom template for this specific event.</p>`,
+            body: `<h2>Welcome to ${eventDetails.metadata.title}!</h2><p>This is a custom template for this specific event.</p>`,
             description: "Custom welcome email for this event",
             isSystemTemplate: false,
             isOrgTemplate: false,
@@ -136,7 +136,7 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
     };
 
     fetchData();
-  }, [eventId, eventDetails.title]);
+  }, [eventId, eventDetails.metadata.title]);
 
   const handleDeleteEmail = async (emailId: string) => {
     try {
