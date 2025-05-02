@@ -617,7 +617,7 @@ export const data = [
 ]
 
 export const mockOrg: Organization = {
-  id: "1",
+  id: "9debf0e7-ce41-4b03-99cf-e4a6b1916797",
   numOfMembers: 10,
   numOfEvents: 5,
   owner: "John Doe",
@@ -1221,7 +1221,8 @@ export const mockFlowTemplates: FlowTemplate[] = [
           value: 7,
           valueType: "days",
           valueRelativeTo: "event.date",
-          valueRelativeOperator: "bevore"
+          valueRelativeOperator: "before",
+          valueRelativeDateOperator: "before"
         }
       }
     ],

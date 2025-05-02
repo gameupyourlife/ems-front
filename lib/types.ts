@@ -1,15 +1,16 @@
+import { EmptyObject } from "react-hook-form";
+
 export interface EventInfo {
     id: string,
     title: string,
     organization: string,
-    date: Date,
     location: string,
     description: string,
-    category: string,
+    category: number,
     attendees: number,
     capacity: number,
     image: string,
-    status: string,
+    status: number,
     start: Date,
     end: Date,
     createdAt: Date,
@@ -17,6 +18,24 @@ export interface EventInfo {
     createdBy: string,
     updatedBy: string,
 }
+
+type ApiEventsGetResult0 = {
+    "id"?: string;
+    "title"?: string;
+    "date"?: string; 
+    "description"?: string; 
+    "location"?: string; 
+    "createdAt"?: string; 
+    "updatedAt"?: string; 
+    "image"?: string; 
+    "category"?: number; 
+    "status"?: number; 
+    "start"?: string; 
+    "end"?: string; 
+    "attendeeCount"?: number; 
+    "agendaItemCount"?: number;
+};
+
 export interface Organization {
     id: string;
     numOfMembers: number;
@@ -51,7 +70,7 @@ export interface OrgUser {
 export type ConditionType = "date" | "numOfAttendees" | "status" | "registration";
 
 export interface DateConditionDetails {
-    operator: "before" | "after" | "on";
+    operator: "lessThan" | "greaterThan" | "equal";
     value: string; // date-time format
 }
 
@@ -66,21 +85,68 @@ export interface StatusConditionDetails {
     value: "active" | "cancelled" | "completed" | "archived" | "draft";
 }
 
-export interface RegistrationConditionDetails {
-    // Empty object as registration events don't need additional details
-}
 
 export type ConditionDetails = 
     | DateConditionDetails 
     | NumOfAttendeesConditionDetails 
     | StatusConditionDetails 
-    | RegistrationConditionDetails;
+    | EmptyObject;
 
 export interface Condition {
     id: string;
     type: ConditionType;
     details: ConditionDetails;
 }
+
+export interface TypeSafeCondition<T extends ConditionType> {
+    id: string;
+    type: T;
+    details: T extends "date" ? DateConditionDetails :
+             T extends "numOfAttendees" ? NumOfAttendeesConditionDetails :
+             T extends "status" ? StatusConditionDetails :
+             T extends "registration" ? RegistrationConditionDetails : never;
+}
+
+
+
+export interface InheritanceCondition {
+    id: string;
+    type: ConditionType;
+    details: ConditionDetails;
+}
+
+export interface InheritanceDateCondition extends InheritanceCondition {
+    type: "date";
+    details: DateConditionDetails;
+}
+
+export interface InheritanceNumOfAttendeesCondition extends InheritanceCondition {
+    type: "numOfAttendees";
+    details: NumOfAttendeesConditionDetails;
+}
+export interface InheritanceStatusCondition extends InheritanceCondition {
+    type: "status";
+    details: StatusConditionDetails;
+}
+export interface InheritanceRegistrationCondition extends InheritanceCondition {
+    type: "registration";
+    details: RegistrationConditionDetails;
+}
+
+
+const dateCondition : TypeSafeCondition<"date"> = {
+    id: "1",
+    type: "date",
+    details: {
+        operator: "lessThan",
+        value: 7,
+        valueType: "days",
+        valueRelativeTo: "event.date",
+        valueRelativeOperator: "before"
+        valueRelativeDateOperator: "before"
+      }
+};
+
 
 // Action types
 export type ActionType = "email" | "notification" | "statusChange" | "fileShare" | "imageChange" | "titleChange" | "descriptionChange";

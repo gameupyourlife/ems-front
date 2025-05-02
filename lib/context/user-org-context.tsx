@@ -3,6 +3,8 @@
 import { Organization, User, OrgUser } from "@/lib/types";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { mockOrg, mockOrgUsers } from "@/lib/data";
+import { useRouter } from "next/navigation";
+import { setAuthCookies, clearAuthCookies, getUserFromCookie, isAuthenticatedByCookie } from "@/lib/auth-utils";
 
 // Context types
 type UserContextType = {
@@ -47,26 +49,43 @@ export function UserOrgProvider({ children }: { children: ReactNode }) {
     const initializeUser = async () => {
       setIsLoading(true);
       try {
-        // This would be a real API call in production
-        // For now, simulate by setting some mock data
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Set mock user as first user from mock data
-        if (mockOrgUsers.length > 0) {
-          const firstOrgUser = mockOrgUsers[0];
-          setCurrentUser(firstOrgUser.user);
+        // Check if we have user data in cookies
+        if (isAuthenticatedByCookie()) {
+          const cookieUser = getUserFromCookie();
           
-          // Set user's organizations (for now just the mock org)
-          setUserOrgs([mockOrg]);
-          
-          // Set current organization
-          setCurrentOrg(mockOrg);
-          
-          // Set current org user data
-          setCurrentOrgUser(firstOrgUser);
+          if (cookieUser?.id) {
+            // Find the complete user data from mock data
+            // In a real app, you'd fetch this from your API
+            const matchingOrgUser = mockOrgUsers.find(
+              orgUser => orgUser.user.id === cookieUser.id
+            );
+            
+            if (matchingOrgUser) {
+              setCurrentUser(matchingOrgUser.user);
+              
+              // Set user's organizations (for now just the mock org)
+              setUserOrgs([mockOrg]);
+              
+              // Set current organization
+              setCurrentOrg(mockOrg);
+              
+              // Set current org user data
+              setCurrentOrgUser(matchingOrgUser);
+              
+              // Done loading with success
+              setIsLoading(false);
+              return;
+            }
+          }
         }
+        
+        // If we reach here, either no cookie exists or the user data couldn't be loaded
+        // In a real app, you could redirect to login here
+        // For now just set as not authenticated
+        setCurrentUser(null);
+        setCurrentOrg(null);
+        setCurrentOrgUser(null);
+        setUserOrgs([]);
       } catch (error) {
         console.error("Failed to initialize user session:", error);
       } finally {
@@ -90,7 +109,14 @@ export function UserOrgProvider({ children }: { children: ReactNode }) {
       );
       
       if (matchingOrgUser) {
-        setCurrentUser(matchingOrgUser.user);
+        const user = matchingOrgUser.user;
+        
+        // Set auth cookies with user information
+        // In a real app, this would include a JWT token from your server
+        setAuthCookies(user, "mock-auth-token-for-demo");
+        
+        // Update state
+        setCurrentUser(user);
         setCurrentOrgUser(matchingOrgUser);
         
         // Set the user's organizations and default to the first one
@@ -111,6 +137,10 @@ export function UserOrgProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = () => {
+    // Clear auth cookies
+    clearAuthCookies();
+    
+    // Reset state
     setCurrentUser(null);
     setCurrentOrg(null);
     setCurrentOrgUser(null);
@@ -189,6 +219,34 @@ export function useOrg() {
     throw new Error("useOrg must be used within a UserOrgProvider");
   }
   return context;
+}
+
+/**
+ * Custom hook that ensures an organization is available.
+ * If no organization is found, it redirects to the login page.
+ * This is useful for pages that require an organization to function.
+ * 
+ * @returns The current organization context with the guarantee that currentOrg is not null
+ */
+export function useRequiredOrg() {
+  const orgContext = useOrg();
+  const { isAuthenticated, isLoading } = useUser();
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Only redirect after initial loading is complete
+    if (!isLoading && (!isAuthenticated || !orgContext.currentOrg)) {
+      // Redirect to login page with the current path as redirect target
+      const currentPath = window.location.pathname;
+      router.push(`/login?redirectTo=${encodeURIComponent(currentPath)}`);
+    }
+  }, [isAuthenticated, orgContext.currentOrg, isLoading, router]);
+  
+  // Cast the context to non-null since we're handling the null case with redirection
+  return {
+    ...orgContext,
+    currentOrg: orgContext.currentOrg || {} as Organization, // Will be used only when not null
+  };
 }
 
 // Combined hook for convenience

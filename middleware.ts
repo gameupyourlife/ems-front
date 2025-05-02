@@ -10,23 +10,36 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
   
-  // Get auth token from cookies (we'll create this when logging in)
+  // Get auth information from cookies
   const token = request.cookies.get('auth-token')?.value;
+  const userId = request.cookies.get('user-id')?.value;
+  
+  // For debugging (remove in production)
+  // console.log('Middleware: Checking auth for', request.nextUrl.pathname);
+  // console.log('Auth token:', token);
+  // console.log('User ID:', userId);
   
   // Allow access to public paths
   if (isPublicPath) {
     return NextResponse.next();
   }
   
-  // If not public path and no token, redirect to login
-  if (!token) {
+  // If not public path and no token or userId, redirect to login
+  if (!token || !userId) {
     // Store the original URL to redirect back after login
     const url = new URL('/login', request.url);
     url.searchParams.set('redirectTo', request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
   
-  return NextResponse.next();
+  // User is authenticated, add user info to request headers
+  // This allows server components to access user info without client-side context
+  const response = NextResponse.next();
+  
+  // Add user info to response headers for server components
+  response.headers.set('x-user-id', userId);
+  
+  return response;
 }
 
 // Configure which paths the middleware applies to

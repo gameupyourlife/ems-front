@@ -66,12 +66,14 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
+import { useRequiredOrg } from "@/lib/context/user-org-context";
+import { useEvents } from "@/lib/backend/hooks/events";
 
 interface EventTableProps {
-    events: EventInfo[];
+    // events: EventInfo[];
 }
 
-export default function EventTable({ events  }: EventTableProps) {
+export default function EventTable({ }: EventTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -79,6 +81,35 @@ export default function EventTable({ events  }: EventTableProps) {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [activeStatus, setActiveStatus] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+    const { currentOrg } = useRequiredOrg();
+    const { isPending, error, data: rawEvents } = useEvents(currentOrg.id);
+
+
+    const events: EventInfo[] = rawEvents?.map((event: any) => {
+
+        let entry: EventInfo = {
+            id: event.id!,
+            title: event.title!,
+            description: event.description!,
+            location: event.location!,
+            createdAt: new Date(event.createdAt || 0),
+            updatedAt: new Date(event.updatedAt || 0),
+            createdBy: "",
+            updatedBy: "",
+            status: event.status!,
+            start: new Date(event.start || 0),
+            end: new Date(event.end || 0),
+            organization: "",
+            category: event.category!,
+            attendees: event.attendeeCount!,
+            capacity: 500,
+            image: "",
+
+        }
+
+        return entry;
+    }) || [];
 
     // Toggle status filter
     const toggleStatusFilter = (status: string) => {
@@ -187,7 +218,7 @@ export default function EventTable({ events  }: EventTableProps) {
                 </Button>
             ),
             cell: ({ row }) => {
-                const date = new Date(row.original.date);
+                const date = new Date(row.original.start);
                 const now = new Date();
                 const isToday = date.toDateString() === now.toDateString();
                 const isUpcoming = date > now;
@@ -340,7 +371,7 @@ export default function EventTable({ events  }: EventTableProps) {
     // Custom global filter function for OR logic across columns
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
         if (filterValue === "") return true;
-        
+
         const eventTitle = String(row.original.title).toLowerCase();
         const eventLocation = String(row.original.location).toLowerCase();
         const eventDescription = String(row.original.description).toLowerCase();

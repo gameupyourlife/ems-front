@@ -1,4 +1,4 @@
-"use client";
+"use client";;
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/context/user-org-context";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-import { clearAuthCookie } from "@/lib/auth-utils";
+import { clearAuthCookies } from "@/lib/auth-utils";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -41,7 +41,7 @@ export function NavUser() {
   // Handle logout
   const handleLogout = () => {
     // Clear the auth cookie first
-    clearAuthCookie();
+    clearAuthCookies();
     
     // Then log out from the user context
     logout();

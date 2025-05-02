@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { SiteHeader } from "@/components/site-header";
 
 
 export default function RootLayout({
@@ -32,14 +31,13 @@ export default function RootLayout({
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          "--header-height": "calc(var(--spacing) * 14)",
         } as React.CSSProperties
       }
       className="flex-1 overflow-hidden"
     >
       <AppSidebar variant="sidebar" collapsible="icon" />
       <SidebarInset className="flex-1 overflow-hidden">
-        <SiteHeader />
         {children}
       </SidebarInset>
     </SidebarProvider>

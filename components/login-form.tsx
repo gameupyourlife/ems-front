@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { useUser } from "@/lib/context/user-org-context"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { validateCredentials, setAuthCookie, isAuthenticatedByCookie } from "@/lib/auth-utils"
+import { validateCredentials, isAuthenticatedByCookie } from "@/lib/auth-utils"
 import { useState, useEffect } from "react"
 
 export function LoginForm({
@@ -44,8 +44,6 @@ export function LoginForm({
   
       // First validate against our test credentials
       if (validateCredentials(email, password)) {
-        // Set auth cookie for middleware
-        setAuthCookie()
         
         // Then attempt to login with the app's user context
         await login(email, password)
