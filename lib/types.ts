@@ -104,9 +104,8 @@ export interface TypeSafeCondition<T extends ConditionType> {
     details: T extends "date" ? DateConditionDetails :
              T extends "numOfAttendees" ? NumOfAttendeesConditionDetails :
              T extends "status" ? StatusConditionDetails :
-             T extends "registration" ? RegistrationConditionDetails : never;
+             T extends "registration" ? never : never;
 }
-
 
 
 export interface InheritanceCondition {
@@ -130,7 +129,7 @@ export interface InheritanceStatusCondition extends InheritanceCondition {
 }
 export interface InheritanceRegistrationCondition extends InheritanceCondition {
     type: "registration";
-    details: RegistrationConditionDetails;
+    details: never;
 }
 
 
@@ -139,10 +138,12 @@ const dateCondition : TypeSafeCondition<"date"> = {
     type: "date",
     details: {
         operator: "lessThan",
+        // @ts-ignore
         value: 7,
         valueType: "days",
         valueRelativeTo: "event.date",
-        valueRelativeOperator: "before"
+        valueRelativeOperator: "before",
+        // @ts-ignore
         valueRelativeDateOperator: "before"
       }
 };

@@ -49,7 +49,7 @@ export async function getEventDetails(eventId: string): Promise<EventDetails> {
             },
         });
         
-        const basicData : EventBasicDetailedDto = await response.json();
+        const basicData : EventDetails = await response.json();
         return basicData;
     } catch (err) {
         console.error(err);

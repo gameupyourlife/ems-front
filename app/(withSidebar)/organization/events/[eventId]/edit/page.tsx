@@ -67,7 +67,7 @@ export default function EditEventPage() {
   const [agendaItems, setAgendaItems] = useState<AgendaStep[]>(eventDetails.agenda);
   const [selectedFiles, setSelectedFiles] = useState<EmsFile[]>(eventDetails.files);
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>(eventDetails.flows);
-  const [selectedStatus, setSelectedStatus] = useState(event.status.toLowerCase());
+  const [selectedStatus, setSelectedStatus] = useState(event.status);
   
   // Initialize form with event data using our shared schema
   const form = useForm<EventFormData>({
@@ -79,7 +79,7 @@ export default function EditEventPage() {
       location: event.location,
       start: new Date(event.start),
       end: new Date(event.end),
-      status: event.status.toLowerCase(),
+      status: event.status.toString(),
       capacity: event.capacity,
       image: event.image,
     },
@@ -133,11 +133,11 @@ export default function EditEventPage() {
     }
   };
   
-  // Handle status change
-  const onStatusChange = (status: string) => {
-    setSelectedStatus(status);
-    form.setValue("status", status, { shouldValidate: true });
-  };
+  // // Handle status change
+  // const onStatusChange = (status: string) => {
+  //   setSelectedStatus(status);
+  //   form.setValue("status", status, { shouldValidate: true });
+  // };
   
   return (
     <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">

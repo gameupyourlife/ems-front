@@ -70,6 +70,7 @@ import {
 } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/site-header";
+import { QuickAction } from "@/components/dynamic-quick-actions";
 
 // Add a user-created flag to templates
 type EmailTemplate = {

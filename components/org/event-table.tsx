@@ -475,16 +475,16 @@ export default function EventTable({ }: EventTableProps) {
                                         {categories.map((category) => (
                                             <CommandItem
                                                 key={category}
-                                                onSelect={() => toggleCategoryFilter(category)}
+                                                onSelect={() => toggleCategoryFilter(category.toString())}
                                                 className="flex items-center gap-2"
                                             >
                                                 <div
                                                     className={cn(
                                                         "flex h-6 w-6 items-center justify-center rounded-lg border border-primary/20",
-                                                        activeCategory === category ? "bg-primary text-white" : "opacity-50"
+                                                        activeCategory === category.toString() ? "bg-primary text-white" : "opacity-50"
                                                     )}
                                                 >
-                                                    {activeCategory === category ? (
+                                                    {activeCategory === category.toString() ? (
                                                         <Check className="h-4 w-4" />
                                                     ) : null}
                                                 </div>

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId: string }) {
     // Convert date string to Date object
-    const eventDate = new Date(event.date);
+    const eventDate = new Date(event.start);
 
     // Get days until the event
     const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));

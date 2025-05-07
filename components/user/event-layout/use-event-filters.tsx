@@ -74,7 +74,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     // Kategorie-Filter
     if (selectedFilters.category.length > 0) {
       filtered = filtered.filter((event) =>
-        selectedFilters.category.some((cat) => event.category.toLowerCase().includes(cat.toLowerCase())),
+        selectedFilters.category.some((cat) => event.category.toString().toLowerCase().includes(cat.toLowerCase())),
       )
     }
 
@@ -82,7 +82,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     if (selectedFilters.dateType === "single" && selectedFilters.singleDate) {
       const filterDate = selectedFilters.singleDate
       filtered = filtered.filter((event) => {
-        const eventDate = new Date(event.date)
+        const eventDate = new Date(event.start)
         return (
           eventDate.getFullYear() === filterDate.getFullYear() &&
           eventDate.getMonth() === filterDate.getMonth() &&
@@ -91,10 +91,10 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
       })
     } else if (selectedFilters.dateType === "range") {
       if (selectedFilters.dateRange.start) {
-        filtered = filtered.filter((event) => new Date(event.date) >= selectedFilters.dateRange.start!)
+        filtered = filtered.filter((event) => new Date(event.start) >= selectedFilters.dateRange.start!)
       }
       if (selectedFilters.dateRange.end) {
-        filtered = filtered.filter((event) => new Date(event.date) <= selectedFilters.dateRange.end!)
+        filtered = filtered.filter((event) => new Date(event.end) <= selectedFilters.dateRange.end!)
       }
     }
 
