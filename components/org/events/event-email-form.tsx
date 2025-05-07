@@ -268,7 +268,7 @@ export function EventEmailForm({
 
     try {
       await onSave(emailData);
-      router.push(`/organisation/events/${eventId}/emails`);
+      router.push(`/organization/events/${eventId}/emails`);
     } catch (error) {
       console.error("Error saving email:", error);
       alert("Failed to save email. Please try again.");
@@ -322,7 +322,7 @@ export function EventEmailForm({
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => router.push(`/organisation/events/${eventId}/emails`)}
+          onClick={() => router.push(`/organization/events/${eventId}/emails`)}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Back to Emails
@@ -536,7 +536,7 @@ export function EventEmailForm({
         <CardFooter className="flex justify-between border-t p-6">
           <Button
             variant="outline"
-            onClick={() => router.push(`/organisation/events/${eventId}/emails`)}
+            onClick={() => router.push(`/organization/events/${eventId}/emails`)}
             disabled={isSubmitting}
           >
             Cancel

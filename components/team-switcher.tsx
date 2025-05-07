@@ -29,12 +29,12 @@ export function TeamSwitcher() {
         try {
             const result = await switchOrg(orgId);
             if (result) {
-                toast.success("Organisation gewechselt");
+                toast.success("organization gewechselt");
             } else {
-                toast.error("Fehler beim Wechseln der Organisation");
+                toast.error("Fehler beim Wechseln der organization");
             }
         } catch (error) {
-            toast.error("Fehler beim Wechseln der Organisation");
+            toast.error("Fehler beim Wechseln der organization");
         }
     };
 
@@ -58,7 +58,7 @@ export function TeamSwitcher() {
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            Deine Organisationen
+                            Deine organizationen
                         </DropdownMenuLabel>
                         {userOrgs.map((org, index) => (
                             <DropdownMenuItem
@@ -78,7 +78,7 @@ export function TeamSwitcher() {
                             <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                                 <Plus className="size-4" />
                             </div>
-                            <div className="font-medium text-muted-foreground">Organisation erstellen</div>
+                            <div className="font-medium text-muted-foreground">organization erstellen</div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

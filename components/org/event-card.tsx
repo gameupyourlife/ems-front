@@ -126,7 +126,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
 
             <CardFooter className="p-4 pt-0 flex gap-3 justify-between items-center">
                 <Button variant="default" className="flex-1" asChild>
-                    <Link href={`/organisation/events/${event.id}`} className="flex items-center justify-center">
+                    <Link href={`/organization/events/${event.id}`} className="flex items-center justify-center">
                         <span>Event verwalten</span>
                         <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
@@ -141,7 +141,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                            <Link href={`/organisation/events/${event.id}/edit`} className="flex cursor-pointer">
+                            <Link href={`/organization/events/${event.id}/edit`} className="flex cursor-pointer">
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Bearbeiten</span>
                             </Link>

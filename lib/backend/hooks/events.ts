@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { EventDetails, EventInfo } from '@/lib/types';
-import { getEventDetails, getEvents, getMembers } from '../events';
+import { getEventDetails, getEvents } from '../events';
 
 /**
  * TanStack Query hook for fetching events for an organization
@@ -21,22 +21,6 @@ export function useEvents(
     });
 }
 
-/**
- * TanStack Query hook for fetching organization members
- * @param orgId - The organization ID
- * @param options - Additional query options
- * @returns Query result containing member data
- */
-export function useMembers(
-    orgId: string,
-    options?: Omit<UseQueryOptions<any[], Error>, 'queryKey' | 'queryFn'>
-) {
-    return useQuery({
-        queryKey: ['members', orgId],
-        queryFn: () => getMembers(orgId),
-        ...options,
-    });
-}
 
 export function useEventDetails(
     eventId: string,

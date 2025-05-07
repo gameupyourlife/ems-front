@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 // export const metadata: Metadata = {
 //   title: "Event Management System",
-//   description: "Event Management System für Organisationen",
+//   description: "Event Management System für organizationen",
 // };
 
 const queryClient = new QueryClient()

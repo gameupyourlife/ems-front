@@ -7,19 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
 } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 
 // Icons
@@ -204,7 +204,7 @@ export function EventBasicInfoForm({
             type="button"
             asChild
           >
-            <Link href={`/organisation/events/${eventId}`}>
+            <Link href={`/organization/events/${eventId}`}>
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
               Cancel
             </Link>
@@ -215,7 +215,7 @@ export function EventBasicInfoForm({
             type="button"
             asChild
           >
-            <Link href="/organisation/events">
+            <Link href="/organization/events">
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
               Cancel
             </Link>

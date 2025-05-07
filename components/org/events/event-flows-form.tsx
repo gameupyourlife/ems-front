@@ -7,32 +7,32 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Icons
 import {
-  ArrowLeftIcon,
-  Check,
-  FunctionSquare,
-  Plus,
-  Calendar,
-  Users,
-  Tag,
-  Mail,
-  Zap,
-  FileText,
-  LayoutList,
-  PencilLine,
-  Bell,
-  Image
+    ArrowLeftIcon,
+    Check,
+    FunctionSquare,
+    Plus,
+    Calendar,
+    Users,
+    Tag,
+    Mail,
+    Zap,
+    FileText,
+    LayoutList,
+    PencilLine,
+    Bell,
+    Image
 } from "lucide-react";
 
 // Types
@@ -177,7 +177,7 @@ export function EventFlowsForm({
             </p>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href={eventId ? `/organisation/flows/create?eventId=${eventId}` : "/organisation/flows/create"}>
+            <Link href={eventId ? `/organization/flows/create?eventId=${eventId}` : "/organization/flows/create"}>
               <Plus className="h-4 w-4 mr-2" />
               Create New Flow
             </Link>
@@ -196,7 +196,7 @@ export function EventFlowsForm({
               Create new automation flows to associate with this event
             </p>
             <Button variant="outline" className="mt-4" asChild>
-              <Link href={eventId ? `/organisation/flows/create?eventId=${eventId}` : "/organisation/flows/create"}>
+              <Link href={eventId ? `/organization/flows/create?eventId=${eventId}` : "/organization/flows/create"}>
                 <FunctionSquare className="h-4 w-4 mr-2" />
                 Create Flow
               </Link>

@@ -15,3 +15,14 @@ export function getRandomDate() {
   const randomDate = new Date(start + Math.random() * (end - start))
   return randomDate;
 }
+
+/**
+ * Check if a string is a valid UUID
+ * @param id UUID to check
+ * @returns True if the string is a valid UUID, false otherwise
+ */
+export function isUUID(id: string) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isValid = uuidRegex.test(id);
+  return isValid;
+}

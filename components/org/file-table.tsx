@@ -253,7 +253,7 @@ export default function FileTable({ files }: FileTableProps) {
                 return (
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
-                            <Link href={`/organisation/files/${file.id}`}>
+                            <Link href={`/organization/files/${file.id}`}>
                                 View
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
@@ -276,7 +276,7 @@ export default function FileTable({ files }: FileTableProps) {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/files/${file.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/files/${file.id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>Edit Info</span>
                                     </Link>

@@ -1,15 +1,15 @@
 "use client";
 
 import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { LucideIcon, PlusCircleIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"
+import { usePathname } from "next/navigation";
 
 export function NavAdmin({
   items,
@@ -32,7 +32,7 @@ export function NavAdmin({
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
               asChild
             >
-              <Link href="/organisation/events/create">
+              <Link href="/organization/events/create">
                 <PlusCircleIcon />
                 <span>Event erstellen</span>
               </Link>

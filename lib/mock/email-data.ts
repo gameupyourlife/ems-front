@@ -160,7 +160,7 @@ export const mockEmails: Email[] = [
 // Email templates that can be used when creating new emails
 export const emailTemplates = [
   {
-    id: "template-1",
+    id: "e9a20dfb-e461-4a73-8a81-d970271dba77",
     name: "Registration Confirmation",
     subject: "Registration Confirmation - [Event Name]",
     body: `<h2>Thank you for registering!</h2>

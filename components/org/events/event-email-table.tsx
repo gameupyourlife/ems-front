@@ -243,7 +243,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                             className="h-8 w-8"
                             asChild
                         >
-                            <Link href={`/organisation/events/${eventId}/emails/${email.id}`}>
+                            <Link href={`/organization/events/${eventId}/emails/${email.id}`}>
                                 <ChevronRight className="h-4 w-4" />
                                 <span className="sr-only">View</span>
                             </Link>
@@ -259,7 +259,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                             <DropdownMenuContent align="end">
                                 {email.status === "draft" && (
                                     <DropdownMenuItem asChild>
-                                        <Link href={`/organisation/events/${eventId}/emails/${email.id}/edit`} className="flex cursor-pointer">
+                                        <Link href={`/organization/events/${eventId}/emails/${email.id}/edit`} className="flex cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Edit Email</span>
                                         </Link>
@@ -267,7 +267,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 )}
                                 
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/events/${eventId}/emails/create?duplicate=${email.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/events/${eventId}/emails/create?duplicate=${email.id}`} className="flex cursor-pointer">
                                         <Copy className="mr-2 h-4 w-4" />
                                         <span>Duplicate</span>
                                     </Link>
@@ -452,7 +452,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                 </div>
                 
                 <Button asChild>
-                    <Link href={`/organisation/events/${eventId}/emails/create`}>
+                    <Link href={`/organization/events/${eventId}/emails/create`}>
                         <Mail className="mr-2 h-4 w-4" />
                         Create Email
                     </Link>

@@ -232,7 +232,7 @@ export function useRequiredOrg() {
   const orgContext = useOrg();
   const { isAuthenticated, isLoading } = useUser();
   const router = useRouter();
-  
+
   useEffect(() => {
     // Only redirect after initial loading is complete
     if (!isLoading && (!isAuthenticated || !orgContext.currentOrg)) {

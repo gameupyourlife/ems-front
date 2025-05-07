@@ -205,14 +205,14 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
-              <span>Triggers</span>
+              <span>Trigger</span>
               {editedFlow.trigger.length > 0 && (
                 <Badge variant="outline" className="ml-2">
                   {editedFlow.trigger.length}
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>Conditions that initiate this flow</CardDescription>
+            <CardDescription>Bedingungen, die diesen Flow auslösen</CardDescription>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[250px] pr-4">
@@ -249,14 +249,14 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => handleEditItem(trigger.id, 'trigger')}>
                                       <Edit className="h-4 w-4 mr-2" />
-                                      Edit
+                                      Bearbeiten
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
                                       onClick={() => handleDeleteItem(trigger.id, 'trigger')}
                                       className="text-destructive focus:text-destructive"
                                     >
                                       <Trash2 className="h-4 w-4 mr-2" />
-                                      Delete
+                                      Löschen
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -284,7 +284,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                             ))}
                             {Object.keys(trigger.details).length > 3 && (
                               <div className="text-xs text-muted-foreground/70 italic">
-                                + {Object.keys(trigger.details).length - 3} more properties
+                                + {Object.keys(trigger.details).length - 3} weitere Eigenschaften
                               </div>
                             )}
                           </div>
@@ -296,8 +296,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
               ) : (
                 <div className="flex h-[100px] items-center justify-center text-center text-muted-foreground">
                   <div>
-                    <p>No triggers added yet</p>
-                    <p className="text-sm">Add a trigger to determine when this flow should run</p>
+                    <p>Kein Trigger bis jetzt</p>
+                    <p className="text-sm">Füge eine Bedingung hinzu, um zu bestimmen, wann dieser Flow ausgeführt werden soll</p>
                   </div>
                 </div>
               )}
@@ -316,7 +316,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Trigger
+                Bedingung hinzufügen
               </Button>
             </CardFooter>
           )}
@@ -370,14 +370,14 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => handleEditItem(action.id, 'action')}>
                                       <Edit className="h-4 w-4 mr-2" />
-                                      Edit
+                                      Bearbeiten
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
                                       onClick={() => handleDeleteItem(action.id, 'action')}
                                       className="text-destructive focus:text-destructive"
                                     >
                                       <Trash2 className="h-4 w-4 mr-2" />
-                                      Delete
+                                      Löschen
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -410,7 +410,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                             ))}
                             {Object.keys(action.details).length > 3 && (
                               <div className="text-xs text-muted-foreground/70 italic">
-                                + {Object.keys(action.details).length - 3} more properties
+                                + {Object.keys(action.details).length - 3} weitere Eigenschaften
                               </div>
                             )}
                           </div>
@@ -422,8 +422,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
               ) : (
                 <div className="flex h-[100px] items-center justify-center text-center text-muted-foreground">
                   <div>
-                    <p>No actions added yet</p>
-                    <p className="text-sm">Add actions to determine what happens when this flow runs</p>
+                    <p>Keine Actions bis jetzt </p>
+                    <p className="text-sm">Füge Aktionen hinzu, um zu bestimmen, was passieren soll, wenn dieser Flow ausgeführt wird</p>
                   </div>
                 </div>
               )}
@@ -442,7 +442,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Action
+                Action hinzufügen
               </Button>
             </CardFooter>
           )}
@@ -453,7 +453,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         <div className="flex justify-end">
           <Button onClick={handleSave}>
             <Save className="mr-2 h-4 w-4" />
-            {isCreating ? 'Create Flow' : 'Save Changes'}
+            {isCreating ? 'Flow speichern' : 'Änderungen speichern'}
           </Button>
         </div>
       )}

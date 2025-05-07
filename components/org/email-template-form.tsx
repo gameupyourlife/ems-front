@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -14,8 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, Save, FileText } from "lucide-react";
+import { Save, FileText, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Add React Hook Form imports
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // Editor component imports
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -23,6 +27,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import { SiteHeader } from "../site-header";
+import { QuickAction } from "../dynamic-quick-actions";
 
 // Define the template type
 export interface EmailTemplateFormData {
@@ -33,6 +39,16 @@ export interface EmailTemplateFormData {
   description: string;
   isUserCreated?: boolean;
 }
+
+// Define form validation schema
+const templateFormSchema = z.object({
+  name: z.string().trim().min(1, "Template name is required"),
+  subject: z.string().trim().min(1, "Subject line is required"),
+  description: z.string().trim().min(1, "Description is required"),
+  body: z.string().min(1, "Email content is required").refine(val => val !== '<p></p>', "Email content is required"),
+});
+
+type FormData = z.infer<typeof templateFormSchema>;
 
 // Editor toolbar component - reused from email-form.tsx
 function EmailEditorToolbar({ editor }: { editor: any }) {
@@ -213,19 +229,25 @@ export default function EmailTemplateForm({
   const router = useRouter();
   const isEditing = !!template;
   
-  // Form state
-  const [name, setName] = useState(template?.name || "");
-  const [subject, setSubject] = useState(template?.subject || "");
-  const [description, setDescription] = useState(template?.description || "");
-  
-  // Input validation errors
-  const [errors, setErrors] = useState({
-    name: false,
-    subject: false,
-    description: false,
-    body: false,
+  // Setup React Hook Form
+  const { 
+    control, 
+    handleSubmit: hookFormSubmit, 
+    formState: { errors },
+    setValue,
+    watch 
+  } = useForm<FormData>({
+    resolver: zodResolver(templateFormSchema),
+    defaultValues: {
+      name: template?.name || "",
+      subject: template?.subject || "",
+      description: template?.description || "",
+      body: template?.body || "",
+    }
   });
   
+  const bodyValue = watch("body");
+
   // Email body editor
   const editor = useEditor({
     extensions: [
@@ -237,172 +259,180 @@ export default function EmailTemplateForm({
       }),
     ],
     content: template?.body || "",
+    onUpdate: ({ editor }) => {
+      setValue("body", editor.getHTML(), { shouldValidate: true });
+    }
   });
 
   // Form submission handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate inputs
-    const newErrors = {
-      name: !name.trim(),
-      subject: !subject.trim(),
-      description: !description.trim(),
-      body: !editor?.getHTML() || editor?.getHTML() === '<p></p>',
-    };
-    
-    setErrors(newErrors);
-    
-    // If any errors, abort submission
-    if (Object.values(newErrors).some(Boolean)) {
-      return;
-    }
-    
+  const onSubmit = async (data: FormData) => {
     // Prepare template data
     const templateData: EmailTemplateFormData = {
       id: template?.id,
-      name: name.trim(),
-      subject: subject.trim(),
-      body: editor!.getHTML(),
-      description: description.trim(),
+      name: data.name,
+      subject: data.subject,
+      body: data.body,
+      description: data.description,
       isUserCreated: true,
     };
-    
+
     try {
       await onSave(templateData);
-      router.push('/organisation/email-templates');
+      router.push('/organization/email-templates');
     } catch (error) {
       console.error("Error saving template:", error);
       alert("Failed to save template. Please try again.");
     }
   };
 
+  const quickActions: QuickAction[] = [
+    {
+      label: "Zurück",
+      onClick: () => router.push(`/organization/edit`),
+      icon: <ArrowLeft className="h-4 w-4" />,
+      variant: "outline",
+    },
+    {
+      label: "Mail Template speichern",
+      onClick: hookFormSubmit((data) => onSubmit(data)),
+      icon: <Save className="h-4 w-4" />,
+    },
+  ];
+
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => router.push('/organisation/email-templates')}
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Templates
-        </Button>
-      </div>
+    <>
+      <SiteHeader actions={quickActions} />
+      <div className="space-y-6 p-4 md:p-6">
 
-      <Card className="w-full">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              {isEditing ? "Edit Email Template" : "Create Email Template"}
-            </CardTitle>
-            <CardDescription>
-              {isEditing 
-                ? "Update the template details and content" 
-                : "Create a new reusable email template for your events"}
-            </CardDescription>
-          </CardHeader>
+        <Card className="w-full">
+          <form onSubmit={hookFormSubmit(onSubmit)}>
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                {isEditing ? "Edit Email Template" : "Create Email Template"}
+              </CardTitle>
+              <CardDescription>
+                {isEditing
+                  ? "Update the template details and content"
+                  : "Create a new reusable email template for your events"}
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-6">
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="name" className={errors.name ? "text-red-500" : ""}>
-                  Template Name *
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Enter a name for your template"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className={errors.name ? "border-red-500" : ""}
-                />
-                {errors.name && (
-                  <p className="text-xs text-red-500">Template name is required</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="description" className={errors.description ? "text-red-500" : ""}>
-                  Description *
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Write a brief description of this template's purpose"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={2}
-                  className={errors.description ? "border-red-500" : ""}
-                />
-                {errors.description && (
-                  <p className="text-xs text-red-500">Description is required</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="subject" className={errors.subject ? "text-red-500" : ""}>
-                  Email Subject Line *
-                </Label>
-                <Input
-                  id="subject"
-                  placeholder="Enter email subject with placeholders like [Event Name]"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className={errors.subject ? "border-red-500" : ""}
-                />
-                {errors.subject && (
-                  <p className="text-xs text-red-500">Subject line is required</p>
-                )}
-              </div>
-
-              <PlaceholderHelp />
-
-              <div className="grid gap-2">
-                <Label htmlFor="body" className={errors.body ? "text-red-500" : ""}>
-                  Email Content *
-                </Label>
-                <div className={`border rounded-md ${errors.body ? "border-red-500" : ""}`}>
-                  {editor && <EmailEditorToolbar editor={editor} />}
-                  <EditorContent
-                    editor={editor}
-                    className="prose dark:prose-invert max-w-none p-4 min-h-[300px]"
+            <CardContent className="space-y-6">
+              <div className="grid gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="name" className={errors.name ? "text-red-500" : ""}>
+                    Template Name *
+                  </Label>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        id="name"
+                        placeholder="Enter a name for your template"
+                        className={errors.name ? "border-red-500" : ""}
+                        {...field}
+                      />
+                    )}
                   />
+                  {errors.name && (
+                    <p className="text-xs text-red-500">{errors.name.message}</p>
+                  )}
                 </div>
-                {errors.body && (
-                  <p className="text-xs text-red-500">Email content is required</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
 
-          <CardFooter className="flex justify-between border-t p-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push('/organisation/email-templates')}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent rounded-full" />
-                  {isEditing ? "Updating..." : "Creating..."}
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isEditing ? "Update Template" : "Save Template"}
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description" className={errors.description ? "text-red-500" : ""}>
+                    Description *
+                  </Label>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        id="description"
+                        placeholder="Write a brief description of this template's purpose"
+                        rows={2}
+                        className={errors.description ? "border-red-500" : ""}
+                        {...field}
+                      />
+                    )}
+                  />
+                  {errors.description && (
+                    <p className="text-xs text-red-500">{errors.description.message}</p>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="subject" className={errors.subject ? "text-red-500" : ""}>
+                    Email Subject Line *
+                  </Label>
+                  <Controller
+                    name="subject"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        id="subject"
+                        placeholder="Enter email subject with placeholders like [Event Name]"
+                        className={errors.subject ? "border-red-500" : ""}
+                        {...field}
+                      />
+                    )}
+                  />
+                  {errors.subject && (
+                    <p className="text-xs text-red-500">{errors.subject.message}</p>
+                  )}
+                </div>
+
+                <PlaceholderHelp />
+
+                <div className="grid gap-2">
+                  <Label htmlFor="body" className={errors.body ? "text-red-500" : ""}>
+                    Email Content *
+                  </Label>
+                  <div className={`border rounded-md ${errors.body ? "border-red-500" : ""}`}>
+                    {editor && <EmailEditorToolbar editor={editor} />}
+                    <EditorContent
+                      editor={editor}
+                      className="prose dark:prose-invert max-w-none p-4 min-h-[300px]"
+                    />
+                  </div>
+                  {errors.body && (
+                    <p className="text-xs text-red-500">{errors.body.message}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-between border-t p-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push('/organization/email-templates')}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent rounded-full" />
+                    {isEditing ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isEditing ? "Update Template" : "Save Template"}
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </>
   );
 }

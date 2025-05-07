@@ -306,7 +306,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 return (
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
-                            <Link href={`/organisation/flows/${flow.id}`}>
+                            <Link href={`/organization/flows/${flow.id}`}>
                                 Manage
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
@@ -320,7 +320,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/flows/${flow.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/flows/${flow.id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>Edit Flow</span>
                                     </Link>
@@ -631,7 +631,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     </Popover>
 
                     <Button size="sm" className="h-8" asChild>
-                        <Link href={`/organisation/flows/create`}>
+                        <Link href={`/organization/flows/create`}>
                             <Plus className="mr-2 h-4 w-4" />
                             Create Flow
                         </Link>

@@ -327,7 +327,7 @@ export default function EventTable({ }: EventTableProps) {
                 return (
                     <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/organisation/events/${event.id}`} className="flex items-center">
+                            <Link href={`/organization/events/${event.id}`} className="flex items-center">
                                 <span className="sr-only">Event anzeigen</span>
                                 <ChevronRight className="h-4 w-4" />
                             </Link>
@@ -341,13 +341,13 @@ export default function EventTable({ }: EventTableProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/events/${event.id}/edit`} className="flex cursor-pointer">
+                                    <Link href={`/organization/events/${event.id}/edit`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>Event bearbeiten</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organisation/events/${event.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/events/${event.id}`} className="flex cursor-pointer">
                                         <ShareIcon className="mr-2 h-4 w-4" />
                                         <span>Event teilen</span>
                                     </Link>
@@ -544,7 +544,7 @@ export default function EventTable({ }: EventTableProps) {
                     </Popover>
 
                     <Button variant="outline" size="sm" className="h-8" asChild>
-                        <Link href={`/organisation/events/create`}>
+                        <Link href={`/organization/events/create`}>
                             <PlusIcon className="mr-2 h-4 w-4" />
                             Neues Event
                         </Link>

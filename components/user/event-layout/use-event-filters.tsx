@@ -60,7 +60,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
   const applyFilters = useCallback(() => {
     let filtered = [...events]
 
-    // Suche nach Text im Titel, Beschreibung oder Organisation
+    // Suche nach Text im Titel, Beschreibung oder organization
     if (searchQuery.trim()) {
       const normalizedQuery = searchQuery.trim().toLowerCase()
       filtered = filtered.filter(
