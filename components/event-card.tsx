@@ -20,7 +20,7 @@ export default function EventCard({ event }: { event: EventInfo }) {
                 <div className="space-y-2 text-sm">
                     <div className="flex items-center">
                         <Calendar className="mr-2 h-4 w-4 opacity-70" />
-                        <span>{event.date.toLocaleDateString("De-de")}</span>
+                        <span>{new Date(event.start).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center">
                         <MapPin className="mr-2 h-4 w-4 opacity-70" />

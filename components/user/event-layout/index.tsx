@@ -225,7 +225,7 @@ export default function EventLayout({
         } mt-4`}
       >
         {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => <EventCard key={event.id} event={event} />)
+          filteredEvents.map((event, idx) => <EventCard key={idx} event={event} />)/* <EventCard key={event.id} event={event} /> */
         ) : (
           <div className="col-span-full text-center py-8">
             <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
