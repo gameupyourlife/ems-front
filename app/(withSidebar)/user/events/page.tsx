@@ -1,35 +1,59 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import EventLayout from "@/components/user/event-layout";
+import { getEvents } from "@/lib/api/events";
 import type { EventInfo } from "@/lib/types";
-import { mockEventsUsr } from "@/lib/data";
 
-export default function AllEvents() {
-  // Zustand für alle Events initialisieren
-  const [allEvents] = useState<EventInfo[]>(mockEventsUsr)
+interface EventListProps {
+  orgId: string;
+  title?: string;
+}
 
-  // Funktion zum Verarbeiten von Suchanfragen
-  const handleSearch = (query: string) => {
-    console.log("Suchanfrage:", query)
+export default function EventList({
+  orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c",
+  title = "Alle Events",
+}: EventListProps) {
+  const [events, setEvents] = useState<EventInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getEvents(orgId);
+        setEvents(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, [orgId]);
+
+  if (isLoading) {
+    return <div className="py-20 text-center">Lade Events …</div>;
   }
-
-  // Funktion zum Verarbeiten von Filteränderungen
-  const handleFilterChange = (filters: any) => {
-    console.log("Angewendete Filter:", filters)
+  if (error) {
+    return (
+      <div className="py-20 text-center text-red-500">
+        Fehler beim Laden: {error}
+      </div>
+    );
   }
 
   return (
     <main className="container mx-auto py-8">
-      {/* EventLayout-Komponente mit den Event-Daten */}
       <EventLayout
-        events={allEvents}
-        title="Angemeldete Events"
+        events={events}
+        title={title}
         initialView="grid"
-        searchable={true}
-        onSearch={handleSearch}
-        onFilterChange={handleFilterChange}
+        searchable
+        onSearch={(q) => console.log("Suchanfrage:", q)}
+        onFilterChange={(f) => console.log("Filter:", f)}
       />
     </main>
-  )
+  );
 }
-
