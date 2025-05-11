@@ -2,9 +2,8 @@
 
 import { Organization, User, OrgUser } from "@/lib/types";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { mockOrg, mockOrgUsers } from "@/lib/data";
+import { mockOrgUsers } from "@/lib/data";
 import { useRouter } from "next/navigation";
-import { setAuthCookies, clearAuthCookies, getUserFromCookie, isAuthenticatedByCookie } from "@/lib/auth-utils";
 
 // Context types
 type UserContextType = {
@@ -44,107 +43,16 @@ export function UserOrgProvider({ children }: { children: ReactNode }) {
   // Check if user is admin in current organization
   const isOrgAdmin = currentOrgUser?.role === "Admin";
 
-  // Initialize user session on first load
-  useEffect(() => {
-    const initializeUser = async () => {
-      setIsLoading(true);
-      try {
-        // Check if we have user data in cookies
-        if (isAuthenticatedByCookie()) {
-          const cookieUser = getUserFromCookie();
-          
-          if (cookieUser?.id) {
-            // Find the complete user data from mock data
-            // In a real app, you'd fetch this from your API
-            const matchingOrgUser = mockOrgUsers.find(
-              orgUser => orgUser.user.id === cookieUser.id
-            );
-            
-            if (matchingOrgUser) {
-              setCurrentUser(matchingOrgUser.user);
-              
-              // Set user's organizations (for now just the mock org)
-              setUserOrgs([mockOrg]);
-              
-              // Set current organization
-              setCurrentOrg(mockOrg);
-              
-              // Set current org user data
-              setCurrentOrgUser(matchingOrgUser);
-              
-              // Done loading with success
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
-        
-        // If we reach here, either no cookie exists or the user data couldn't be loaded
-        // In a real app, you could redirect to login here
-        // For now just set as not authenticated
-        setCurrentUser(null);
-        setCurrentOrg(null);
-        setCurrentOrgUser(null);
-        setUserOrgs([]);
-      } catch (error) {
-        console.error("Failed to initialize user session:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeUser();
-  }, []);
+  
 
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      // Simulated login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Find user with matching email in mock data
-      const matchingOrgUser = mockOrgUsers.find(orgUser => 
-        orgUser.user.email.toLowerCase() === email.toLowerCase()
-      );
-      
-      if (matchingOrgUser) {
-        const user = matchingOrgUser.user;
-        
-        // Set auth cookies with user information
-        // In a real app, this would include a JWT token from your server
-        setAuthCookies(user, "mock-auth-token-for-demo");
-        
-        // Update state
-        setCurrentUser(user);
-        setCurrentOrgUser(matchingOrgUser);
-        
-        // Set the user's organizations and default to the first one
-        setUserOrgs([mockOrg]);
-        setCurrentOrg(mockOrg);
-        
-        return true;
-      }
-      
-      throw new Error("Login failed. Please check your credentials.");  
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw new Error("Login failed. Please check your credentials.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return true
+  };  
 
   // Logout function
   const logout = () => {
-    // Clear auth cookies
-    clearAuthCookies();
     
-    // Reset state
-    setCurrentUser(null);
-    setCurrentOrg(null);
-    setCurrentOrgUser(null);
-    setUserOrgs([]);
   };
 
   // Function to switch between organizations

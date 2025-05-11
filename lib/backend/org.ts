@@ -1,4 +1,4 @@
-import { mockOrgUsers } from "../data";
+import { mockOrg, mockOrgUsers } from "../data";
 import { Organization, OrgUser } from "../types";
 import { getAuthToken, isMock } from "./utils";
 
@@ -61,5 +61,25 @@ export async function updateOrg(organization: Organization) {
         .catch((err) => {
             console.error(err);
             throw new Error('Failed to update organization');
+        });
+}
+
+export async function getOrg(orgId: string) : Promise<Organization> {
+    if(isMock()) return mockOrg;
+
+    const token = await getAuthToken();
+
+    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '',
+        },
+    })
+        .then((res) => res.json())
+        .then((data) => data)
+        .catch((err) => {
+            console.error(err);
+            throw new Error('Failed to fetch organization');
         });
 }

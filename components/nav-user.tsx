@@ -22,14 +22,18 @@ import {
 import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/context/user-org-context";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-import { clearAuthCookies } from "@/lib/auth-utils";
+import { signOut } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { currentUser, logout } = useUser();
+  // const { currentUser, logout } = useUser();
+  const { data: session } = useSession()
+  const currentUser = session?.user;
+
+
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme()
 
@@ -41,10 +45,10 @@ export function NavUser() {
   // Handle logout
   const handleLogout = () => {
     // Clear the auth cookie first
-    clearAuthCookies();
-    
+    signOut();
+
     // Then log out from the user context
-    logout();
+    // logout();
     toast.success("Erfolgreich abgemeldet");
     router.push("/login");
   };
@@ -72,8 +76,8 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={currentUser.profilePicture} alt={currentUser.name} />
-                <AvatarFallback className="rounded-lg">{getInitials(currentUser.name)}</AvatarFallback>
+                <AvatarImage src={currentUser.image || ""} alt={currentUser.name || ""} />
+                <AvatarFallback className="rounded-lg">{getInitials(currentUser.name || "")}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{currentUser.name}</span>
@@ -93,8 +97,8 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={currentUser.profilePicture} alt={currentUser.name} />
-                  <AvatarFallback className="rounded-lg">{getInitials(currentUser.name)}</AvatarFallback>
+                  <AvatarImage src={currentUser.image || ""} alt={currentUser.name || ""} />
+                  <AvatarFallback className="rounded-lg">{getInitials(currentUser.name || "")}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{currentUser.name}</span>
