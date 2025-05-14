@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import EventLayout from "@/components/user/event-layout";
-import { getEvents } from "@/lib/api/events";
+import { getEvents } from "@/lib/api/getEvents";
 import type { EventInfo } from "@/lib/types";
 
 interface EventListProps {

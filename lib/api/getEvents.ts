@@ -1,8 +1,9 @@
 import type { EventInfo } from "@/lib/types";
+import { z } from "zod";
 
 const BASE =
   process.env.NEXT_PUBLIC_API_URL
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api/orgs`
+    ? `${process.env.NEXT_PUBLIC_API_URL}/orgs`
     : "http://localhost:5256/api/orgs";
 
 export interface EventInfoRaw {
@@ -41,3 +42,21 @@ export async function getEvents(orgId: string): Promise<EventInfo[]> {
     end: new Date(e.start)
   }))
 }
+
+export const eventSchema = z.object({
+  title: z.string().min(1, "Titel ist erforderlich"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Kategorie ist erforderlich"),
+  location: z.string().min(1, "Ort ist erforderlich"),
+  capacity: z
+    .number({ invalid_type_error: "Kapazität muss eine Zahl sein" })
+    .optional(),
+  image: z.string().url("Ungültige URL").optional(),
+  start: z.string().refine((d) => !isNaN(Date.parse(d)), {
+    message: "Ungültiges Datum",
+  }),
+  end: z.string().refine((d) => !isNaN(Date.parse(d)), {
+    message: "Ungültiges Datum",
+  }),
+});
+export type EventFormData = z.infer<typeof eventSchema>;
