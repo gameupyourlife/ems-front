@@ -2,7 +2,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { UserOrgProvider } from "@/lib/context/user-org-context";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from "next-auth/react";
@@ -43,12 +42,10 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <UserOrgProvider>
-                <div className="flex min-h-screen overflow-x-hidden">
-                  {children}
-                </div>
-                <Toaster />
-              </UserOrgProvider>
+              <div className="flex min-h-screen overflow-x-hidden">
+                {children}
+              </div>
+              <Toaster />
             </ThemeProvider>
           </SessionProvider>
         </QueryClientProvider>

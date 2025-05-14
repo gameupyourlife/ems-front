@@ -3,23 +3,20 @@ import { mockEvents, mockOrg } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusIcon } from "lucide-react";
 import { EventInfo } from "@/lib/types";
-import { useOrg } from "@/lib/context/user-org-context";
 import TableLoadingSkeleton from "@/components/table-loading-skeleton";
 import EventTable from "@/components/org/event-table";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { useRouter } from "next/navigation";
 import { useEvents } from "@/lib/backend/hooks/events";
+import { useSession } from "next-auth/react";
 
 
 
 export default function OrganizationEventsPage() {
 
-    // const { isPending, error, data: rawEvents } = useEvents("1");
-
-
-
-    const { currentOrg } = useOrg()
+    const { data: session } = useSession()
+    const currentOrg = session?.org;
     const { data: rawEvents, isPending, error } = useEvents(currentOrg?.id || "");
     const router = useRouter();
 

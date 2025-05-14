@@ -7,7 +7,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { SiteHeader } from "@/components/site-header";
-import { useOrg } from "@/lib/context/user-org-context";
 import {
     Form,
     FormControl,
@@ -23,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save, Loader2 } from "lucide-react";
 import { updateOrg } from "@/lib/backend/org";
+import { useSession } from "next-auth/react";
 
 // Define the organization form schema with Zod
 const organizationSchema = z.object({
@@ -45,7 +45,10 @@ type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 export default function Page() {
 
-    const { currentOrg, setCurrentOrg  } = useOrg();
+
+    const { data: session, update } = useSession()
+    const currentOrg = session?.org;
+
     if (!currentOrg) return null; // Ensure currentOrg is available before proceeding
     const [isSubmitting, setIsSubmitting] = useState(false);
     const quickActions: QuickAction[] = [
@@ -73,17 +76,23 @@ export default function Page() {
         try {
             // In a real app, you would make an API call here to update the organization
             console.log("Organization data to update:", data);
-            
+
             const updatedOrg = {
                 ...currentOrg,
                 ...data,
                 updatedAt: new Date().toISOString(), // Update the timestamp
             };
-            
+
             // Simulate API call delay
             await updateOrg(updatedOrg); // Call the API to update the organization
+
+            const session = update({
+                org: updatedOrg,
+            })
+
+            console.log("Updated session:", session);
             
-            setCurrentOrg(updatedOrg); // Update the context with the new organization data
+            // setCurrentOrg(updatedOrg); // Update the context with the new organization data
 
             toast.success("Organization details updated successfully!");
             setIsSubmitting(false);
@@ -169,7 +178,7 @@ export default function Page() {
                                     )}
                                 />
 
-                                
+
                             </CardContent>
                             <CardFooter className="flex justify-between border-t p-6">
                                 {/* Additional meta information */}

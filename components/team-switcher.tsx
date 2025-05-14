@@ -16,10 +16,14 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useOrg } from "@/lib/context/user-org-context";
+import { useSession } from "next-auth/react";
 
 export function TeamSwitcher() {
-    const { currentOrg, userOrgs, switchOrg } = useOrg();
+
+    const { data: session, update } = useSession()
+    const currentOrg = session?.org;
+    const userOrgs = session?.orgsOfUser || [];
+
 
     if (!currentOrg || userOrgs.length === 0) {
         return null;
@@ -27,12 +31,14 @@ export function TeamSwitcher() {
 
     const handleTeamChange = async (orgId: string) => {
         try {
-            const result = await switchOrg(orgId);
-            if (result) {
-                toast.success("organization gewechselt");
-            } else {
+            const newOrg = userOrgs.find((org) => org.id === orgId);
+            if (!newOrg) {
                 toast.error("Fehler beim Wechseln der organization");
+                return;
             }
+
+            // Update the session with the new organization
+            await update({ org: newOrg, user: { ...session.user, orgId: newOrg.id } });
         } catch (error) {
             toast.error("Fehler beim Wechseln der organization");
         }

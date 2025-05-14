@@ -4,7 +4,7 @@ import { signInSchema } from "./form-schemas";
 import { logInUser } from "./backend/auth";
 import { ZodError } from "zod";
 import { Organization } from "./types";
-import { getOrg } from "./backend/org";
+import { getOrg, getOrgsOfUser } from "./backend/org";
 
 declare module "next-auth" {
     /**
@@ -22,6 +22,7 @@ declare module "next-auth" {
         //     jwt?: string;
         //   } & DefaultSession["user"]
         org: Organization;
+        orgsOfUser: Organization[];
     }
     interface User {
         id: string;
@@ -74,7 +75,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if(token.user) session.user = token.user as any
                 
                 const org = await getOrg(session.user.orgId)
+                const orgsOfUser = await getOrgsOfUser(session.user.id)
                 session.org = org
+                session.orgsOfUser = orgsOfUser
 
 
                 // console.log("session: ", session)

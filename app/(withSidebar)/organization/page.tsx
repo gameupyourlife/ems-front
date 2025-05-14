@@ -12,14 +12,15 @@ import OrgEventCard from "@/components/org/event-card";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { useRouter } from "next/navigation";
-import { useOrg } from "@/lib/context/user-org-context";
 import { useMembers } from "@/lib/backend/hooks/org";
 import { useEvents } from "@/lib/backend/hooks/events";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
     // const org = mockOrg;
 
-    const { currentOrg } = useOrg();
+    const { data: session } = useSession()
+    const currentOrg = session?.org;
     if (!currentOrg) return null; // Ensure currentOrg is available before proceeding
 
     const { data: members } = useMembers(currentOrg?.id || "")

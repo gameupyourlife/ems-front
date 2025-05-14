@@ -631,6 +631,37 @@ export const mockOrg: Organization = {
   website: "https://techinnovators.com"
 }
 
+export const mockOrgs: Organization[] = [
+  {
+    id: "9debf0e7-ce41-4b03-99cf-e4a6b1916797",
+    numOfMembers: 10,
+    numOfEvents: 5,
+    owner: "John Doe",
+    createdAt: "2023-01-01",
+    updatedAt: "2023-01-02",
+    updatedBy: "Jane Smith",
+    name: "Tech Innovators",
+    address: "123 Tech Lane, Silicon Valley, CA",
+    description: "A leading organization in tech innovation.",
+    profilePicture: randomImage(200, 200),
+    website: "https://techinnovators.com"
+  },
+  {
+    id: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+    numOfMembers: 32,
+    numOfEvents: 42,
+    owner: "John Doe",
+    createdAt: "2023-01-01",
+    updatedAt: "2023-01-02",
+    updatedBy: "Jane Smith",
+    name: "Cyber Security Alliance",
+    address: "456 Cyber St, San Francisco, CA",
+    description: "A global alliance for cybersecurity professionals.",
+    profilePicture: randomImage(200, 200),
+    website: "https://cybersecurityalliance.com"
+  }
+]
+
 export const mockOrgUsers: OrgUser[] = [
   {
     user: {
