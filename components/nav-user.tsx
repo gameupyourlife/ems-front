@@ -24,8 +24,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-import { signOut } from "@/lib/auth";
 import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 export function NavUser() {
   const { isMobile } = useSidebar();

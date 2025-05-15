@@ -1,10 +1,9 @@
-"use client"
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/lib/auth";
-import { logIn } from "@/lib/actions/auth";
+import { logInActionPleaseCallThisOneToSetSession } from "@/lib/actions/auth";
 import { useState } from "react";
 
 export function LoginForm({
@@ -16,27 +15,10 @@ export function LoginForm({
     // const redirectTo = searchParams.get("redirectTo") || "/"
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const credentialsAction = (formData: FormData) => {
-        const email = formData.get("email") as string
-        const password = formData.get("password") as string
-
-        console.log("Form Data Credentials: ", { email, password })
-
-        signIn("credentials", {
-            email,
-            password,
-        }, {
-            email,
-            password,
-        },
-        )
-
-        // signIn("credentials", { }, { email, password })
-    }
 
 
     return (
-        <form className={cn("flex flex-col gap-6", className)} action={logIn} onSubmit={() => setIsSubmitting(true)} {...props}>
+        <form className={cn("flex flex-col gap-6", className)} action={logInActionPleaseCallThisOneToSetSession} onSubmit={() => setIsSubmitting(true)} {...props}>
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">In dein Konto einloggen</h1>
                 <p className="text-muted-foreground text-sm text-balance">

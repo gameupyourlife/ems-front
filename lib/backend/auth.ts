@@ -1,6 +1,7 @@
 import { User } from "next-auth";
 import { jwtDecode } from "jwt-decode";
 import { auth } from "../auth";
+import { logInActionPleaseCallThisOneToSetSession } from "../actions/auth";
 
 export async function logInUser(email: string, password: string): Promise<User | null> {
     try {
@@ -70,7 +71,7 @@ export async function logInUser(email: string, password: string): Promise<User |
     }
 }
 
-export async function getUser(userId: string, token? : any): Promise<User | null> {
+export async function getUser(userId: string, token?: any): Promise<User | null> {
 
 
     if (!process.env.NEXT_PUBLIC_API_URL) {
@@ -91,11 +92,11 @@ export async function getUser(userId: string, token? : any): Promise<User | null
     if (!token) {
         throw new Error("No token found");
     }
-    
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
         method: "GET",
         headers: {
-            'Authorization': `Bearer ${token}`, 
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json",
         },
     });
@@ -107,4 +108,47 @@ export async function getUser(userId: string, token? : any): Promise<User | null
 
     const user = await res.json();
     return user;
+}
+
+export async function registerNewUser(email: string, password: string, name: string, lastName: string): Promise<void> {
+    try {
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+            throw new Error("API URL is not defined");
+        }
+
+        if (!email || !password || !name) {
+            throw new Error("Email, password and name are required");
+        }
+
+        const body = JSON.stringify({
+            "firstName": name,
+            "lastName": lastName,
+            "email": email,
+            "password": password,
+            "role": 0
+        })
+        console.log("Registering user with body: ", body);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+            method: "POST",
+            body: body,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            console.error("Register response not OK:", res.status, res.statusText);
+            throw new Error("Failed to register");
+        }
+
+        await logInActionPleaseCallThisOneToSetSession({
+            email,
+            password
+        })
+
+    }
+    catch (error) {
+        console.error("Error registering user:", error);
+        throw new Error("Registration failed");
+    }
 }
