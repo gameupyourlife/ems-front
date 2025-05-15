@@ -1,4 +1,3 @@
-// pages/organisation/events/CreateEventPage.tsx
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,9 +19,10 @@ import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
 // Types and Data
 import { mockFiles, mockFlows } from "@/lib/data";
-import type { EmsFile, Flow, AgendaStep } from "@/lib/types";
+import { type EmsFile, type Flow, type AgendaStep, EventStatus } from "@/lib/types";
 import { eventBasicInfoSchema as eventFormSchema, EventBasicInfoFormData as EventFormData } from "@/lib/form-schemas";
 import { createEvent, NewEventPayload } from "@/lib/api/postEvents";
+import { start } from "repl";
 
 interface CreateEventPageProps { orgId?: string; }
 export default function CreateEventPage({ orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c" }: CreateEventPageProps) {
@@ -45,7 +45,6 @@ export default function CreateEventPage({ orgId = "a8911a6b-942d-42e4-9b08-fceda
       end: new Date(Date.now() + 3600_000),
       capacity: 100,
       image: "",
-      status: "0", // default Upcoming
     },
   });
 
@@ -55,27 +54,27 @@ export default function CreateEventPage({ orgId = "a8911a6b-942d-42e4-9b08-fceda
       // Datum-Strings erzeugen
       const startStr = typeof data.start === "string" ? data.start : data.start.toISOString();
       const endStr   = typeof data.end   === "string" ? data.end   : data.end.toISOString();
+      const now = new Date().toISOString();
+      const userId = "7e0e928c-d6f3-452b-91c3-058605e226a7";
+      const orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c";
 
-      // Status-String auf Zahl mappen (0=upcoming, 1=ongoing, 2=completed)
-      let statusCode: number;
-      switch ((data as any).status) {
-        case 1: statusCode = 1; break;
-        case 2: statusCode = 2; break;
-        default: statusCode = 0;
-      }
-
-      // Payload bauen
-    const payload: NewEventPayload = {
-      ...data,
-      status: statusCode,
-      start: startStr,
-      end: endStr,
-      attendees: 0,
-      files: selectedFiles,
-      flows: selectedFlows,
-      agenda: agendaItems,
-      image: data.image ?? "",
-    };
+  // Payload bauen
+  // HIER: die Zahl 0 statt eines Strings
+const payload: NewEventPayload = {
+  title:       data.title,
+  description: data.description,
+  category:    data.category,
+  location:    data.location,
+  capacity:    data.capacity,
+  image:       (data.image ?? "").trim() !== "" 
+                 ? data.image ?? "" 
+                 : "https://example.com/placeholder.jpg",
+  status:      0,
+  start:       startStr,
+  end:         endStr,
+  createdAt:   now,
+  createdBy:   userId,
+};
       await createEvent(orgId, payload);
       toast.success("Event erfolgreich erstellt");
       router.push("/organisation/events");

@@ -1,5 +1,5 @@
-import type { EventInfo, EmsFile, Flow, AgendaStep } from "@/lib/types";
-import { z } from "zod";
+import { type EventInfo, type EmsFile, type Flow, type AgendaStep, EventStatus } from "@/lib/types";
+import { number, z } from "zod";
 
 // Basis-URL für alle Requests
 const BASE =
@@ -10,23 +10,26 @@ const BASE =
 // Aktualisiertes Zod-Schema, das mit den Backend-Anforderungen übereinstimmt
 export const eventSchema = z.object({
   title: z.string().min(1, "Titel ist erforderlich"),
-  description: z.string().min(1, "Beschreibung ist erforderlich"), // Nicht mehr optional
+  description: z.string().min(1, "Beschreibung ist erforderlich"),
   category: z.string().min(1, "Kategorie ist erforderlich"),
   location: z.string().min(1, "Ort ist erforderlich"),
   capacity: z.number(),
-  image: z.string().min(1, "Bild-URL ist erforderlich"), // Nicht mehr optional
+  image: z
+    .string()
+    .url({ message: "Bitte gib eine gültige Bild-URL an" })
+    .or(z.literal("")),
   start: z.string().refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
   end: z.string().refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
-  status: z.number().int(),
+  status: z.number(),
 });
 export type EventFormData = z.infer<typeof eventSchema>;
 
 // Payload-Typ für neue Events
 export interface NewEventPayload extends EventFormData {
-  attendees: number;
-  files: EmsFile[];
-  flows: Flow[];
-  agenda: AgendaStep[];
+  capacity: number;
+  createdAt: string;
+  createdBy: string;
+  status: number;
 }
 
 // POST /events - Korrigierte Version

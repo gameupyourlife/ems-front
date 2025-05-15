@@ -15,6 +15,7 @@ export interface EventInfoRaw {
   attendees: number
   status: number
   description: string
+  image: string
 }
 
 export async function getEvents(orgId: string): Promise<EventInfo[]> {
@@ -23,18 +24,18 @@ export async function getEvents(orgId: string): Promise<EventInfo[]> {
 
   const raw: EventInfoRaw[] = await res.json()
   return raw.map((e): EventInfo => ({
-    id: e.id ?? crypto.randomUUID(), // oder zwingend vom Backend mitliefern
+    id: e.id ?? crypto.randomUUID(),
     title: e.title,
     category: e.category,
     date: new Date(e.start),
     location: e.location,
     attendees: e.attendees,
     description: e.description,
-    createdAt: new Date(), // TODO: vom Backend mitliefern
-    updatedAt: new Date(), // TODO: vom Backend mitliefern
-    createdBy: "userId", // TODO: vom Backend mitliefern
-    updatedBy: "userId", // TODO: vom Backend mitliefern
-    image: "randomImage(800, 400)",// TODO: vom Backend mitliefern
+    createdAt: new Date(),
+    updatedAt: new Date(), 
+    createdBy: "userId", 
+    updatedBy: "userId", 
+    image: e.image  ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/1200px-Test.svg.png",
     organization: "",
     capacity: 0,
     status: "",

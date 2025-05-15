@@ -216,3 +216,13 @@ export interface AgendaItem {
   title: string;
   description?: string;
 }
+
+export enum EventStatus {
+  SCHEDULED  = "SCHEDULED",
+  ONGOING    = "ONGOING",
+  COMPLETED  = "COMPLETED",
+  CANCELLED  = "CANCELLED",
+  POSTPONED  = "POSTPONED",
+  DELAYED    = "DELAYED",
+  ARCHIVED   = "ARCHIVED",
+}
