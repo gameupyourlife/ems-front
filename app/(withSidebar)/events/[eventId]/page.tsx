@@ -64,19 +64,26 @@ export default function EventDetailPage() {
 
   const formatDate = (date: Date) => format(date, "EEEE, d. MMMM yyyy", { locale: de })
   const formatTime = (date: Date) => format(date, "HH:mm", { locale: de })
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Aktiv</Badge>
-      case "cancelled":
-        return <Badge variant="destructive">Abgesagt</Badge>
-      case "full":
-        return <Badge variant="secondary">Ausgebucht</Badge>
-      default:
-        return <Badge>{status}</Badge>
-    }
+  const getStatusBadge = (status: number | string) => {
+  const st = typeof status === 'string' ? parseInt(status, 10) : status;
+  switch (st) {
+    case 0:
+      return <Badge className="bg-white text-black">Geplant</Badge>;
+    case 1:
+      return <Badge className="bg-green-500 text-white">Läuft</Badge>;
+    case 2:
+      return <Badge className="bg-white text-black">Abgeschlossen</Badge>;
+    case 3:
+      return <Badge className="bg-red-500 text-white">Abgesagt</Badge>;
+    case 4:
+      return <Badge className="bg-orange-500 text-white">Verschoben</Badge>;
+    case 5:
+      return <Badge className="bg-gray-500 text-white">Archiviert</Badge>;
+    default:
+      return <Badge className="bg-white text-black">Unbekannt</Badge>;
   }
-
+}
+ 
   return (
     <main className="container mx-auto py-8 px-4 md:px-6">
       <div className="mb-6">
@@ -87,8 +94,8 @@ export default function EventDetailPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-3xl md:text-4xl font-bold">{event.title}</h1>
           <div className="flex gap-2">
-            {event.status && getStatusBadge(event.status)}
-            <Badge variant="outline">{event.category}</Badge>
+            {getStatusBadge(event.status)}
+            <Badge className="bg-primary text-primary-foreground font-bold" variant="outline">{event.category}</Badge>
           </div>
         </div>
       </div>
