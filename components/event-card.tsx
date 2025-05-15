@@ -28,7 +28,7 @@ export default function EventCard({ event }: { event: EventInfo }) {
                     </div>
                     <div className="flex items-center">
                         <Users className="mr-2 h-4 w-4 opacity-70" />
-                        <span>{event.attendees} attendees</span>
+                        <span>{event.attendees}/{event.capacity} attendees</span>
                     </div>
                     <p className="text-muted-foreground line-clamp-2 mt-2">{event.description}</p>
                 </div>
@@ -42,4 +42,4 @@ export default function EventCard({ event }: { event: EventInfo }) {
             </CardFooter>
         </Card>
     )
-}
+} 

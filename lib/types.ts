@@ -16,7 +16,9 @@ export interface EventInfo {
     updatedAt: Date,
     createdBy: string,
     updatedBy: string,
+    creatorName: string,
 }
+
 export interface Organization {
     id: string;
     numOfMembers: number;
