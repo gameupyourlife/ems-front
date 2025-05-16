@@ -107,7 +107,10 @@ export async function getUser(userId: string, token?: any): Promise<User | null>
     }
 
     const user = await res.json();
-    return user;
+    return {
+        ...user,
+        name: user.fullName,
+    } as User;
 }
 
 export async function registerNewUser(email: string, password: string, name: string, lastName: string): Promise<void> {

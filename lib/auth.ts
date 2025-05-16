@@ -35,6 +35,10 @@ declare module "next-auth" {
         role: string;
         orgRole: string;
         orgId: string;
+
+        firstName:string;
+        lastName:string;
+        organization:{ id: string, name: string, profilePicture: string }
     }
 
 }
@@ -72,8 +76,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         session: async ({ session, token }) => {
             try {
-                if(token.user) session.user = token.user as any
-                
+                if (token.user) session.user = token.user as any
+
                 const org = await getOrg(session.user.orgId)
                 const orgsOfUser = await getOrgsOfUser(session.user.id)
                 session.org = org
@@ -113,7 +117,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                     const { email, password } = await signInSchema.parseAsync(credentials)
 
-                    console.log("Parsed credentials: ", { email, password })
+                    // console.log("Parsed credentials: ", { email, password })
                     // logic to verify if the user exists
                     user = await logInUser(email, password)
 

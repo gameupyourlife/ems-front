@@ -1,23 +1,23 @@
 "use client";;
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
 } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar";
 import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
@@ -31,7 +31,6 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: session } = useSession()
   const currentUser = session?.user;
-
 
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme()
@@ -55,6 +54,7 @@ export function NavUser() {
   if (!currentUser) {
     return null;
   }
+
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
