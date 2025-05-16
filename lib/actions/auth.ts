@@ -1,9 +1,12 @@
-"use server"
-
+"use server";;
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { signIn } from "../auth";
+import { signIn, signOut } from "../auth";
 import { registerNewUser } from "../backend/auth";
 
+
+export async function logOutActionPleaseCallThisOneToUnsetSession() {
+    await signOut()
+}
 
 export async function logInActionPleaseCallThisOneToSetSession(formData: any) {
     try {
@@ -16,6 +19,8 @@ export async function logInActionPleaseCallThisOneToSetSession(formData: any) {
     }
     catch (error) {
         if (isRedirectError(error)) {
+            // preload("/")
+            // redirect("/", RedirectType.push);
             throw error;
         }
         console.error("Error logging in: ", error)

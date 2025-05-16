@@ -1,31 +1,30 @@
 "use client";;
 import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
 } from "@/components/ui/avatar";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    useSidebar,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
-import { signOut } from "next-auth/react";
+import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -41,15 +40,16 @@ export function NavUser() {
   }
 
   // Handle logout
-  const handleLogout = () => {
-    // Clear the auth cookie first
-    signOut();
+  // const handleLogout = () => {
+  //   // Clear the auth cookie first
+  //   signOut();
+  //   logOutActionPleaseCallThisOneToUnsetSession();
 
-    // Then log out from the user context
-    // logout();
-    toast.success("Erfolgreich abgemeldet");
-    router.push("/login");
-  };
+  //   // Then log out from the user context
+  //   // logout();
+  //   toast.success("Erfolgreich abgemeldet");
+  //   router.push("/login");
+  // };
 
   if (!currentUser) {
     return null;
@@ -128,10 +128,15 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOutIcon className="mr-2 h-4 w-4" />
-              Abmelden
-            </DropdownMenuItem>
+
+            <form action={logOutActionPleaseCallThisOneToUnsetSession}>
+              <DropdownMenuItem asChild >
+                <button type="submit" className="w-full" >
+                  <LogOutIcon className="mr-2 h-4 w-4" />
+                  Abmelden
+                </button>
+              </DropdownMenuItem>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

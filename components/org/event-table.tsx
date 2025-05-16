@@ -66,8 +66,8 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
-import { useRequiredOrg } from "@/lib/context/user-org-context";
 import { useEvents } from "@/lib/backend/hooks/events";
+import { useSession } from "next-auth/react";
 
 interface EventTableProps {
     // events: EventInfo[];
@@ -82,7 +82,16 @@ export default function EventTable({ }: EventTableProps) {
     const [activeStatus, setActiveStatus] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-    const { currentOrg } = useRequiredOrg();
+    // const { currentOrg } = useRequiredOrg();
+    const { data: session } = useSession();
+    const currentOrg = session?.org;
+    if (!currentOrg) {
+        return (
+            <div className="container mx-auto py-20 text-center">
+                <div className="text-red-500 mb-4">Keine Organisation ausgewählt.</div>
+            </div>
+        );
+    }
     const { isPending, error, data: rawEvents } = useEvents(currentOrg.id);
 
 
@@ -93,6 +102,7 @@ export default function EventTable({ }: EventTableProps) {
             title: event.title!,
             description: event.description!,
             location: event.location!,
+            creatorName: event.creatorName || "",
             createdAt: new Date(event.createdAt || 0),
             updatedAt: new Date(event.updatedAt || 0),
             createdBy: "",

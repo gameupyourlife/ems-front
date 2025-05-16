@@ -259,14 +259,14 @@ export function EventBasicInfoForm({
       <CardFooter className="flex justify-between border-t p-6">
         {eventId ? (
           <Button variant="outline" type="button" asChild>
-            <Link href={`/organisation/events/${eventId}`}>
+            <Link href={`/organization/events/${eventId}`}>
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
               Cancel
             </Link>
           </Button>
         ) : (
           <Button variant="outline" type="button" asChild>
-            <Link href="/organisation/events">
+            <Link href="/organization/events">
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
               Cancel
             </Link>
