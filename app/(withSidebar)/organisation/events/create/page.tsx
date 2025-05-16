@@ -13,7 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeftIcon, FileText, FunctionSquare, Info, ListTodo, Save } from "lucide-react";
 // Custom forms
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
-import { EventFilesForm } from "@/components/org/events/event-files-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
@@ -22,7 +21,6 @@ import { mockFiles, mockFlows } from "@/lib/data";
 import { type EmsFile, type Flow, type AgendaStep, EventStatus } from "@/lib/types";
 import { eventBasicInfoSchema as eventFormSchema, EventBasicInfoFormData as EventFormData } from "@/lib/form-schemas";
 import { createEvent, NewEventPayload } from "@/lib/api/postEvents";
-import { start } from "repl";
 
 interface CreateEventPageProps { orgId?: string; }
 export default function CreateEventPage({ orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c" }: CreateEventPageProps) {
@@ -109,14 +107,12 @@ const payload: NewEventPayload = {
 
       {/* Tabs */}
       <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
+        <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
           <TabsTrigger value="basic" className="flex items-center gap-2"><Info className="h-4 w-4"/><span>Basic Info</span></TabsTrigger>
-          <TabsTrigger value="files" className="flex items-center gap-2"><FileText className="h-4 w-4"/><span>Files</span></TabsTrigger>
           <TabsTrigger value="flows" className="flex items-center gap-2"><FunctionSquare className="h-4 w-4"/><span>Flows</span></TabsTrigger>
           <TabsTrigger value="agenda" className="flex items-center gap-2"><ListTodo className="h-4 w-4"/><span>Agenda</span></TabsTrigger>
         </TabsList>
         <TabsContent value="basic"><EventBasicInfoForm form={form} onTabChange={setActiveTab} submitLabel="Next: Files"/></TabsContent>
-        <TabsContent value="files"><EventFilesForm selectedFiles={selectedFiles} availableFiles={mockFiles} onFilesChange={setSelectedFiles} onTabChange={setActiveTab} submitLabel="Next: Flows"/></TabsContent>
         <TabsContent value="flows"><EventFlowsForm selectedFlows={selectedFlows} availableFlows={mockFlows} onFlowsChange={setSelectedFlows} onTabChange={setActiveTab} submitLabel="Next: Agenda"/></TabsContent>
         <TabsContent value="agenda"><EventAgendaForm agendaItems={agendaItems} onAgendaItemsChange={setAgendaItems} onTabChange={setActiveTab} isFinalStep submitLabel="Create Event" isSubmitting={isSubmitting} /></TabsContent>
       </Tabs>

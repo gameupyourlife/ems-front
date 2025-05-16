@@ -246,14 +246,15 @@ export default function EventTable({ events  }: EventTableProps) {
             ),
             cell: ({ row }) => {
                 const attendees = row.original.attendees;
-                const capacityPercent = Math.min(100, (attendees / 100) * 100);
+                const capacity = row.original.capacity;
+                const capacityPercent = capacity ? Math.min(100, (attendees / capacity) * 100) : 0;
 
                 return (
                     <div className="text-right w-32">
                         <div className="flex justify-between mb-1">
                             <div className="flex items-center">
                                 <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                                <span>{attendees}</span>
+                                <span>{attendees} / {capacity}</span>
                             </div>
                             <span className="text-xs text-muted-foreground">{capacityPercent}%</span>
                         </div>
