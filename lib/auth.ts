@@ -4,7 +4,7 @@ import { signInSchema } from "./form-schemas";
 import { logInUser } from "./backend/auth";
 import { ZodError } from "zod";
 import { Organization } from "./types";
-import { getOrg, getOrgsOfUser } from "./backend/org";
+import { getOrgsOfUser } from "./backend/org";
 
 declare module "next-auth" {
     /**
@@ -36,9 +36,9 @@ declare module "next-auth" {
         orgRole: string;
         orgId: string;
 
-        firstName:string;
-        lastName:string;
-        organization:{ id: string, name: string, profilePicture: string }
+        firstName: string;
+        lastName: string;
+        organization: { id: string, name: string, profilePicture: string }
     }
 
 }
@@ -62,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             try {
                 if (user) {
                     token.user = user
-                    console.log("user: ", user)
+                    // console.log("user: ", user)
                 }
 
                 // token.org = session.org
@@ -76,12 +76,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         session: async ({ session, token }) => {
             try {
-                if (token.user) session.user = token.user as any
+                if (token.user) {
+                    session.user = token.user as any
+                    console.log("Session user: ", session.user)
+                }
 
-                const org = await getOrg(session.user.orgId)
-                const orgsOfUser = await getOrgsOfUser(session.user.id)
-                session.org = org
-                session.orgsOfUser = orgsOfUser
+                // console.log("Session user: ", session.user.organization.id)
+
+                // const org = await getOrg(session.user.organization.id, session.user.jwt)
+                // @ts-ignore
+                if (session.user.jwt) {
+                    const orgsOfUser = await getOrgsOfUser(session.user.id, session.user.jwt)
+                    session.org = orgsOfUser.find(org => org.id === session.user.organization.id) || orgsOfUser[0] || null;
+                    session.orgsOfUser = orgsOfUser
+                }
 
 
                 // console.log("session: ", session)

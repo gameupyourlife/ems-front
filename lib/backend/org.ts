@@ -1,4 +1,4 @@
-import { mockOrgs, mockOrgUsers } from "../data";
+import { mockOrgUsers } from "../data";
 import { Organization, OrgUser } from "../types";
 import { getAuthToken, isMock } from "./utils";
 
@@ -64,14 +64,25 @@ export async function updateOrg(organization: Organization) {
         });
 }
 
-export async function getOrg(orgId: string) : Promise<Organization> {
-    if(isMock()) {
-            const findMockOrg = mockOrgs.find((org) => org.id === orgId);
-        if (findMockOrg) return findMockOrg;
-        return mockOrgs[0]; // Fallback to the first mock organization if not found
-    };
+export async function getOrg(orgId: string, token?: string) : Promise<Organization> {
+    // if(isMock()) {
+    //         const findMockOrg = mockOrgs.find((org) => org.id === orgId);
+    //     if (findMockOrg) return findMockOrg;
+    //     return mockOrgs[0]; // Fallback to the first mock organization if not found
+    // };
 
-    const token = await getAuthToken();
+
+    if (!orgId) {
+        throw new Error("Organization ID is required");
+    }
+
+    if (!token) {
+        token = await getAuthToken();
+    }
+
+
+
+    console.log("Fetching organization with ID:", orgId, "Token:", token);
 
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}`, {
         method: 'GET',
@@ -88,22 +99,30 @@ export async function getOrg(orgId: string) : Promise<Organization> {
         });
 }
 
-export async function getOrgsOfUser(userId: string) : Promise<Organization[]> {
-    if(isMock()) return mockOrgs;
+export async function getOrgsOfUser(userId: string, token?: string) : Promise<Organization[]> {
+    // if(isMock()) return mockOrgs;
 
-    const token = await getAuthToken();
+    console.log("Token", token)
 
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : '',
-        },
-    })
+    if (!token) {
+        token = await getAuthToken();
+    }
+
+    try {
+        console.log("Fetching organizations for user ID:", userId, "Token:", token);
+        return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+        })
         .then((res) => res.json())
         .then((data) => data)
-        .catch((err) => {
-            console.error(err);
-            throw new Error('Failed to fetch organizations of user');
-        });
+    }
+    catch (err) {
+        console.error(err);
+        throw new Error('Failed to fetch organizations of user');
+    }
+        
 }
