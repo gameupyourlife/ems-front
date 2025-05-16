@@ -30,9 +30,12 @@ export async function logInUser(email: string, password: string): Promise<User |
             throw new Error("Failed to log in");
         }
 
+        console.log("Login response status: ", res.status);
+        
         // const body = await res.text();
         // Get the response which contains just the JWT token
         const data = await res.json();
+        console.log("Login response ", data);
         if (!data) {
             throw new Error("No data returned from login");
         }
@@ -56,10 +59,16 @@ export async function logInUser(email: string, password: string): Promise<User |
                 "aud": string
             }>(token);
 
-            const user = await getUser(decodedToken.nameid, token);
-
-            console.log("New User: ", user);
-            return user;
+            let user = await getUser(decodedToken.nameid, token);
+            if (!user) {
+                throw new Error("User not found");
+            }
+            // user.jwt = token; // Add the JWT token to the user object
+            // console.log("New User: ", user);
+            return {
+                ...user,
+                jwt: token, // Assuming fullName is a property in the user object
+            } as User;
         } catch (error) {
             console.error("Error decoding JWT token:", error);
             throw new Error("Invalid token format");

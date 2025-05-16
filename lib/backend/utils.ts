@@ -1,31 +1,17 @@
+import { auth } from '../auth';
 import { isUUID } from '../utils';
 
 /**
  * Get the auth token in a way that works in both client and server environments
  * @returns The authentication token
  */
-export async function getAuthToken(): Promise<string | null> {
-    // Check if we're in browser environment
-    if (typeof window !== 'undefined') {
-        return localStorage.getItem('token');
+export async function getAuthToken(): Promise<string> {
+    const session = await auth()
+    const token = session?.user?.jwt;
+    if (!token) {
+        throw new Error("No authentication token found");
     }
-
-    // We're in server environment
-    try {
-        // Dynamically import cookies to avoid breaking client components
-        const { cookies } = await import('next/headers');
-        try {
-            const cookieStore = await cookies();
-            return cookieStore.get('auth-token')?.value || null;
-        } catch (error) {
-            // This happens when called in a client component or middleware
-            console.warn('Unable to access cookies, likely not in a server component context');
-            return null;
-        }
-    } catch (error) {
-        console.warn('Error importing next/headers:', error);
-        return null;
-    }
+    return token; 
 }
 
 /**
@@ -38,7 +24,7 @@ export function isMock() {
         // console.warn("Mock mode is enabled. This is not a production environment.");
     }
 
-    return mock; 
+    return mock;
 }
 
 
