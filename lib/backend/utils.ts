@@ -35,7 +35,7 @@ export async function getAuthToken(): Promise<string | null> {
 export function isMock() {
     const mock = process.env.NEXT_PUBLIC_MOCK === "true";
     if (mock) {
-        console.warn("Mock mode is enabled. This is not a production environment.");
+        // console.warn("Mock mode is enabled. This is not a production environment.");
     }
 
     return mock; 
