@@ -33,7 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EventOverviewTab from "./event-overview-tab";
-import EventFilesTab from "./event-files-tab";
 import EventFlowsTab from "./event-flows-tab";
 import EventAgendaTab from "./event-agenda-tab";
 import EventAttendeesTab from "./event-attendees-tab";
@@ -97,7 +96,7 @@ export default function EventDetailsPage() {
               </Link>
             </Button>
             <h1 className="text-2xl font-bold truncate">{event.title}</h1>
-            {getStatusBadge(event.status)}
+            {getStatusBadge(String(event.status))}
           </div>
           <p className="text-muted-foreground ml-10">
             {event.organization} • {format(new Date(event.date), "MMMM dd, yyyy")}
@@ -175,13 +174,7 @@ export default function EventDetailsPage() {
             <CalendarIcon className="h-4 w-4" />
             <span>Overview</span>
           </TabsTrigger>
-          <TabsTrigger
-            value="files"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <FileText className="h-4 w-4" />
-            <span>Files</span>
-          </TabsTrigger>
+          
           <TabsTrigger
             value="flows"
             className="flex items-center gap-2 data-[state=active]:bg-background"
@@ -215,11 +208,6 @@ export default function EventDetailsPage() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <EventOverviewTab eventDetails={eventDetails} />
-        </TabsContent>
-
-        {/* Files Tab */}
-        <TabsContent value="files" className="space-y-6">
-          <EventFilesTab eventDetails={eventDetails} />
         </TabsContent>
 
         {/* Flows Tab - IMPROVED VISUALIZATION */}

@@ -38,7 +38,6 @@ import {
 
 // Custom components
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
-import { EventFilesForm } from "@/components/org/events/event-files-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
@@ -67,7 +66,7 @@ export default function EditEventPage() {
   const [agendaItems, setAgendaItems] = useState<AgendaStep[]>(eventDetails.agenda);
   const [selectedFiles, setSelectedFiles] = useState<EmsFile[]>(eventDetails.files);
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>(eventDetails.flows);
-  const [selectedStatus, setSelectedStatus] = useState(event.status.toLowerCase());
+  const [selectedStatus, setSelectedStatus] = useState(String(event.status));
   
   // Initialize form with event data using our shared schema
   const form = useForm<EventFormData>({
@@ -79,7 +78,7 @@ export default function EditEventPage() {
       location: event.location,
       start: new Date(event.start),
       end: new Date(event.end),
-      status: event.status.toLowerCase(),
+      status: String(event.status),
       capacity: event.capacity,
       image: event.image,
     },
@@ -222,16 +221,6 @@ export default function EditEventPage() {
             <EventBasicInfoForm 
               form={form}
                
-            />
-          </TabsContent>
-          
-          {/* Files Tab */}
-          <TabsContent value="files">
-            <EventFilesForm 
-              selectedFiles={selectedFiles} 
-              availableFiles={mockFiles}
-              onFilesChange={setSelectedFiles}
-              onTabChange={setActiveTab}
             />
           </TabsContent>
           
