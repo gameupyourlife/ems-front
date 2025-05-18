@@ -1,37 +1,20 @@
-"use client";
-
-import { useState, useEffect } from "react";
+"use client";;
 import EventLayout from "@/components/user/event-layout";
-import { getEvents } from "@/lib/api/getEvents";
-import type { EventInfo } from "@/lib/types";
+import { useEvents } from "@/lib/backend/hooks/events";
+import { useSession } from "next-auth/react";
 
 interface EventListProps {
-  orgId: string;
   title?: string;
 }
 
 export default function EventList({
-  orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c",
   title = "Alle Events",
 }: EventListProps) {
-  const [events, setEvents] = useState<EventInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const token = session?.user?.jwt;
+  const orgId = session?.user?.organization.id;
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getEvents(orgId);
-        setEvents(data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    load();
-  }, [orgId]);
+  const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
   if (isLoading) {
     return <div className="py-20 text-center">Lade Events …</div>;
@@ -39,7 +22,7 @@ export default function EventList({
   if (error) {
     return (
       <div className="py-20 text-center text-red-500">
-        Fehler beim Laden: {error}
+        Fehler beim Laden: {error.message}
       </div>
     );
   }

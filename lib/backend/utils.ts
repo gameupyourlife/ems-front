@@ -34,7 +34,7 @@ export function isMock() {
  * @throws Error if the string is not a valid UUID
  */
 export function guardUUID(id: string) {
-    if (!isUUID(id)) {
+    if (!isUUID(id) || id === '00000000-0000-0000-0000-000000000000') {
         throw new Error(`Invalid UUID: ${id}`);
     }
 }
