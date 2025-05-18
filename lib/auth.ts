@@ -55,13 +55,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             try {
                 if (token.user) {
                     session.user = token.user as any
-                    console.log("Session user: ", session.user)
                 }
 
                 if (session.user.jwt) {
                     const orgsOfUser = await getOrgsOfUser(session.user.id, session.user.jwt)
                     session.org = orgsOfUser.find(org => org.id === session.user.organization.id) || orgsOfUser[0] || null;
                     session.orgsOfUser = orgsOfUser
+                    // console.log("=========== Session org: ", session.org)
                 }
 
                 return session;
@@ -89,7 +89,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
 
             authorize: async (credentials, request) => {
-                console.log("Credentials: ", credentials)
                 try {
 
                     let user = null
@@ -98,7 +97,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                     user = await logInUser(email, password)
 
-                    console.log("User: ", user)
                     if (!user) {
                         throw new Error("Invalid credentials.")
                     }

@@ -30,11 +30,9 @@ export async function logInUser(email: string, password: string): Promise<User |
             throw new Error("Failed to log in");
         }
 
-        console.log("Login response status: ", res.status);
         
         // Get the response which contains just the JWT token
         const data = await res.json();
-        console.log("Login response ", data);
         if (!data) {
             throw new Error("No data returned from login");
         }
@@ -90,8 +88,6 @@ export async function getUser(userId: string, token?: any): Promise<User | null>
         token = session?.user?.jwt;
     }
 
-    // const token = session?.user?.jwt;
-    console.log("Token: ", token);
     if (!token) {
         throw new Error("No token found");
     }

@@ -1,4 +1,6 @@
-"use client";
+"use client";;
+import { SiteHeader } from "@/components/site-header";
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import EventLayout from "@/components/user/event-layout";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
@@ -14,35 +16,32 @@ export default function EventList({
   const token = session?.user?.jwt;
   const orgId = session?.user?.organization.id;
 
-  console.log("orgId:", orgId);
   const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
 
 
-  if (isLoading) {
-    return <div className="py-20 text-center">Lade Events …</div>;
-  }
-  if (error) {
-    return (
-      <div className="py-20 text-center text-red-500">
-        Fehler beim Laden: {error.message}
-      </div>
-    );
-  }
-  if (!events || events.length === 0) {
-    return <div className="py-20 text-center">Keine Events gefunden.</div>;
-  }
+
 
   return (
-    <main className="container mx-auto py-8">
-      <EventLayout
-        events={events}
-        title={title}
-        initialView="grid"
-        searchable
-        onSearch={(q) => console.log("Suchanfrage:", q)}
-        onFilterChange={(f) => console.log("Filter:", f)}
-      />
-    </main>
+    <>
+      <SiteHeader actions={[]} >
+        <BreadcrumbItem>
+          <BreadcrumbPage>{title}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </SiteHeader>
+
+      <main className="container mx-auto py-8">
+        <EventLayout
+          events={events}
+          isLoading={isLoading}
+          error={error}
+          title={title}
+          initialView="grid"
+          searchable
+          onSearch={(q) => console.log("Suchanfrage:", q)}
+          onFilterChange={(f) => console.log("Filter:", f)}
+        />
+      </main>
+    </>
   );
 }

@@ -84,15 +84,12 @@ export default function EventTable({ }: EventTableProps) {
 
     // const { currentOrg } = useRequiredOrg();
     const { data: session } = useSession();
-    const currentOrg = session?.org;
-    if (!currentOrg) {
-        return (
-            <div className="container mx-auto py-20 text-center">
-                <div className="text-red-500 mb-4">Keine Organisation ausgewählt.</div>
-            </div>
-        );
-    }
-    const { isPending, error, data: rawEvents } = useEvents(currentOrg.id);
+
+
+    const token = session?.user?.jwt;
+    const orgId = session?.user?.organization.id;
+
+    const { data: rawEvents, isLoading, error } = useEvents(orgId || "", token || "");
 
 
     const events: EventInfo[] = rawEvents?.map((event: any) => {

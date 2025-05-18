@@ -80,10 +80,6 @@ export async function getOrg(orgId: string, token?: string) : Promise<Organizati
         token = await getAuthToken();
     }
 
-
-
-    console.log("Fetching organization with ID:", orgId, "Token:", token);
-
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}`, {
         method: 'GET',
         headers: {
@@ -99,18 +95,29 @@ export async function getOrg(orgId: string, token?: string) : Promise<Organizati
         });
 }
 
-export async function getOrgsOfUser(userId: string, token?: string) : Promise<Organization[]> {
-    // if(isMock()) return mockOrgs;
+interface OrgsDto {
+    "orgId": string,
+    "numOfMembers": number,
+    "numOfEvents": number,
+    "ownerId": string,
+    "createdAt": string,
+    "updatedAt": string,
+    "updatedBy": string,
+    "name": string,
+    "address": string,
+    "description": string,
+    "profilePicture": string,
+    "website": string
+}
 
-    console.log("Token", token)
+export async function getOrgsOfUser(userId: string, token?: string) : Promise<Organization[]> {
 
     if (!token) {
         token = await getAuthToken();
     }
 
     try {
-        console.log("Fetching organizations for user ID:", userId, "Token:", token);
-        return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
+        const orgs : OrgsDto[] = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,6 +126,21 @@ export async function getOrgsOfUser(userId: string, token?: string) : Promise<Or
         })
         .then((res) => res.json())
         .then((data) => data)
+
+        return orgs.map((org) => ({
+            id: org.orgId,
+            numOfMembers: org.numOfMembers,
+            numOfEvents: org.numOfEvents,
+            owner: org.ownerId,
+            createdAt: org.createdAt,
+            updatedAt: org.updatedAt,
+            updatedBy: org.updatedBy,
+            name: org.name,
+            address: org.address,
+            description: org.description,
+            profilePicture: org.profilePicture,
+            website: org.website
+        })) as Organization[];
     }
     catch (err) {
         console.error(err);

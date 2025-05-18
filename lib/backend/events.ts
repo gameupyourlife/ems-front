@@ -1,14 +1,12 @@
-"use client";
-
-import { mockedEventDetails, mockEvents } from '../data';
+"use client";;
 import { EventDetails } from '../types';
 import { components } from './types';
-import { getAuthToken, isMock } from './utils';
+import { getAuthToken, guardUUID } from './utils';
 
 
 
 export async function getEvents(orgId: string, token: string) {
-    if(isMock()) return mockEvents;
+    guardUUID(orgId);
 
     const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events`;
     console.log('Fetching events from URL:', fetchUrl); // Debugging line
@@ -31,7 +29,7 @@ export async function getEvents(orgId: string, token: string) {
 type EventBasicDetailedDto = components['schemas']['EventBasicDetailedDto'];
 
 export async function getEventDetails(eventId: string, token: string): Promise<EventDetails> {
-    if(isMock()) return mockedEventDetails;
+    guardUUID(eventId);
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`, {
