@@ -3,19 +3,14 @@
 import { mockedEventDetails, mockEvents } from '../data';
 import { EventDetails } from '../types';
 import { components } from './types';
-import { getAuthToken, guardUUID, isMock } from './utils';
+import { getAuthToken, isMock } from './utils';
 
 
 
-export async function getEvents(orgId: string) {
+export async function getEvents(orgId: string, token: string) {
     if(isMock()) return mockEvents;
 
-    // Check if orgId is valid
-    guardUUID(orgId);
-
-    const token = await getAuthToken();
-
-    const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}/events/organization/${orgId}`;
+    const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events`;
     console.log('Fetching events from URL:', fetchUrl); // Debugging line
 
     return fetch(fetchUrl, {
@@ -35,10 +30,8 @@ export async function getEvents(orgId: string) {
 
 type EventBasicDetailedDto = components['schemas']['EventBasicDetailedDto'];
 
-export async function getEventDetails(eventId: string): Promise<EventDetails> {
+export async function getEventDetails(eventId: string, token: string): Promise<EventDetails> {
     if(isMock()) return mockedEventDetails;
-
-    const token = await getAuthToken();
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`, {
