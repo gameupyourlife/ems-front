@@ -1,27 +1,22 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { User, Building, KeyRound, AlertTriangle, Trash } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { SiteHeader } from "@/components/site-header";
-import { useSession } from "next-auth/react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { User, Building, AlertTriangle, Lock, Shield, Check, X, Upload, LogOut } from "lucide-react"
+import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,117 +25,181 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
-    AlertDialogTitle
-} from "@/components/ui/alert-dialog";
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Progress } from "@/components/ui/progress"
+import { useTheme } from "next-themes"
+import { SiteHeader } from "@/components/site-header"
+
+interface UserType {
+    id: string
+    name: string
+    email: string
+    createdAt: string
+    updatedAt: string
+    jwt: string
+    role: string
+    orgRole: string
+    orgId: string
+    firstName: string
+    lastName: string
+    organization: {
+        id: string
+        name: string
+        profilePicture: string
+    }
+}
 
 const profileFormSchema = z.object({
     firstName: z
         .string()
-        .min(1, { message: "First name is required." })
-        .max(50, { message: "First name must not be longer than 50 characters." }),
+        .min(1, { message: "Vorname ist erforderlich." })
+        .max(50, { message: "Vorname darf nicht länger als 50 Zeichen sein." }),
     lastName: z
         .string()
-        .min(1, { message: "Last name is required." })
-        .max(50, { message: "Last name must not be longer than 50 characters." }),
-    email: z.string().min(1, { message: "Email is required." }).email("This is not a valid email."),
+        .min(1, { message: "Nachname ist erforderlich." })
+        .max(50, { message: "Nachname darf nicht länger als 50 Zeichen sein." }),
+    email: z.string().min(1, { message: "E-Mail ist erforderlich." }).email("Dies ist keine gültige E-Mail-Adresse."),
 })
 
-const passwordResetSchema = z.object({
-    currentPassword: z.string().min(1, { message: "Current password is required." }),
-    newPassword: z.string().min(8, { message: "Password must be at least 8 characters long." }),
-    confirmPassword: z.string().min(1, { message: "Please confirm your password." }),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ["confirmPassword"],
-});
+const passwordFormSchema = z
+    .object({
+        currentPassword: z.string().min(1, { message: "Aktuelles Passwort ist erforderlich." }),
+        newPassword: z
+            .string()
+            .min(8, { message: "Passwort muss mindestens 8 Zeichen lang sein." })
+            .regex(/[A-Z]/, { message: "Passwort muss mindestens einen Großbuchstaben enthalten." })
+            .regex(/[a-z]/, { message: "Passwort muss mindestens einen Kleinbuchstaben enthalten." })
+            .regex(/[0-9]/, { message: "Passwort muss mindestens eine Zahl enthalten." }),
+        confirmPassword: z.string().min(1, { message: "Bitte bestätigen Sie Ihr Passwort." }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwörter stimmen nicht überein.",
+        path: ["confirmPassword"],
+    })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
-type PasswordResetValues = z.infer<typeof passwordResetSchema>
+type PasswordFormValues = z.infer<typeof passwordFormSchema>
 
 export default function ProfileEditPage() {
     const router = useRouter()
+    const { theme } = useTheme()
+    const [activeTab, setActiveTab] = useState("profile")
     const [isLoading, setIsLoading] = useState(false)
-    const { data: session } = useSession()
-    const user = session?.user;
-    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
-    const [isPasswordResetLoading, setIsPasswordResetLoading] = useState(false)
-    const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false)
-    const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false)
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false)
+    const [deleteConfirmText, setDeleteConfirmText] = useState("")
+    const [passwordStrength, setPasswordStrength] = useState(0)
 
-    // Initialize the form with empty values first
-    const form = useForm<ProfileFormValues>({
+    // Mock user data - would come from your API/auth system
+    const user: UserType = {
+        id: "user_123456",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        createdAt: "2023-01-15T08:30:00Z",
+        updatedAt: "2023-05-20T14:45:00Z",
+        jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        role: "user",
+        orgRole: "admin",
+        orgId: "org_789012",
+        firstName: "John",
+        lastName: "Doe",
+        organization: {
+            id: "org_789012",
+            name: "Acme Corporation",
+            profilePicture: "/placeholder.svg?height=96&width=96",
+        },
+    }
+
+    const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
         },
         mode: "onChange",
-    });
+    })
 
-    const passwordResetForm = useForm<PasswordResetValues>({
-        resolver: zodResolver(passwordResetSchema),
+    const passwordForm = useForm<PasswordFormValues>({
+        resolver: zodResolver(passwordFormSchema),
         defaultValues: {
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
         },
         mode: "onChange",
-    });
+    })
 
-    // Update form values when user data becomes available
-    useEffect(() => {
-        if (user) {
-            form.reset({
-                firstName: user.firstName || "",
-                lastName: user.lastName || "",
-                email: user.email || "",
-            });
-        }
-    }, [user, form]);
-
-    // Return early after all hooks have been called
-    if (!session || !user) {
-        return null 
-    }
-
-    function onSubmit(data: ProfileFormValues) {
+    function onProfileSubmit(data: ProfileFormValues) {
         setIsLoading(true)
         setTimeout(() => {
-            console.log(data)
+            console.log("Profile data:", data)
             setIsLoading(false)
-            toast.success("Profil erfolgreich aktualisiert!")
+            toast.success("Profil aktualisiert", {
+                description: "Ihre Profilinformationen wurden erfolgreich aktualisiert.",
+            })
+        }, 1000)
+    }
+
+    function onPasswordSubmit(data: PasswordFormValues) {
+        setIsPasswordLoading(true)
+        setTimeout(() => {
+            console.log("Password data:", data)
+            setIsPasswordLoading(false)
+            passwordForm.reset()
+            setPasswordStrength(0)
+            toast.success("Passwort aktualisiert", {
+                description: "Ihr Passwort wurde erfolgreich geändert.",
+            })
         }, 1000)
     }
 
     function handleSignOut() {
         router.push("/")
-        toast.success("Erfolgreich abgemeldet!")
-    }
-
-    function handlePasswordReset(data: PasswordResetValues) {
-        setIsPasswordResetLoading(true);
-        // Simuliert einen API-Aufruf zum Passwort zurücksetzen
-        setTimeout(() => {
-            console.log("Password reset data:", data);
-            setIsPasswordResetLoading(false);
-            setIsPasswordDialogOpen(false);
-            passwordResetForm.reset();
-            toast.success("Passwort erfolgreich aktualisiert!");
-        }, 1500);
+        toast.info("Abgemeldet", {
+            description: "Sie wurden erfolgreich abgemeldet.",
+        })
     }
 
     function handleDeleteAccount() {
-        setIsDeleteAccountLoading(true);
-        // Simuliert einen API-Aufruf zum Löschen des Accounts
+        // In a real app, this would call your API to delete the account
+        console.log("Deleting account:", user.id)
+
+        // Show loading state
+        toast.loading("Konto wird gelöscht...", {
+            description: "Ihr Konto wird gelöscht.",
+        })
+
+        // Simulate API call
         setTimeout(() => {
-            console.log("Deleting account for user:", user.id);
-            setIsDeleteAccountLoading(false);
-            setIsDeleteAccountDialogOpen(false);
-            toast.success("Konto wurde erfolgreich gelöscht!");
-            // Zum Login weiterleiten
-            router.push("/login");
-        }, 2000);
+            router.push("/")
+            toast.success("Konto gelöscht", {
+                description: "Ihr Konto wurde dauerhaft gelöscht.",
+            })
+        }, 2000)
+    }
+
+    function calculatePasswordStrength(password: string) {
+        if (!password) return 0
+
+        let strength = 0
+
+        // Length check
+        if (password.length >= 8) strength += 25
+
+        // Character type checks
+        if (/[A-Z]/.test(password)) strength += 25
+        if (/[a-z]/.test(password)) strength += 25
+        if (/[0-9]/.test(password)) strength += 25
+
+        return strength
+    }
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPassword = e.target.value
+        passwordForm.setValue("newPassword", newPassword)
+        setPasswordStrength(calculatePasswordStrength(newPassword))
     }
 
     const formatDate = (dateString: string) => {
@@ -151,299 +210,435 @@ export default function ProfileEditPage() {
         })
     }
 
-    return (
-        <>
-            <SiteHeader actions={[]}>
-                Benutzerprofil
-            </SiteHeader>
+    const getStrengthColor = (strength: number) => {
+        if (strength === 0) return "bg-gray-200 dark:bg-neutral-700"
+        if (strength < 50) return "bg-red-500"
+        if (strength < 100) return "bg-yellow-500"
+        return "bg-green-500"
+    }
 
-            <div className="flex w-full justify-center space-y-6 p-4 md:p-6">
-                <div className="container max-w-2xl">
-                    <div className="space-y-8">
-                        {/* User Profile Header */}
-                        <div className="flex items-center gap-6">
-                            <Avatar className="h-20 w-20">
-                                <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profilbild" />
-                                <AvatarFallback>
-                                    <User className="h-10 w-10" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <h3 className="text-lg font-medium mb-1">
-                                    {user.firstName} {user.lastName}
-                                </h3>
-                                <div className="flex flex-wrap gap-2 mb-3">
-                                    {user.role == "0" && <Badge variant="outline">Admin</Badge>}
-                                    <Badge variant="outline">{user.orgRole || "Nutzer" }</Badge>
+    const getStrengthText = (strength: number) => {
+        if (strength === 0) return "Nicht bewertet"
+        if (strength < 50) return "Schwach"
+        if (strength < 100) return "Mittel"
+        return "Stark"
+    }
+
+    return <>
+
+        <SiteHeader actions={[]}>
+            Kontoeinstellungen
+        </SiteHeader>
+
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row gap-8">
+                {/* Profile Header */}
+                <div className="md:w-1/3">
+                    <div className="sticky top-8 space-y-6">
+                        <Card className="border ">
+                            <CardContent className="p-6 flex flex-col items-center">
+                                <div className="relative mb-4 group">
+                                    <Avatar className="h-24 w-24 border-background shadow-md">
+                                        <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profilbild" />
+                                        <AvatarFallback>
+                                            <User className="h-12 w-12" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="absolute inset-0 bg-black/50 dark:bg-black/70 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full text-white">
+                                            <Upload className="h-5 w-5" />
+                                        </Button>
+                                    </div>
                                 </div>
-                               
-                            </div>
-                        </div>
+                                <h2 className="text-xl font-semibold mb-1">
+                                    {user.firstName} {user.lastName}
+                                </h2>
+                                <p className="text-muted-foreground text-sm mb-3">{user.email}</p>
+                                <div className="flex flex-wrap gap-2 mb-4 justify-center">
+                                    <Badge variant="secondary" className="rounded-full px-3">
+                                        {user.role}
+                                    </Badge>
+                                    <Badge variant="secondary" className="rounded-full px-3">
+                                        {user.orgRole}
+                                    </Badge>
+                                </div>
+                                <div className="w-full pt-4 border-t ">
+                                    <p className="text-sm text-center text-muted-foreground mb-1">Mitglied seit</p>
+                                    <p className="text-sm font-medium text-center">{formatDate(user.createdAt)}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                        {/* Organization Info */}
-                        <Card>
+                        <Card className="border ">
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-lg">Organisation</CardTitle>
+                                <CardTitle className="text-base flex items-center">
+                                    <Building className="h-4 w-4 mr-2 text-muted-foreground" />
+                                    Organisation
+                                </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-14 w-14">
+                            <CardContent className="pt-0">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-12 w-12">
                                         <AvatarImage
                                             src={user.organization.profilePicture || "/placeholder.svg"}
                                             alt={user.organization.name}
                                         />
                                         <AvatarFallback>
-                                            <Building className="h-7 w-7" />
+                                            <Building className="h-6 w-6" />
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <h3 className="font-medium">{user.organization.name}</h3>
-                                        <p className="text-sm text-muted-foreground">ID: {user.organization.id}</p>
+                                        <h4 className="font-medium">{user.organization.name}</h4>
+                                        <p className="text-xs text-muted-foreground">ID: {user.organization.id}</p>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Profile Form */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-lg">Persönliche Informationen</CardTitle>
-                                <CardDescription>Aktualisieren Sie Ihre Profildaten unten</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Form {...form}>
-                                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                                        <div className="grid gap-5 sm:grid-cols-2">
-                                            <FormField
-                                                control={form.control}
-                                                name="firstName"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Vorname</FormLabel>
-                                                        <FormControl>
-                                                            <Input placeholder="Vorname" {...field} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="lastName"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Nachname</FormLabel>
-                                                        <FormControl>
-                                                            <Input placeholder="Nachname" {...field} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>E-Mail</FormLabel>
-                                                    <FormControl>
-                                                        <Input placeholder="email@beispiel.de" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        {/* Account Information */}
-                                        <div className="pt-2 border-t">
-                                            <h3 className="text-sm font-medium mb-3">Kontoinformationen</h3>
-                                            <div className="grid gap-3 text-sm">
-                                                <div className="grid grid-cols-2">
-                                                    <span className="text-muted-foreground">Benutzer-ID:</span>
-                                                    <span>{user.id}</span>
-                                                </div>
-                                                <div className="grid grid-cols-2">
-                                                    <span className="text-muted-foreground">Erstellt am:</span>
-                                                    <span>{formatDate(user.createdAt)}</span>
-                                                </div>
-                                                <div className="grid grid-cols-2">
-                                                    <span className="text-muted-foreground">Zuletzt aktualisiert:</span>
-                                                    <span>{formatDate(user.updatedAt)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </Form>
-                            </CardContent>
-                            <CardFooter className="border-t px-6 py-4 flex justify-between">
-                                <Button variant="outline" onClick={() => router.back()}>
-                                    Abbrechen
-                                </Button>
-                                <div className="flex gap-3">
-                                    <Button variant="destructive" onClick={handleSignOut}>
-                                        Abmelden
-                                    </Button>
-                                    <Button onClick={form.handleSubmit(onSubmit)} disabled={isLoading}>
-                                        {isLoading ? "Speichern..." : "Änderungen speichern"}
-                                    </Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-
-                        {/* Password Reset Card */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-lg">Passwort & Sicherheit</CardTitle>
-                                <CardDescription>Verwalten Sie Ihre Anmeldedaten</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-medium">Passwort ändern</h3>
-                                        <p className="text-sm text-muted-foreground">Aktualisieren Sie Ihr aktuelles Passwort</p>
-                                    </div>
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => setIsPasswordDialogOpen(true)}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <KeyRound className="h-4 w-4" />
-                                        Passwort zurücksetzen
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Password Reset Dialog */}
-                        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Passwort zurücksetzen</DialogTitle>
-                                    <DialogDescription>
-                                        Bitte geben Sie Ihr aktuelles Passwort und das neue Passwort ein.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <Form {...passwordResetForm}>
-                                    <form onSubmit={passwordResetForm.handleSubmit(handlePasswordReset)} className="space-y-4">
-                                        <FormField
-                                            control={passwordResetForm.control}
-                                            name="currentPassword"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Aktuelles Passwort</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="password" placeholder="Aktuelles Passwort" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={passwordResetForm.control}
-                                            name="newPassword"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Neues Passwort</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="password" placeholder="Neues Passwort" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={passwordResetForm.control}
-                                            name="confirmPassword"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Neues Passwort bestätigen</FormLabel>
-                                                    <FormControl>
-                                                        <Input type="password" placeholder="Neues Passwort bestätigen" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <DialogFooter>
-                                            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
-                                                Abbrechen
-                                            </Button>
-                                            <Button type="submit" disabled={isPasswordResetLoading}>
-                                                {isPasswordResetLoading ? "Speichern..." : "Passwort zurücksetzen"}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </Form>
-                            </DialogContent>
-                        </Dialog>
-
-                        {/* Account Delete Card */}
-                        <Card className="border-destructive/50">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-lg text-destructive">Konto löschen</CardTitle>
-                                <CardDescription>Löschen Sie Ihr Konto dauerhaft</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-medium">Konto dauerhaft löschen</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten werden dauerhaft gelöscht.
-                                        </p>
-                                    </div>
-                                    <Button 
-                                        variant="destructive"
-                                        onClick={() => setIsDeleteAccountDialogOpen(true)}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Trash className="h-4 w-4" />
-                                        Konto löschen
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Account Delete Confirmation Dialog */}
-                        <AlertDialog 
-                            open={isDeleteAccountDialogOpen}
-                            onOpenChange={setIsDeleteAccountDialogOpen}
-                        >
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-destructive flex items-center gap-2">
-                                        <AlertTriangle className="h-5 w-5" />
-                                        Konto dauerhaft löschen
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.
-                                        Alle Ihre Daten, einschließlich Profildaten und persönlicher Informationen, werden dauerhaft gelöscht.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel disabled={isDeleteAccountLoading}>
-                                        Abbrechen
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                        onClick={handleDeleteAccount}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        disabled={isDeleteAccountLoading}
-                                    >
-                                        {isDeleteAccountLoading ? (
-                                            <>
-                                                <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent rounded-full" />
-                                                Löschen...
-                                            </>
-                                        ) : (
-                                            "Konto löschen"
-                                        )}
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Abmelden
+                        </Button>
                     </div>
                 </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                    {/* <Card className="mb-6 border ">
+                        <CardHeader>
+                            <CardTitle>Kontoeinstellungen</CardTitle>
+                            <CardDescription>
+                                Verwalten Sie Ihre persönlichen Informationen und Sicherheitseinstellungen
+                            </CardDescription>
+                        </CardHeader>
+                    </Card> */}
+
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                        <TabsList className="grid grid-cols-2 w-full">
+                            <TabsTrigger
+                                value="profile"
+                                className="h-fit"
+                            >
+                                <User className="h-4 w-4 mr-2" />
+                                Profil
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="security"
+                                className="h-fit"
+                            >
+                                <Shield className="h-4 w-4 mr-2" />
+                                Sicherheit
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {/* Profile Tab */}
+                        <TabsContent value="profile" className="space-y-6">
+                            <Card className="border ">
+                                <CardHeader>
+                                    <CardTitle>Persönliche Informationen</CardTitle>
+                                    <CardDescription>Aktualisieren Sie Ihre persönlichen Daten</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Form {...profileForm}>
+                                        <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-5">
+                                            <div className="grid gap-5 sm:grid-cols-2">
+                                                <FormField
+                                                    control={profileForm.control}
+                                                    name="firstName"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Vorname</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Vorname" {...field} className="h-10" />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={profileForm.control}
+                                                    name="lastName"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Nachname</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Nachname" {...field} className="h-10" />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                            <FormField
+                                                control={profileForm.control}
+                                                name="email"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>E-Mail</FormLabel>
+                                                        <FormControl>
+                                                            <Input placeholder="email@beispiel.de" {...field} className="h-10" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Account Information */}
+                                            <div className="pt-4 mt-4 border-t ">
+                                                <h3 className="text-sm font-medium mb-3">Kontoinformationen</h3>
+                                                <div className="grid gap-3 text-sm bg-muted/50 dark:bg-neutral-800 p-3 rounded-md">
+                                                    <div className="grid grid-cols-2">
+                                                        <span className="text-muted-foreground">Benutzer-ID:</span>
+                                                        <span className="font-mono text-xs">{user.id}</span>
+                                                    </div>
+                                                    <div className="grid grid-cols-2">
+                                                        <span className="text-muted-foreground">Erstellt am:</span>
+                                                        <span>{formatDate(user.createdAt)}</span>
+                                                    </div>
+                                                    <div className="grid grid-cols-2">
+                                                        <span className="text-muted-foreground">Letzte Aktualisierung:</span>
+                                                        <span>{formatDate(user.updatedAt)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </Form>
+                                </CardContent>
+                                <CardFooter className="border-t  px-6 py-4 flex justify-between">
+                                    <Button variant="outline" onClick={() => router.back()}>
+                                        Abbrechen
+                                    </Button>
+                                    <Button
+                                        onClick={profileForm.handleSubmit(onProfileSubmit)}
+                                        disabled={isLoading}
+                                        className="min-w-[120px]"
+                                    >
+                                        {isLoading ? "Speichern..." : "Änderungen speichern"}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </TabsContent>
+
+                        {/* Security Tab */}
+                        <TabsContent value="security" className="space-y-6">
+                            {/* Password Reset */}
+                            <Card className="border ">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center">
+                                        <Lock className="h-5 w-5 mr-2 text-muted-foreground" />
+                                        Passwort ändern
+                                    </CardTitle>
+                                    <CardDescription>Aktualisieren Sie Ihr Passwort, um Ihr Konto zu schützen</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Form {...passwordForm}>
+                                        <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-5">
+                                            <FormField
+                                                control={passwordForm.control}
+                                                name="currentPassword"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Aktuelles Passwort</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="password" placeholder="••••••••" {...field} className="h-10" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={passwordForm.control}
+                                                name="newPassword"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Neues Passwort</FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                type="password"
+                                                                placeholder="••••••••"
+                                                                {...field}
+                                                                className="h-10"
+                                                                onChange={handlePasswordChange}
+                                                            />
+                                                        </FormControl>
+                                                        <div className="mt-2 space-y-2">
+                                                            <div className="space-y-1">
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span>Passwortstärke</span>
+                                                                    <span>{getStrengthText(passwordStrength)}</span>
+                                                                </div>
+                                                                <Progress
+                                                                    value={passwordStrength}
+                                                                    className={`h-1.5 ${getStrengthColor(passwordStrength)}`}
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                <div className="flex items-center gap-2 text-xs">
+                                                                    {/^.{8,}$/.test(field.value) ? (
+                                                                        <Check className="h-3.5 w-3.5 text-green-500" />
+                                                                    ) : (
+                                                                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                    )}
+                                                                    <span
+                                                                        className={
+                                                                            /^.{8,}$/.test(field.value)
+                                                                                ? "text-green-700 dark:text-green-500"
+                                                                                : "text-muted-foreground"
+                                                                        }
+                                                                    >
+                                                                        Mindestens 8 Zeichen
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-xs">
+                                                                    {/[A-Z]/.test(field.value) ? (
+                                                                        <Check className="h-3.5 w-3.5 text-green-500" />
+                                                                    ) : (
+                                                                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                    )}
+                                                                    <span
+                                                                        className={
+                                                                            /[A-Z]/.test(field.value)
+                                                                                ? "text-green-700 dark:text-green-500"
+                                                                                : "text-muted-foreground"
+                                                                        }
+                                                                    >
+                                                                        Mindestens ein Großbuchstabe
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-xs">
+                                                                    {/[a-z]/.test(field.value) ? (
+                                                                        <Check className="h-3.5 w-3.5 text-green-500" />
+                                                                    ) : (
+                                                                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                    )}
+                                                                    <span
+                                                                        className={
+                                                                            /[a-z]/.test(field.value)
+                                                                                ? "text-green-700 dark:text-green-500"
+                                                                                : "text-muted-foreground"
+                                                                        }
+                                                                    >
+                                                                        Mindestens ein Kleinbuchstabe
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-xs">
+                                                                    {/[0-9]/.test(field.value) ? (
+                                                                        <Check className="h-3.5 w-3.5 text-green-500" />
+                                                                    ) : (
+                                                                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                    )}
+                                                                    <span
+                                                                        className={
+                                                                            /[0-9]/.test(field.value)
+                                                                                ? "text-green-700 dark:text-green-500"
+                                                                                : "text-muted-foreground"
+                                                                        }
+                                                                    >
+                                                                        Mindestens eine Zahl
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={passwordForm.control}
+                                                name="confirmPassword"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Passwort bestätigen</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="password" placeholder="••••••••" {...field} className="h-10" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </form>
+                                    </Form>
+                                </CardContent>
+                                <CardFooter className="border-t  px-6 py-4 flex justify-end">
+                                    <Button
+                                        onClick={passwordForm.handleSubmit(onPasswordSubmit)}
+                                        disabled={isPasswordLoading}
+                                        className="min-w-[150px]"
+                                    >
+                                        {isPasswordLoading ? "Aktualisiere..." : "Passwort aktualisieren"}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+
+                            {/* Danger Zone - Account Deletion */}
+                            <Card className="border border-red-200 dark:border-red-900/50">
+                                <CardHeader className="pb-3 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/10">
+                                    <CardTitle className="flex items-center text-red-600 dark:text-red-400">
+                                        <AlertTriangle className="h-5 w-5 mr-2 text-red-500 dark:text-red-400" />
+                                        Gefahrenbereich
+                                    </CardTitle>
+                                    <CardDescription className="text-red-700/70 dark:text-red-400/70">
+                                        Aktionen in diesem Bereich können nicht rückgängig gemacht werden
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="font-medium mb-2">Konto löschen</h3>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Wenn Sie Ihr Konto löschen, gibt es kein Zurück mehr. Diese Aktion ist dauerhaft und entfernt
+                                                alle Ihre Daten von unseren Servern.
+                                            </p>
+
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="destructive"
+                                                        className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white"
+                                                    >
+                                                        Konto löschen
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Diese Aktion kann nicht rückgängig gemacht werden. Dies wird Ihr Konto dauerhaft löschen
+                                                            und alle Ihre Daten von unseren Servern entfernen.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <div className="py-4">
+                                                        <p className="text-sm font-medium mb-2">
+                                                            Geben Sie zur Bestätigung &quot;{user.firstName.toLowerCase()}-{user.id}&quot; ein:
+                                                        </p>
+                                                        <Input
+                                                            value={deleteConfirmText}
+                                                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                                            placeholder={`${user.firstName.toLowerCase()}-${user.id}`}
+                                                            className="mb-2"
+                                                        />
+                                                    </div>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={handleDeleteAccount}
+                                                            disabled={deleteConfirmText !== `${user.firstName.toLowerCase()}-${user.id}`}
+                                                            className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white"
+                                                        >
+                                                            Konto löschen
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                </div>
             </div>
-        </>
-    )
+        </div>
+
+    </>;
 }
