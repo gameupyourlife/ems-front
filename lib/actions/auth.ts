@@ -1,11 +1,13 @@
 "use server";;
-import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { isRedirectError, RedirectType } from "next/dist/client/components/redirect-error";
 import { signIn, signOut } from "../auth";
 import { registerNewUser } from "../backend/auth";
+import { redirect } from "next/navigation";
 
 
 export async function logOutActionPleaseCallThisOneToUnsetSession() {
     await signOut()
+    redirect("/", RedirectType.push);
 }
 
 export async function logInActionPleaseCallThisOneToSetSession(formData: any) {

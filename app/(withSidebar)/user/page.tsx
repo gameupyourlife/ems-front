@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -31,25 +31,10 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { useTheme } from "next-themes"
 import { SiteHeader } from "@/components/site-header"
+import { deleteAccount, resetPasswort, updateUser } from "@/lib/backend/users"
+import { useSession } from "next-auth/react"
+import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth"
 
-interface UserType {
-    id: string
-    name: string
-    email: string
-    createdAt: string
-    updatedAt: string
-    jwt: string
-    role: string
-    orgRole: string
-    orgId: string
-    firstName: string
-    lastName: string
-    organization: {
-        id: string
-        name: string
-        profilePicture: string
-    }
-}
 
 const profileFormSchema = z.object({
     firstName: z
@@ -91,32 +76,15 @@ export default function ProfileEditPage() {
     const [deleteConfirmText, setDeleteConfirmText] = useState("")
     const [passwordStrength, setPasswordStrength] = useState(0)
 
-    // Mock user data - would come from your API/auth system
-    const user: UserType = {
-        id: "user_123456",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        createdAt: "2023-01-15T08:30:00Z",
-        updatedAt: "2023-05-20T14:45:00Z",
-        jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        role: "user",
-        orgRole: "admin",
-        orgId: "org_789012",
-        firstName: "John",
-        lastName: "Doe",
-        organization: {
-            id: "org_789012",
-            name: "Acme Corporation",
-            profilePicture: "/placeholder.svg?height=96&width=96",
-        },
-    }
+    const { data: session } = useSession();
+    const user = session?.user;
 
     const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            email: user?.email,
         },
         mode: "onChange",
     })
@@ -131,53 +99,113 @@ export default function ProfileEditPage() {
         mode: "onChange",
     })
 
+    useEffect(() => {
+        if (user)
+            profileForm.reset({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            })
+    }, [user])
+
+
+    if (!user) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <p className="text-center text-muted-foreground">Laden...</p>
+            </div>
+        )
+    }
+
     function onProfileSubmit(data: ProfileFormValues) {
         setIsLoading(true)
-        setTimeout(() => {
-            console.log("Profile data:", data)
-            setIsLoading(false)
-            toast.success("Profil aktualisiert", {
-                description: "Ihre Profilinformationen wurden erfolgreich aktualisiert.",
-            })
-        }, 1000)
+
+        if (!user) {
+            toast.error("Kein Benutzer angemeldet")
+            router.push("/login")
+            return
+        }
+
+        toast.promise(
+
+
+            updateUser(user.id, {
+                // updatedAt: new Date().toISOString(),
+                firstName: data.firstName,
+                lastName: data.lastName,
+                // email: data.email,
+            }, user.jwt)    
+            ,
+            {
+                loading: "Aktualisiere Profil...",
+                success: () => {
+                    setIsLoading(false)
+                    return "Profil erfolgreich aktualisiert."
+                },
+                error: (error) => {
+                    console.error("Error updating profile:", error)
+                    setIsLoading(false)
+                    return "Fehler beim Aktualisieren des Profils."
+                },
+            },
+        )
+
+
     }
 
     function onPasswordSubmit(data: PasswordFormValues) {
-        setIsPasswordLoading(true)
-        setTimeout(() => {
-            console.log("Password data:", data)
-            setIsPasswordLoading(false)
-            passwordForm.reset()
-            setPasswordStrength(0)
-            toast.success("Passwort aktualisiert", {
-                description: "Ihr Passwort wurde erfolgreich geändert.",
-            })
-        }, 1000)
-    }
+        if (!user) {
+            toast.error("Kein Benutzer angemeldet")
+            router.push("/login")
+            return
+        }
 
-    function handleSignOut() {
-        router.push("/")
-        toast.info("Abgemeldet", {
-            description: "Sie wurden erfolgreich abgemeldet.",
-        })
+        setIsPasswordLoading(true)
+
+        toast.promise(resetPasswort(
+            user.email, passwordForm.getValues("newPassword"), passwordForm.getValues("confirmPassword"), user.jwt
+        ),
+            {
+                loading: "Passwort wird aktualisiert...",
+                success: () => {
+                    setIsPasswordLoading(false)
+                    return "Passwort erfolgreich aktualisiert."
+                },
+                error: (error) => {
+                    console.error("Error updating password:", error)
+                    setIsPasswordLoading(false)
+                    return "Fehler beim Aktualisieren des Passworts."
+                },
+            },
+        )
+
     }
 
     function handleDeleteAccount() {
         // In a real app, this would call your API to delete the account
-        console.log("Deleting account:", user.id)
+        // console.log("Deleting account:", user?.id)
 
-        // Show loading state
-        toast.loading("Konto wird gelöscht...", {
-            description: "Ihr Konto wird gelöscht.",
-        })
+        if (!user) {
+            toast.error("Kein Benutzer angemeldet")
+            router.push("/login")
+            return
+        }
 
-        // Simulate API call
-        setTimeout(() => {
-            router.push("/")
-            toast.success("Konto gelöscht", {
-                description: "Ihr Konto wurde dauerhaft gelöscht.",
-            })
-        }, 2000)
+        toast.promise(
+            deleteAccount(user.id, user.jwt),
+            {
+                loading: "Konto wird gelöscht...",
+                success: () => {
+                    setDeleteConfirmText("")
+                    router.push("/register")
+                    return "Konto erfolgreich gelöscht."
+                },
+                error: (error) => {
+                    console.error("Error deleting account:", error)
+                    return "Fehler beim Löschen des Kontos."
+                },
+            },
+        )
     }
 
     function calculatePasswordStrength(password: string) {
@@ -295,7 +323,7 @@ export default function ProfileEditPage() {
                             </CardContent>
                         </Card>
 
-                        <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
+                        <Button variant="outline" className="w-full justify-start" onClick={logOutActionPleaseCallThisOneToUnsetSession}>
                             <LogOut className="h-4 w-4 mr-2" />
                             Abmelden
                         </Button>

@@ -39,18 +39,6 @@ export function NavUser() {
     setTheme(themeToSet)
   }
 
-  // Handle logout
-  // const handleLogout = () => {
-  //   // Clear the auth cookie first
-  //   signOut();
-  //   logOutActionPleaseCallThisOneToUnsetSession();
-
-  //   // Then log out from the user context
-  //   // logout();
-  //   toast.success("Erfolgreich abgemeldet");
-  //   router.push("/login");
-  // };
-
   if (!currentUser) {
     return null;
   }
