@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { User, Building } from "lucide-react";
+import { User, Building, KeyRound, AlertTriangle, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { useSession } from "next-auth/react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 const profileFormSchema = z.object({
     firstName: z
@@ -27,13 +45,27 @@ const profileFormSchema = z.object({
     email: z.string().min(1, { message: "Email is required." }).email("This is not a valid email."),
 })
 
+const passwordResetSchema = z.object({
+    currentPassword: z.string().min(1, { message: "Current password is required." }),
+    newPassword: z.string().min(8, { message: "Password must be at least 8 characters long." }),
+    confirmPassword: z.string().min(1, { message: "Please confirm your password." }),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ["confirmPassword"],
+});
+
 type ProfileFormValues = z.infer<typeof profileFormSchema>
+type PasswordResetValues = z.infer<typeof passwordResetSchema>
 
 export default function ProfileEditPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const { data: session } = useSession()
     const user = session?.user;
+    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+    const [isPasswordResetLoading, setIsPasswordResetLoading] = useState(false)
+    const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false)
+    const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false)
 
     // Initialize the form with empty values first
     const form = useForm<ProfileFormValues>({
@@ -42,6 +74,16 @@ export default function ProfileEditPage() {
             firstName: "",
             lastName: "",
             email: "",
+        },
+        mode: "onChange",
+    });
+
+    const passwordResetForm = useForm<PasswordResetValues>({
+        resolver: zodResolver(passwordResetSchema),
+        defaultValues: {
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
         },
         mode: "onChange",
     });
@@ -68,13 +110,37 @@ export default function ProfileEditPage() {
             console.log(data)
             setIsLoading(false)
             toast.success("Profil erfolgreich aktualisiert!")
-
         }, 1000)
     }
 
     function handleSignOut() {
         router.push("/")
         toast.success("Erfolgreich abgemeldet!")
+    }
+
+    function handlePasswordReset(data: PasswordResetValues) {
+        setIsPasswordResetLoading(true);
+        // Simuliert einen API-Aufruf zum Passwort zurücksetzen
+        setTimeout(() => {
+            console.log("Password reset data:", data);
+            setIsPasswordResetLoading(false);
+            setIsPasswordDialogOpen(false);
+            passwordResetForm.reset();
+            toast.success("Passwort erfolgreich aktualisiert!");
+        }, 1500);
+    }
+
+    function handleDeleteAccount() {
+        setIsDeleteAccountLoading(true);
+        // Simuliert einen API-Aufruf zum Löschen des Accounts
+        setTimeout(() => {
+            console.log("Deleting account for user:", user.id);
+            setIsDeleteAccountLoading(false);
+            setIsDeleteAccountDialogOpen(false);
+            toast.success("Konto wurde erfolgreich gelöscht!");
+            // Zum Login weiterleiten
+            router.push("/login");
+        }, 2000);
     }
 
     const formatDate = (dateString: string) => {
@@ -224,6 +290,157 @@ export default function ProfileEditPage() {
                                 </div>
                             </CardFooter>
                         </Card>
+
+                        {/* Password Reset Card */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-lg">Passwort & Sicherheit</CardTitle>
+                                <CardDescription>Verwalten Sie Ihre Anmeldedaten</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-medium">Passwort ändern</h3>
+                                        <p className="text-sm text-muted-foreground">Aktualisieren Sie Ihr aktuelles Passwort</p>
+                                    </div>
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={() => setIsPasswordDialogOpen(true)}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <KeyRound className="h-4 w-4" />
+                                        Passwort zurücksetzen
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Password Reset Dialog */}
+                        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Passwort zurücksetzen</DialogTitle>
+                                    <DialogDescription>
+                                        Bitte geben Sie Ihr aktuelles Passwort und das neue Passwort ein.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <Form {...passwordResetForm}>
+                                    <form onSubmit={passwordResetForm.handleSubmit(handlePasswordReset)} className="space-y-4">
+                                        <FormField
+                                            control={passwordResetForm.control}
+                                            name="currentPassword"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Aktuelles Passwort</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" placeholder="Aktuelles Passwort" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={passwordResetForm.control}
+                                            name="newPassword"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Neues Passwort</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" placeholder="Neues Passwort" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={passwordResetForm.control}
+                                            name="confirmPassword"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Neues Passwort bestätigen</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" placeholder="Neues Passwort bestätigen" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <DialogFooter>
+                                            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+                                                Abbrechen
+                                            </Button>
+                                            <Button type="submit" disabled={isPasswordResetLoading}>
+                                                {isPasswordResetLoading ? "Speichern..." : "Passwort zurücksetzen"}
+                                            </Button>
+                                        </DialogFooter>
+                                    </form>
+                                </Form>
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* Account Delete Card */}
+                        <Card className="border-destructive/50">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-lg text-destructive">Konto löschen</CardTitle>
+                                <CardDescription>Löschen Sie Ihr Konto dauerhaft</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-medium">Konto dauerhaft löschen</h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten werden dauerhaft gelöscht.
+                                        </p>
+                                    </div>
+                                    <Button 
+                                        variant="destructive"
+                                        onClick={() => setIsDeleteAccountDialogOpen(true)}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Trash className="h-4 w-4" />
+                                        Konto löschen
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Account Delete Confirmation Dialog */}
+                        <AlertDialog 
+                            open={isDeleteAccountDialogOpen}
+                            onOpenChange={setIsDeleteAccountDialogOpen}
+                        >
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-destructive flex items-center gap-2">
+                                        <AlertTriangle className="h-5 w-5" />
+                                        Konto dauerhaft löschen
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.
+                                        Alle Ihre Daten, einschließlich Profildaten und persönlicher Informationen, werden dauerhaft gelöscht.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel disabled={isDeleteAccountLoading}>
+                                        Abbrechen
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDeleteAccount}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        disabled={isDeleteAccountLoading}
+                                    >
+                                        {isDeleteAccountLoading ? (
+                                            <>
+                                                <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent rounded-full" />
+                                                Löschen...
+                                            </>
+                                        ) : (
+                                            "Konto löschen"
+                                        )}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </div>
             </div>
