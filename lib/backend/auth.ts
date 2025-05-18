@@ -32,7 +32,6 @@ export async function logInUser(email: string, password: string): Promise<User |
 
         console.log("Login response status: ", res.status);
         
-        // const body = await res.text();
         // Get the response which contains just the JWT token
         const data = await res.json();
         console.log("Login response ", data);
@@ -63,8 +62,7 @@ export async function logInUser(email: string, password: string): Promise<User |
             if (!user) {
                 throw new Error("User not found");
             }
-            // user.jwt = token; // Add the JWT token to the user object
-            // console.log("New User: ", user);
+            
             return {
                 ...user,
                 jwt: token, // Assuming fullName is a property in the user object
@@ -81,20 +79,16 @@ export async function logInUser(email: string, password: string): Promise<User |
 }
 
 export async function getUser(userId: string, token?: any): Promise<User | null> {
-
-
     if (!process.env.NEXT_PUBLIC_API_URL) {
         throw new Error("API URL is not defined");
     }
 
     const session = await auth()
 
-
     // Declare token if not passed
     if (!token) {
         token = session?.user?.jwt;
     }
-
 
     // const token = session?.user?.jwt;
     console.log("Token: ", token);
@@ -119,6 +113,7 @@ export async function getUser(userId: string, token?: any): Promise<User | null>
     return {
         ...user,
         name: user.fullName,
+        orgRole: user.role.toString() as string,
     } as User;
 }
 

@@ -11,16 +11,6 @@ declare module "next-auth" {
      * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
      */
     interface Session {
-        //   user: {
-        //     id: string;
-        //     name: string;
-        //     email: string;
-        //     createdAt: string;
-        //     updatedAt: string;
-        //     profilePicture: string;
-        //     role?: string;
-        //     jwt?: string;
-        //   } & DefaultSession["user"]
         org: Organization;
         orgsOfUser: Organization[];
     }
@@ -43,16 +33,6 @@ declare module "next-auth" {
 
 }
 
-
-// declare module "next-auth/jwt" {
-//   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
-//   interface JWT {
-//     /** OpenID ID Token */
-//     idToken?: string
-//   }
-// }
-
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
     pages: {
         signIn: "/login",
@@ -63,12 +43,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             try {
                 if (user) {
                     token.user = user
-                    // console.log("user: ", user)
                 }
 
-                // token.org = session.org
-                // console.log("user: ", user)
-                // console.log("session: ", session)
                 return token
             } catch (error) {
                 console.error("Error in JWT callback: ", error)
@@ -82,18 +58,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     console.log("Session user: ", session.user)
                 }
 
-                // console.log("Session user: ", session.user.organization.id)
-
-                // const org = await getOrg(session.user.organization.id, session.user.jwt)
-                // @ts-ignore
                 if (session.user.jwt) {
                     const orgsOfUser = await getOrgsOfUser(session.user.id, session.user.jwt)
                     session.org = orgsOfUser.find(org => org.id === session.user.organization.id) || orgsOfUser[0] || null;
                     session.orgsOfUser = orgsOfUser
                 }
 
-
-                // console.log("session: ", session)
                 return session;
             }
             catch (error) {
@@ -126,8 +96,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                     const { email, password } = await signInSchema.parseAsync(credentials)
 
-                    // console.log("Parsed credentials: ", { email, password })
-                    // logic to verify if the user exists
                     user = await logInUser(email, password)
 
                     console.log("User: ", user)
