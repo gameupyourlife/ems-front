@@ -1,5 +1,5 @@
-import { type EventInfo, type EmsFile, type Flow, type AgendaStep, EventStatus } from "@/lib/types";
-import { number, z } from "zod";
+import { type EventInfo } from "@/lib/types";
+import { z } from "zod";
 
 // Basis-URL für alle Requests
 const BASE =
@@ -18,81 +18,73 @@ export const eventSchema = z.object({
     .string()
     .url({ message: "Bitte gib eine gültige Bild-URL an" })
     .or(z.literal("")),
-  start: z.string().refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
-  end: z.string().refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
+  start: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
+  end: z
+    .string()
+    .refine((d) => !isNaN(Date.parse(d)), { message: "Ungültiges Datum" }),
   status: z.number(),
 });
 export type EventFormData = z.infer<typeof eventSchema>;
 
 // Payload-Typ für neue Events
 export interface NewEventPayload extends EventFormData {
-  capacity: number;
   createdAt: string;
   createdBy: string;
-  status: number;
 }
 
-// POST /events - Korrigierte Version
+// POST /orgs/{orgId}/events – korrigiert mit Authorization-Header
 export async function createEvent(
   orgId: string,
-  payload: NewEventPayload
+  payload: NewEventPayload,
+  token: string
 ): Promise<EventInfo> {
-  try {
-    // Client-seitige Validierung
-    eventSchema.parse(payload);
+  // Client-seitige Validierung
+  eventSchema.parse(payload);
 
-    // Stelle sicher, dass alle erforderlichen Felder vorhanden sind
-    const validatedPayload = {
-      ...payload,
-      title: payload.title || "",
-      description: payload.description || "",
-      category: payload.category || "",
-      location: payload.location || "",
-      image: payload.image || "https://placeholder.com/default.jpg",
-    };
+  // Fallback-Werte sicherstellen
+  const validatedPayload = {
+    ...payload,
+    image: payload.image || "https://placeholder.com/default.jpg",
+  };
 
-    // Debug-Ausgabe
-    console.log("Sending event payload:", validatedPayload);
+  console.log("🚀 Sending event payload to", `${BASE}/${orgId}/events`);
+  console.log(validatedPayload);
 
-    const res = await fetch(`${BASE}/${orgId}/events`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(validatedPayload), // Direktes Senden ohne eventDto-Wrapper
-    });
+  const res = await fetch(`${BASE}/${orgId}/events`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // Hier kommt dein JWT-Token rein:
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(validatedPayload),
+  });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("❌ Bad Request Body from server:", text);
-      
-      // Verbesserte Fehlerbehandlung
-      let msg = text;
-      try {
-        const err = JSON.parse(text);
-        if (err.errors) {
-          // Formatiere Fehler für bessere Lesbarkeit
-          const formattedErrors = Object.entries(err.errors)
-            .map(([field, messages]) => {
-              if (Array.isArray(messages)) {
-                return `${field}: ${messages.join(", ")}`;
-              } else {
-                return `${field}: ${String(messages)}`;
-              }
-            })
-            .join("\n");
-          msg = formattedErrors;
-        } else {
-          msg = err.message || text;
-        }
-      } catch (e) {
-        // Bei JSON-Parsing-Fehler den ursprünglichen Text verwenden
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("❌ createEvent Bad Request body:", text);
+
+    // Versuche, JSON-Fehler besser lesbar aufzubereiten
+    let message = text;
+    try {
+      const err = JSON.parse(text);
+      if (err.errors) {
+        message = Object.entries(err.errors)
+          .map(([field, msgs]) =>
+            `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+          )
+          .join("\n");
+      } else {
+        message = err.message || text;
       }
-      throw new Error(msg);
+    } catch {
+      // leave message as-is
     }
-    
-    const raw = await res.json();
-    return raw as EventInfo;
-  } catch (error) {
-    console.error("Error in createEvent:", error);
-    throw error;
+    throw new Error(message);
   }
+
+  const created = (await res.json()) as EventInfo;
+  return created;
 }
