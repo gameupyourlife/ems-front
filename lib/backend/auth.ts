@@ -1,7 +1,6 @@
 import { User } from "next-auth";
 import { jwtDecode } from "jwt-decode";
 import { auth } from "../auth";
-import { logInActionPleaseCallThisOneToSetSession } from "../actions/auth";
 
 export async function logInUser(email: string, password: string): Promise<User | null> {
     try {
@@ -130,7 +129,9 @@ export async function registerNewUser(email: string, password: string, name: str
             "password": password,
             "role": 0
         })
+
         console.log("Registering user with body: ", body);
+        
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
             method: "POST",
             body: body,
@@ -144,10 +145,6 @@ export async function registerNewUser(email: string, password: string, name: str
             throw new Error("Failed to register");
         }
 
-        await logInActionPleaseCallThisOneToSetSession({
-            email,
-            password
-        })
 
     }
     catch (error) {

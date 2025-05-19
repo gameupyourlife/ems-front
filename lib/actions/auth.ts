@@ -1,5 +1,4 @@
 "use server";;
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { signIn, signOut } from "../auth";
 import { registerNewUser } from "../backend/auth";
 
@@ -9,22 +8,11 @@ export async function logOutActionPleaseCallThisOneToUnsetSession() {
 }
 
 export async function logInActionPleaseCallThisOneToSetSession(formData: any) {
-    try {
-        await signIn("credentials", {
-            email: formData.get("email"),
-            password: formData.get("password"),
-            redirectTo: "/",
-            redirect: true,
-        })
-    }
-    catch (error) {
-        if (isRedirectError(error)) {
-            // preload("/")
-            // redirect("/", RedirectType.push);
-            throw error;
-        }
-        console.error("Error logging in: ", error)
-    }
+    await signIn("credentials", {
+        email: formData.get("email"),
+        password: formData.get("password"),
+        redirect: false,
+    })
 }
 
 export async function registerAction(formData: any) {
