@@ -6,6 +6,7 @@ import { EventInfo } from "@/lib/types";
 import Link from "next/link";
 
 export default function EventCard({ event }: { event: EventInfo }) {
+    
     return (
         <Card key={event.id} className="pt-0 flex flex-col overflow-hidden">
             <div className="relative top-0 aspect-video w-full overflow-hidden ">
@@ -28,7 +29,7 @@ export default function EventCard({ event }: { event: EventInfo }) {
                     </div>
                     <div className="flex items-center">
                         <Users className="mr-2 h-4 w-4 opacity-70" />
-                        <span>{event.attendees}/{event.capacity} attendees</span>
+                        <span>{typeof event.attendees === "number" ? event.attendees : 0}/{event.capacity} attendees</span>
                     </div>
                     <p className="text-muted-foreground line-clamp-2 mt-2">{event.description}</p>
                 </div>
@@ -42,4 +43,4 @@ export default function EventCard({ event }: { event: EventInfo }) {
             </CardFooter>
         </Card>
     )
-} 
+}
