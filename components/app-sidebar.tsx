@@ -100,7 +100,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
- 
 
     // Check if user is admin in current organization
     const isAdmin = session?.user?.orgRole?.toLowerCase() === "0";
