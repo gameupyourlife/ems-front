@@ -12,11 +12,14 @@ import { de } from "date-fns/locale"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
+import { useSession } from "next-auth/react"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
   const router = useRouter()
-  const orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c"
+  const { data: session } = useSession();
+    const token = session?.user?.jwt;
+    const orgId = session?.user?.organization.id; 
 
   const [event, setEvent] = useState<EventInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -28,7 +31,7 @@ export default function EventDetailPage() {
     async function loadEvent() {
       try {
         setIsLoading(true)
-        const single = await getEventById(orgId, eventId as string)
+        const single = await getEventById(orgId as string, eventId as string)
         setEvent(single)
       } catch (err: any) {
         setError(err.message)
