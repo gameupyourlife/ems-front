@@ -10,11 +10,12 @@ import { OrgUser } from "@/lib/types";
  */
 export function useMembers(
     orgId: string,
+    token: string,
     options?: Omit<UseQueryOptions<OrgUser[], Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['members', orgId],
-        queryFn: () => getMembers(orgId),
+        queryFn: () => getMembers(orgId, token),
         ...options,
     });
 }

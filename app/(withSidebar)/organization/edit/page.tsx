@@ -84,13 +84,12 @@ export default function Page() {
             };
 
             // Simulate API call delay
-            await updateOrg(updatedOrg); // Call the API to update the organization
+            await updateOrg(updatedOrg, session.user?.jwt || "" ); // Call the API to update the organization
 
-            const session = update({
+            update({
                 org: updatedOrg,
             })
 
-            console.log("Updated session:", session);
             
             // setCurrentOrg(updatedOrg); // Update the context with the new organization data
 
