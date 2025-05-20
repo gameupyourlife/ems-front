@@ -1,7 +1,7 @@
 "use client";;
 import { EventDetails } from '../types';
 import { components } from './types';
-import { getAuthToken, guardUUID } from './utils';
+import { guardUUID } from './utils';
 
 
 
@@ -48,9 +48,9 @@ export async function getEventDetails(eventId: string, token: string): Promise<E
     }
 }
 
-async function getEventFlows(eventId: string): Promise<EventBasicDetailedDto> {
-    const token = await getAuthToken();
-
+async function getEventFlows(eventId: string, token: string): Promise<EventBasicDetailedDto> {
+    guardUUID(eventId);
+    
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`, {
             method: 'GET',
