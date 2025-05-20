@@ -3,6 +3,149 @@
  * Do not make direct changes to the file.
  */
 
+// EventFlow Types
+export interface FlowCreateDto {
+  name: string;
+  description?: string | null;
+  stillPending?: boolean;
+  multipleRuns?: boolean;
+  createdBy: string;
+}
+
+export interface FlowUpdateDto {
+  name: string;
+  description?: string | null;
+  updatedBy: string;
+  stillPending?: boolean;
+  multipleRuns?: boolean;
+}
+
+export interface FlowOverviewDto {
+  id: string;
+  name: string;
+  description?: string | null;
+  updatedBy?: string | null;
+  updatedAt?: string | null;
+  triggers?: TriggerOverviewDto[] | null;
+  actions?: ActionOverviewDto[] | null;
+}
+
+export enum ActionType {
+  SendEmail = 0,
+  UpdateEvent = 1,
+  NotifyUsers = 2,
+  CustomAction = 3,
+  GenerateQRCode = 4,
+  SendSMS = 5
+}
+
+export interface ActionCreateDto {
+  type: ActionType;
+  details: string;
+  flowId?: string | null;
+  flowTemplateId?: string | null;
+  name?: string | null;
+  summary?: string | null;
+}
+
+export interface ActionDto {
+  id: string;
+  type: ActionType;
+  details: string;
+  createdAt: string;
+  flowId?: string | null;
+  flowTemplateId?: string | null;
+  name?: string | null;
+  summary?: string | null;
+}
+
+export interface ActionUpdateDto {
+  type: ActionType;
+  details: string;
+  name: string;
+  summary?: string | null;
+}
+
+export interface ActionOverviewDto {
+  id: string;
+  name?: string | null;
+  type: ActionType;
+  summary?: string | null;
+}
+
+export enum TriggerType {
+  EventUpdated = 0,
+  AttendeesChanged = 1,
+  TimeBasedTrigger = 2,
+  ManualTrigger = 3,
+  ExternalSystemTrigger = 4
+}
+
+export interface TriggerCreateDto {
+  type: TriggerType;
+  details?: string | null;
+  name?: string | null;
+  summary?: string | null;
+}
+
+export interface TriggerDto {
+  id: string;
+  type: TriggerType;
+  details: any;
+  createdAt: string;
+  flowId?: string | null;
+  flowTemplateId?: string | null;
+  name?: string | null;
+  summary?: string | null;
+}
+
+export interface TriggerUpdateDto {
+  id: string;
+  type: TriggerType;
+  details?: string | null;
+  name?: string | null;
+  summary?: string | null;
+}
+
+export interface TriggerOverviewDto {
+  id: string;
+  name?: string | null;
+  type: TriggerType;
+  summary?: string | null;
+}
+
+// FlowTemplate Types
+export interface FlowTemplateCreateDto {
+  name: string;
+  description: string;
+  organizationId?: string;
+  createdBy: string;
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string | null;
+}
+
+export interface FlowTemplateUpdateDto {
+  flowTemplateId: string;
+  name?: string | null;
+  description?: string | null;
+  organizationId: string;
+  updatedBy?: string | null;
+}
+
+export interface FlowTemplateResponseDto {
+  flowTemplateId: string;
+  name?: string | null;
+  description?: string | null;
+  organizationId: string;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy?: string | null;
+  triggers?: TriggerOverviewDto[] | null;
+  actions?: ActionOverviewDto[] | null;
+}
+
 export interface paths {
     "/api/Actions/{id}": {
         parameters: {
@@ -1600,7 +1743,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["OrganizationDto"][];
                         "application/json": components["schemas"]["OrganizationDto"][];
-                        "text/json": components["schemas"]["OrganizationDto"][];
+                        "text-json": components["schemas"]["OrganizationDto"][];
                     };
                 };
             };
@@ -1639,7 +1782,7 @@ export interface paths {
                     content: {
                         "text/plain": number;
                         "application/json": number;
-                        "text/json": number;
+                        "text-json": number;
                     };
                 };
             };
@@ -1678,7 +1821,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDetailedDto"];
                         "application/json": components["schemas"]["TriggerDetailedDto"];
-                        "text/json": components["schemas"]["TriggerDetailedDto"];
+                        "text-json": components["schemas"]["TriggerDetailedDto"];
                     };
                 };
             };
@@ -1695,7 +1838,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["TriggerUpdateDto"];
-                    "text/json": components["schemas"]["TriggerUpdateDto"];
+                    "text-json": components["schemas"]["TriggerUpdateDto"];
                     "application/*+json": components["schemas"]["TriggerUpdateDto"];
                 };
             };
@@ -1761,7 +1904,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDto"][];
                         "application/json": components["schemas"]["TriggerDto"][];
-                        "text/json": components["schemas"]["TriggerDto"][];
+                        "text-json": components["schemas"]["TriggerDto"][];
                     };
                 };
             };
@@ -1800,7 +1943,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDto"][];
                         "application/json": components["schemas"]["TriggerDto"][];
-                        "text/json": components["schemas"]["TriggerDto"][];
+                        "text-json": components["schemas"]["TriggerDto"][];
                     };
                 };
             };
@@ -1832,7 +1975,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["TriggerCreateDto"];
-                    "text/json": components["schemas"]["TriggerCreateDto"];
+                    "text-json": components["schemas"]["TriggerCreateDto"];
                     "application/*+json": components["schemas"]["TriggerCreateDto"];
                 };
             };
@@ -1845,7 +1988,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDetailedDto"];
                         "application/json": components["schemas"]["TriggerDetailedDto"];
-                        "text/json": components["schemas"]["TriggerDetailedDto"];
+                        "text-json": components["schemas"]["TriggerDetailedDto"];
                     };
                 };
             };
@@ -1880,7 +2023,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
@@ -1896,7 +2039,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["UserCreateDto"];
-                    "text/json": components["schemas"]["UserCreateDto"];
+                    "text-json": components["schemas"]["UserCreateDto"];
                     "application/*+json": components["schemas"]["UserCreateDto"];
                 };
             };
@@ -1909,7 +2052,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -1946,7 +2089,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -1963,7 +2106,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["UserUpdateDto"];
-                    "text/json": components["schemas"]["UserUpdateDto"];
+                    "text-json": components["schemas"]["UserUpdateDto"];
                     "application/*+json": components["schemas"]["UserUpdateDto"];
                 };
             };
@@ -2029,7 +2172,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -2068,7 +2211,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["OrganizationDto"][];
                         "application/json": components["schemas"]["OrganizationDto"][];
-                        "text/json": components["schemas"]["OrganizationDto"][];
+                        "text-json": components["schemas"]["OrganizationDto"][];
                     };
                 };
             };
@@ -2107,7 +2250,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserRole"];
                         "application/json": components["schemas"]["UserRole"];
-                        "text/json": components["schemas"]["UserRole"];
+                        "text-json": components["schemas"]["UserRole"];
                     };
                 };
             };
@@ -2146,7 +2289,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["EventResponseDto"][];
                         "application/json": components["schemas"]["EventResponseDto"][];
-                        "text/json": components["schemas"]["EventResponseDto"][];
+                        "text-json": components["schemas"]["EventResponseDto"][];
                     };
                 };
             };
@@ -2185,7 +2328,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
@@ -2224,7 +2367,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
