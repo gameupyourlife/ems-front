@@ -69,7 +69,7 @@ export async function deleteAccount(userId: string, token: string): Promise<void
     }
 }
 
-export async function updateUser(userId: string, userData: Partial<User>, token?: string): Promise<User> {
+export async function updateUser(userId: string, userData: Partial<User>, token?: string): Promise<void> {
     try {
         if (!process.env.NEXT_PUBLIC_API_URL) {
             throw new Error("API URL is not defined");
@@ -82,15 +82,22 @@ export async function updateUser(userId: string, userData: Partial<User>, token?
             token = await getAuthToken();
         }
 
+        // Only firstName, lastName, profilePicture
+        // Only the ones that are not undefined
+        if (!userData.firstName && !userData.lastName && !userData.profilePicture) {
+            throw new Error("No user data provided");
+        }
+        
         const newUserData = {
-            ...userData,
-            id: userId, // Ensure the user ID is included in the update
-            // fullName: userData.name, // Ensure fullName is set if name is provided
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            profilePicture: "",
         }
 
-        console.log("Updating user with ID:", userId, "Token:", token, "Data:", newUserData);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update-user`, {
+        // console.log("Updating user with ID:", userId, "Token:", token, "Data:", newUserData);
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -104,7 +111,7 @@ export async function updateUser(userId: string, userData: Partial<User>, token?
             throw new Error("Failed to update user");
         }
 
-        return await res.json();
+        return ;
     }
     catch (error) {
         console.error("Error updating user:", error);

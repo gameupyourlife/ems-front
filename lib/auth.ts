@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "./form-schemas";
-import { logInUser } from "./backend/auth";
+import { getUser, logInUser } from "./backend/auth";
 import { ZodError } from "zod";
 import { Organization } from "./types";
 import { getOrgsOfUser } from "./backend/org";
@@ -59,11 +59,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         newUser: "/",
     },
     callbacks: {
-        jwt: async ({ token, user, session }) => {
+        jwt: async ({ trigger, token, user, session }) => {
             try {
+                console.log("JWT callback triggered", trigger)
+
                 if (user) {
                     token.user = user
                     // console.log("user: ", user)
+                }
+
+                if (trigger === "update") {
+
+                    // @ts-ignore
+                    const user = await getUser(token?.user.id, token?.user.jwt)
+                    token.user = user
                 }
 
                 // token.org = session.org

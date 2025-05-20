@@ -1,6 +1,5 @@
 import { User } from "next-auth";
 import { jwtDecode } from "jwt-decode";
-import { auth } from "../auth";
 import { logInActionPleaseCallThisOneToSetSession } from "../actions/auth";
 
 export async function logInUser(email: string, password: string): Promise<User | null> {
@@ -80,24 +79,11 @@ export async function logInUser(email: string, password: string): Promise<User |
     }
 }
 
-export async function getUser(userId: string, token?: any): Promise<User | null> {
-
-
+export async function getUser(userId: string, token: string): Promise<User | null> {
     if (!process.env.NEXT_PUBLIC_API_URL) {
         throw new Error("API URL is not defined");
     }
 
-    const session = await auth()
-
-
-    // Declare token if not passed
-    if (!token) {
-        token = session?.user?.jwt;
-    }
-
-
-    // const token = session?.user?.jwt;
-    console.log("Token: ", token);
     if (!token) {
         throw new Error("No token found");
     }

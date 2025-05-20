@@ -76,7 +76,7 @@ export default function ProfileEditPage() {
     const [deleteConfirmText, setDeleteConfirmText] = useState("")
     const [passwordStrength, setPasswordStrength] = useState(0)
 
-    const { data: session } = useSession();
+    const { data: session, update } = useSession();
     const user = session?.user;
 
     const profileForm = useForm<ProfileFormValues>({
@@ -126,20 +126,22 @@ export default function ProfileEditPage() {
             return
         }
 
-        toast.promise(
-
-
-            updateUser(user.id, {
+        toast.promise(async () => {
+            await updateUser(user.id, {
                 // updatedAt: new Date().toISOString(),
                 firstName: data.firstName,
                 lastName: data.lastName,
+                profilePicture: user.profilePicture,
                 // email: data.email,
-            }, user.jwt)    
-            ,
+            }, user.jwt)
+            await update()
+        },
             {
                 loading: "Aktualisiere Profil...",
                 success: () => {
                     setIsLoading(false)
+                    if (data.email !== user.email)
+                        return "E-Mail kann nicht aktualisiert werden. Der Rest wurde erfolgreich aktualisiert."
                     return "Profil erfolgreich aktualisiert."
                 },
                 error: (error) => {
@@ -308,16 +310,16 @@ export default function ProfileEditPage() {
                                 <div className="flex items-center gap-3">
                                     <Avatar className="h-12 w-12">
                                         <AvatarImage
-                                            src={user.organization.profilePicture || "/placeholder.svg"}
-                                            alt={user.organization.name}
+                                            src={user.organization?.profilePicture || "/placeholder.svg"}
+                                            alt={user.organization?.name}
                                         />
                                         <AvatarFallback>
                                             <Building className="h-6 w-6" />
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <h4 className="font-medium">{user.organization.name}</h4>
-                                        <p className="text-xs text-muted-foreground">ID: {user.organization.id}</p>
+                                        <h4 className="font-medium">{user.organization?.name}</h4>
+                                        <p className="text-xs text-muted-foreground">ID: {user.organization?.id}</p>
                                     </div>
                                 </div>
                             </CardContent>
