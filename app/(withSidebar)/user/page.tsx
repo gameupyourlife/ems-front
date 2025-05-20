@@ -134,7 +134,7 @@ export default function ProfileEditPage() {
                 profilePicture: user.profilePicture,
                 // email: data.email,
             }, user.jwt)
-            await update()
+            await update({})
         },
             {
                 loading: "Aktualisiere Profil...",

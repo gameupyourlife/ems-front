@@ -1,7 +1,6 @@
 import { User } from "next-auth";
-import { getAuthToken } from "./utils";
 
-export async function resetPasswort(email: string, newPassword: string, confirmNewPassword: string, token: string ): Promise<void> {
+export async function resetPasswort(email: string, newPassword: string, confirmNewPassword: string, token: string): Promise<void> {
     try {
         if (!process.env.NEXT_PUBLIC_API_URL) {
             throw new Error("API URL is not defined");
@@ -23,7 +22,7 @@ export async function resetPasswort(email: string, newPassword: string, confirmN
             method: "POST",
             body: body,
             headers: {
-                "Authorization": `Bearer ${token}`, 
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
         });
@@ -69,7 +68,7 @@ export async function deleteAccount(userId: string, token: string): Promise<void
     }
 }
 
-export async function updateUser(userId: string, userData: Partial<User>, token?: string): Promise<void> {
+export async function updateUser(userId: string, userData: Partial<User>, token: string): Promise<void> {
     try {
         if (!process.env.NEXT_PUBLIC_API_URL) {
             throw new Error("API URL is not defined");
@@ -78,16 +77,12 @@ export async function updateUser(userId: string, userData: Partial<User>, token?
             throw new Error("User ID is required");
         }
 
-        if (!token) {
-            token = await getAuthToken();
-        }
-
         // Only firstName, lastName, profilePicture
         // Only the ones that are not undefined
         if (!userData.firstName && !userData.lastName && !userData.profilePicture) {
             throw new Error("No user data provided");
         }
-        
+
         const newUserData = {
             firstName: userData.firstName,
             lastName: userData.lastName,
@@ -111,7 +106,7 @@ export async function updateUser(userId: string, userData: Partial<User>, token?
             throw new Error("Failed to update user");
         }
 
-        return ;
+        return;
     }
     catch (error) {
         console.error("Error updating user:", error);

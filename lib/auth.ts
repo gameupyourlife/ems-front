@@ -41,8 +41,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         jwt: async ({ trigger, token, user, session }) => {
             try {
-                console.log("JWT callback triggered", trigger)
-
                 if (user) {
                     token.user = user
                 }
@@ -69,7 +67,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     const orgsOfUser = await getOrgsOfUser(session.user.id, session.user.jwt)
                     session.org = orgsOfUser.find(org => org.id === session.user.organization.id) || orgsOfUser[0] || null;
                     session.orgsOfUser = orgsOfUser
-                    // console.log("=========== Session org: ", session.org)
                 }
 
                 return session;
