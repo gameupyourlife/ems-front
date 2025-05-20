@@ -1,22 +1,21 @@
-"use client"
+"use client";
+import type React from "react";
 
-import type React from "react"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { User, Building, AlertTriangle, Lock, Shield, Check, X, Upload, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { User, Building, AlertTriangle, Lock, Shield, Check, X, Upload, LogOut } from "lucide-react"
-import { toast } from "sonner"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -27,13 +26,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Progress } from "@/components/ui/progress"
-import { useTheme } from "next-themes"
-import { SiteHeader } from "@/components/site-header"
-import { deleteAccount, resetPasswort, updateUser } from "@/lib/backend/users"
-import { useSession } from "next-auth/react"
-import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth"
+} from "@/components/ui/alert-dialog";
+import { Progress } from "@/components/ui/progress";
+import { SiteHeader } from "@/components/site-header";
+import { deleteAccount, resetPasswort, updateUser } from "@/lib/backend/users";
+import { useSession } from "next-auth/react";
+import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth";
 
 
 const profileFormSchema = z.object({
@@ -69,7 +67,6 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>
 
 export default function ProfileEditPage() {
     const router = useRouter()
-    const { theme } = useTheme()
     const [activeTab, setActiveTab] = useState("profile")
     const [isLoading, setIsLoading] = useState(false)
     const [isPasswordLoading, setIsPasswordLoading] = useState(false)
@@ -163,6 +160,8 @@ export default function ProfileEditPage() {
         }
 
         setIsPasswordLoading(true)
+
+        console.log("Updating password for user:", user)
 
         toast.promise(resetPasswort(
             user.email, passwordForm.getValues("newPassword"), passwordForm.getValues("confirmPassword"), user.jwt

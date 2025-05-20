@@ -101,6 +101,7 @@ export async function getUser(userId: string, token: string): Promise<User | nul
     return {
         ...user,
         name: user.fullName,
+        jwt: token,
         orgRole: user.role.toString() as string,
     } as User;
 }
