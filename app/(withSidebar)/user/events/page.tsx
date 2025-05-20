@@ -1,59 +1,41 @@
-"use client";
-
-import { useState, useEffect } from "react";
+"use client";;
+import { SiteHeader } from "@/components/site-header";
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import EventLayout from "@/components/user/event-layout";
-import { getEvents } from "@/lib/api/getEvents";
-import type { EventInfo } from "@/lib/types";
+import { useEvents } from "@/lib/backend/hooks/events";
+import { useSession } from "next-auth/react";
 
-interface EventListProps {
-  orgId: string;
-  title?: string;
-}
+export default function EventList() {
+  const { data: session } = useSession();
+  const token = session?.user?.jwt;
+  const orgId = session?.user?.organization.id;
 
-export default function EventList({
-  orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c",
-  title = "Alle Events",
-}: EventListProps) {
-  const [events, setEvents] = useState<EventInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getEvents(orgId);
-        setEvents(data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    load();
-  }, [orgId]);
 
-  if (isLoading) {
-    return <div className="py-20 text-center">Lade Events …</div>;
-  }
-  if (error) {
-    return (
-      <div className="py-20 text-center text-red-500">
-        Fehler beim Laden: {error}
-      </div>
-    );
-  }
+
+
 
   return (
-    <main className="container mx-auto py-8">
-      <EventLayout
-        events={events}
-        title={title}
-        initialView="grid"
-        searchable
-        onSearch={(q) => console.log("Suchanfrage:", q)}
-        onFilterChange={(f) => console.log("Filter:", f)}
-      />
-    </main>
+    <>
+      <SiteHeader actions={[]} >
+        <BreadcrumbItem>
+          <BreadcrumbPage>{"Alle Events"}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </SiteHeader>
+
+      <main className="container mx-auto py-8">
+        <EventLayout
+          events={events}
+          isLoading={isLoading}
+          error={error}
+          title={"Alle Events"}
+          initialView="grid"
+          searchable
+          onSearch={(q) => console.log("Suchanfrage:", q)}
+          onFilterChange={(f) => console.log("Filter:", f)}
+        />
+      </main>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { EventEmailForm } from "@/components/org/events/event-email-form";
 import { Email, User, EventInfo } from "@/lib/types";
 import { mockEmails } from "@/lib/mock/email-data";
+import { mockEvents } from "@/lib/data";
 
 // Mock data for attendees
 const mockAttendees: User[] = [
@@ -32,46 +33,6 @@ const mockAttendees: User[] = [
     updatedAt: "2023-03-10T09:15:00",
     profilePicture: "https://randomuser.me/api/portraits/men/3.jpg",
   },
-];
-
-// Mock event data
-const mockEvents: EventInfo[] = [
-  {
-    id: "event-1",
-    title: "Tech Conference 2023",
-    organization: "TechCorp",
-    location: "Conference Center, Downtown",
-    description: "Annual technology conference featuring the latest innovations",
-    category: 1,
-    attendees: 250,
-    capacity: 300,
-    image: "https://example.com/tech-conf.jpg",
-    status: 0,
-    start: new Date("2023-10-15T09:00:00"),
-    end: new Date("2023-10-15T17:00:00"),
-    createdAt: new Date("2023-07-10T10:00:00"),
-    updatedAt: new Date("2023-07-10T10:00:00"),
-    createdBy: "user-1",
-    updatedBy: "user-1",
-  },
-  {
-    id: "event-2",
-    title: "Marketing Workshop",
-    organization: "Marketing Guild",
-    location: "Business Center, Midtown",
-    description: "Hands-on workshop for digital marketing professionals",
-    category: 1,
-    attendees: 45,
-    capacity: 50,
-    image: "https://example.com/marketing-workshop.jpg",
-    status: 1,
-    start: new Date("2023-11-05T13:00:00"),
-    end: new Date("2023-11-05T17:30:00"),
-    createdAt: new Date("2023-08-15T14:20:00"),
-    updatedAt: new Date("2023-08-15T14:20:00"),
-    createdBy: "user-1",
-    updatedBy: "user-1",
-  }
 ];
 
 export default function EditEmail() {

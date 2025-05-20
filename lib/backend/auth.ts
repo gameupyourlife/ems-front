@@ -1,6 +1,6 @@
 import { User } from "next-auth";
 import { jwtDecode } from "jwt-decode";
-import { logInActionPleaseCallThisOneToSetSession } from "../actions/auth";
+
 
 export async function logInUser(email: string, password: string): Promise<User | null> {
     try {
@@ -29,12 +29,9 @@ export async function logInUser(email: string, password: string): Promise<User |
             throw new Error("Failed to log in");
         }
 
-        console.log("Login response status: ", res.status);
         
-        // const body = await res.text();
         // Get the response which contains just the JWT token
         const data = await res.json();
-        console.log("Login response ", data);
         if (!data) {
             throw new Error("No data returned from login");
         }
@@ -62,8 +59,7 @@ export async function logInUser(email: string, password: string): Promise<User |
             if (!user) {
                 throw new Error("User not found");
             }
-            // user.jwt = token; // Add the JWT token to the user object
-            // console.log("New User: ", user);
+            
             return {
                 ...user,
                 jwt: token, // Assuming fullName is a property in the user object
@@ -105,6 +101,7 @@ export async function getUser(userId: string, token: string): Promise<User | nul
     return {
         ...user,
         name: user.fullName,
+        orgRole: user.role.toString() as string,
     } as User;
 }
 
@@ -125,7 +122,9 @@ export async function registerNewUser(email: string, password: string, name: str
             "password": password,
             "role": 0
         })
+
         console.log("Registering user with body: ", body);
+        
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
             method: "POST",
             body: body,
@@ -139,10 +138,6 @@ export async function registerNewUser(email: string, password: string, name: str
             throw new Error("Failed to register");
         }
 
-        await logInActionPleaseCallThisOneToSetSession({
-            email,
-            password
-        })
 
     }
     catch (error) {

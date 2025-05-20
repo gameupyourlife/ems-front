@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { registerAction } from "@/lib/actions/auth";
+import { useRouter } from "next/navigation";
 
 // Define a server action for registration
 
@@ -15,6 +16,7 @@ export function RegisterForm({
 }: React.ComponentProps<"form">) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     return (
         <form
@@ -27,11 +29,15 @@ export function RegisterForm({
                     const result = await registerAction(formData);
                     if (!result.success && result.error) {
                         setError(result.error);
+                        setIsSubmitting(false);
+                    } else {
+                        router.push("/login");
                     }
-                } finally {
+                } catch (error) {
                     setIsSubmitting(false);
                 }
             }}
+            onSubmit={() => setIsSubmitting(true)}
             {...props}
         >
             <div className="flex flex-col items-center gap-2 text-center">

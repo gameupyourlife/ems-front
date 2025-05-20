@@ -12,11 +12,12 @@ import { getEventDetails, getEvents } from '../events';
  */
 export function useEvents(
     orgId: string,
+    token: string,
     options?: Omit<UseQueryOptions<EventInfo[], Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
-        queryKey: ['events', orgId],
-        queryFn: () => getEvents(orgId),
+        queryKey: ['events', orgId, token],
+        queryFn: () => getEvents(orgId, token),
         ...options,
     });
 }
@@ -24,11 +25,12 @@ export function useEvents(
 
 export function useEventDetails(
     eventId: string,
+    token: string,
     options?: Omit<UseQueryOptions<EventDetails, Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
-        queryKey: ['eventDetails', eventId],
-        queryFn: () => getEventDetails(eventId),
+        queryKey: ['eventDetails', eventId, token],
+        queryFn: () => getEventDetails(eventId, token),
         ...options,
     });
 }

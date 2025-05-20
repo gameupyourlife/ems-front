@@ -1,38 +1,34 @@
 // app/organization/events/page.tsx
-"use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { getEvents } from "@/lib/api/getEvents"
-import type { EventInfo } from "@/lib/types"
-import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { PlusIcon } from "lucide-react"
-import Link from "next/link"
-import EventTable from "@/components/org/event-table"
+"use client";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import Link from "next/link";
+import EventTable from "@/components/org/event-table";
+import { useSession } from "next-auth/react";
+import { useEvents } from "@/lib/backend/hooks/events";
 
 export default function OrganizationEventsPage() {
   const router = useRouter()
-  // Feste Org-ID, da useParams() hier nicht greift
-  const orgId = "a8911a6b-942d-42e4-9b08-fcedacfa1f9c"
+  const { data: session } = useSession();
+  const token = session?.user?.jwt;
+  const orgId = session?.user?.organization.id;
 
-  const [events, setEvents] = useState<EventInfo[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setIsLoading(true)
-        const list = await getEvents(orgId)
-        setEvents(list)
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    })()
-  }, [])
+  if (!events) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="text-muted-foreground mb-4">Keine Events gefunden.</div>
+        <Button variant="outline" onClick={() => router.refresh()}>
+          Neu laden
+        </Button>
+      </div>
+    )
+  }
+
+  console.log("Events: ", events)
 
   const now = new Date()
   const upcoming = events
@@ -53,7 +49,7 @@ export default function OrganizationEventsPage() {
   if (error) {
     return (
       <div className="container mx-auto py-20 text-center">
-        <div className="text-red-500 mb-4">Fehler: {error}</div>
+        <div className="text-red-500 mb-4">Fehler: {error.message}</div>
         <Button variant="outline" onClick={() => router.refresh()}>
           Neu laden
         </Button>

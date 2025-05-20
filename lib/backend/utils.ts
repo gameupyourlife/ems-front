@@ -1,18 +1,4 @@
-import { auth } from '../auth';
 import { isUUID } from '../utils';
-
-/**
- * Get the auth token in a way that works in both client and server environments
- * @returns The authentication token
- */
-export async function getAuthToken(): Promise<string> {
-    const session = await auth()
-    const token = session?.user?.jwt;
-    if (!token) {
-        throw new Error("No authentication token found");
-    }
-    return token; 
-}
 
 /**
  * Check if the app is running in mock mode
@@ -34,7 +20,7 @@ export function isMock() {
  * @throws Error if the string is not a valid UUID
  */
 export function guardUUID(id: string) {
-    if (!isUUID(id)) {
+    if (!isUUID(id) || id === '00000000-0000-0000-0000-000000000000') {
         throw new Error(`Invalid UUID: ${id}`);
     }
 }

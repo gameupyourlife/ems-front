@@ -1,20 +1,20 @@
-"use client"
+"use client";
+import type React from "react";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Grid, List, Search, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import EventCard from "@/components/event-card"
-import type { EventInfo } from "@/lib/types"
-import FilterDropdown from "./filter-dropdown"
-import ActiveFilters from "./active-filters"
-import { useEventFilters } from "./use-event-filters"
+import { useState, useEffect } from "react";
+import { Grid, List, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import EventCard from "@/components/event-card";
+import type { EventInfo } from "@/lib/types";
+import FilterDropdown from "./filter-dropdown";
+import ActiveFilters from "./active-filters";
+import { useEventFilters } from "./use-event-filters";
+import LoadingSpinner from "@/components/loading-spinner";
 
 interface EventLayoutProps {
-  events: EventInfo[]
+  events: EventInfo[] | undefined
   title?: string
   onSearch?: (query: string) => void
   onViewChange?: (view: "grid" | "list") => void
@@ -31,6 +31,8 @@ interface EventLayoutProps {
     location: string
   }
   searchable?: boolean
+  isLoading?: boolean
+  error?: Error | null
 }
 
 export default function EventLayout({
@@ -42,6 +44,8 @@ export default function EventLayout({
   initialView = "grid",
   initialFilters,
   searchable = true,
+  isLoading = false,
+  error = null,
 }: EventLayoutProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentView, setCurrentView] = useState<"grid" | "list">(initialView)
@@ -79,7 +83,7 @@ export default function EventLayout({
     handleApplyFilters,
     applyFilters,
   } = useEventFilters({
-    events,
+    events: events || [],
     searchQuery,
     initialFilters,
     onFilterChange,
@@ -121,7 +125,6 @@ export default function EventLayout({
 
   return (
     <div className="flex flex-col gap-4 w-full mb-6 px-4">
-      {title && <h1 className="text-2xl font-bold">{title}</h1>}
       <form onSubmit={handleSearch} className="flex w-full max-w-full items-center space-x-2">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -192,13 +195,13 @@ export default function EventLayout({
           selectedFilters.dateRange.start ||
           selectedFilters.dateRange.end ||
           selectedFilters.location) && (
-          <div className="flex items-center">
-            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm text-muted-foreground">
-              Alle Filter löschen
-              <X className="ml-1 h-3 w-3" />
-            </Button>
-          </div>
-        )}
+            <div className="flex items-center">
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm text-muted-foreground">
+                Alle Filter löschen
+                <X className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+          )}
       </div>
 
       {/* Anzeige der aktiven Filter */}
@@ -218,21 +221,32 @@ export default function EventLayout({
 
       {/* Event Raster-/Listenansicht */}
       <div
-        className={`${
-          currentView === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-            : "flex flex-col gap-4"
-        } mt-4`}
+        className={`${currentView === "grid"
+          ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          : "flex flex-col gap-4"
+          } mt-4`}
       >
+
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event, idx) => <EventCard key={idx} event={event} />)/* <EventCard key={event.id} event={event} /> */
         ) : (
-          <div className="col-span-full text-center py-8">
-            <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
-            <Button variant="link" onClick={clearAllFilters} className="mt-2">
-              Alle Filter zurücksetzen
-            </Button>
-          </div>
+
+          isLoading ? (
+            <div className="col-span-full flex justify-center items-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : error ? (
+            <div className="col-span-full text-center py-8">
+              <p className="text-red-500">Fehler beim Laden der Events: {error.message}</p>
+            </div>
+          ) :
+
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
+              <Button variant="link" onClick={clearAllFilters} className="mt-2">
+                Alle Filter zurücksetzen
+              </Button>
+            </div>
         )}
       </div>
     </div>

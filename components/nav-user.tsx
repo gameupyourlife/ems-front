@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth";
@@ -31,7 +30,6 @@ export function NavUser() {
   const { data: session } = useSession()
   const currentUser = session?.user;
 
-  const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme()
 
   function toggleTheme() {

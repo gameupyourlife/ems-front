@@ -1,11 +1,8 @@
-import { mockOrgUsers } from "../data";
 import { Organization, OrgUser } from "../types";
-import { getAuthToken, isMock } from "./utils";
+import { guardUUID } from "./utils";
 
-export async function getMembers(orgId: string) : Promise<OrgUser[]> {
-    if(isMock()) return mockOrgUsers;
-
-    const token = await getAuthToken();
+export async function getMembers(orgId: string, token: string): Promise<OrgUser[]> {
+    guardUUID(orgId);
 
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/members`, {
         method: 'GET',
@@ -22,10 +19,13 @@ export async function getMembers(orgId: string) : Promise<OrgUser[]> {
         });
 }
 
-export async function updateMemberRole(orgId: string, userId: string, role: string) {
-    if(isMock()) return true;
+export async function updateMemberRole(orgId: string, userId: string, role: string, token: string) {
+    guardUUID(orgId);
+    guardUUID(userId);
 
-    const token = await getAuthToken();
+    if (!role) {
+        throw new Error("Role is required");
+    }
 
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/members/${userId}`, {
         method: 'PATCH',
@@ -43,16 +43,14 @@ export async function updateMemberRole(orgId: string, userId: string, role: stri
         });
 }
 
-export async function updateOrg(organization: Organization) {
-    if(isMock()) return true;
-
-    const token = await getAuthToken();
+export async function updateOrg(organization: Organization, token: string): Promise<Organization> {
+    guardUUID(organization.id);
 
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${organization.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : '',
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(organization),
     })
@@ -64,25 +62,8 @@ export async function updateOrg(organization: Organization) {
         });
 }
 
-export async function getOrg(orgId: string, token?: string) : Promise<Organization> {
-    // if(isMock()) {
-    //         const findMockOrg = mockOrgs.find((org) => org.id === orgId);
-    //     if (findMockOrg) return findMockOrg;
-    //     return mockOrgs[0]; // Fallback to the first mock organization if not found
-    // };
-
-
-    if (!orgId) {
-        throw new Error("Organization ID is required");
-    }
-
-    if (!token) {
-        token = await getAuthToken();
-    }
-
-
-
-    console.log("Fetching organization with ID:", orgId, "Token:", token);
+export async function getOrg(orgId: string, token: string): Promise<Organization> {
+    guardUUID(orgId);
 
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}`, {
         method: 'GET',
@@ -99,30 +80,53 @@ export async function getOrg(orgId: string, token?: string) : Promise<Organizati
         });
 }
 
-export async function getOrgsOfUser(userId: string, token?: string) : Promise<Organization[]> {
-    // if(isMock()) return mockOrgs;
+interface OrgsDto {
+    "orgId": string,
+    "numOfMembers": number,
+    "numOfEvents": number,
+    "ownerId": string,
+    "createdAt": string,
+    "updatedAt": string,
+    "updatedBy": string,
+    "name": string,
+    "address": string,
+    "description": string,
+    "profilePicture": string,
+    "website": string
+}
 
-    console.log("Token", token)
-
-    if (!token) {
-        token = await getAuthToken();
-    }
+export async function getOrgsOfUser(userId: string, token: string): Promise<Organization[]> {
+    guardUUID(userId);
 
     try {
-        console.log("Fetching organizations for user ID:", userId, "Token:", token);
-        return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
+        const orgs: OrgsDto[] = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/orgs`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token ? `Bearer ${token}` : '',
             },
         })
-        .then((res) => res.json())
-        .then((data) => data)
+            .then((res) => res.json())
+            .then((data) => data)
+
+        return orgs.map((org) => ({
+            id: org.orgId,
+            numOfMembers: org.numOfMembers,
+            numOfEvents: org.numOfEvents,
+            owner: org.ownerId,
+            createdAt: org.createdAt,
+            updatedAt: org.updatedAt,
+            updatedBy: org.updatedBy,
+            name: org.name,
+            address: org.address,
+            description: org.description,
+            profilePicture: org.profilePicture,
+            website: org.website
+        })) as Organization[];
     }
     catch (err) {
         console.error(err);
         throw new Error('Failed to fetch organizations of user');
     }
-        
+
 }
