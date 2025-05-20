@@ -3,13 +3,8 @@ import EventLayout from "@/components/user/event-layout";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 
-interface EventListProps {
-  title?: string;
-}
 
-export default function EventList({
-  title = "Alle Events",
-}: EventListProps) {
+export default function EventList() {
   const { data: session } = useSession();
   const token = session?.user?.jwt;
   const orgId = session?.user?.organization.id;
@@ -31,7 +26,7 @@ export default function EventList({
     <main className="container mx-auto py-8">
       <EventLayout
         events={events}
-        title={title}
+        title={"Alle Events"}
         initialView="grid"
         searchable
         onSearch={(q) => console.log("Suchanfrage:", q)}

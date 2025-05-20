@@ -24,7 +24,7 @@ export default function Page() {
     if (!currentOrg) return null; // Ensure currentOrg is available before proceeding
 
     const { data: members } = useMembers(currentOrg?.id || "")
-    let { data: events } = useEvents(currentOrg?.id || "")
+    let { data: events } = useEvents(currentOrg?.id || "", session?.user?.jwt || "")
     events = events ?? [] // Ensure events is an array to avoid errors
     const router = useRouter();
 
