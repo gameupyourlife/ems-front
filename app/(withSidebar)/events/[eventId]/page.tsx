@@ -180,7 +180,7 @@ export default function EventDetailPage() {
                     <div>
                       <h3 className="font-medium">Teilnehmer</h3>
                       <p>
-                        {event.attendees} / {event.capacity}
+                        {event.attendeeCount} / {event.capacity}
                       </p>
                     </div>
                   </div>

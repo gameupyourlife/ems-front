@@ -110,7 +110,7 @@ export default function EventTable({ }: EventTableProps) {
             end: new Date(event.end || 0),
             organization: "",
             category: event.category!,
-            attendees: event.attendeeCount!,
+            attendeeCount: event.attendeeCount!,
             capacity: event.capacity!,
             image: "",
 
@@ -284,16 +284,16 @@ export default function EventTable({ }: EventTableProps) {
                 </div>
             ),
             cell: ({ row }) => {
-                const attendees = row.original.attendees;
+                const attendeeCount = row.original.attendeeCount;
                 const capacity = row.original.capacity;
-                const capacityPercent = capacity ? Math.min(100, (attendees / capacity) * 100) : 0;
+                const capacityPercent = capacity ? Math.min(100, (attendeeCount / capacity) * 100) : 0;
 
                 return (
                     <div className="text-right w-32">
                         <div className="flex justify-between mb-1">
                             <div className="flex items-center">
                                 <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                                <span>{attendees} / {capacity}</span>
+                                <span>{attendeeCount} / {capacity}</span>
                             </div>
                             <span className="text-xs text-muted-foreground">{capacityPercent}%</span>
                         </div>

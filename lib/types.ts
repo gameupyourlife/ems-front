@@ -7,7 +7,7 @@ export interface EventInfo {
     location: string,
     description: string,
     category: string,
-    attendees: number,
+    attendeeCount: number,
     capacity: number,
     image: string,
     status: number,
