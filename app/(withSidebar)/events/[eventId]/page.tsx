@@ -1,5 +1,5 @@
 "use client"
-
+import React from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import type { EventInfo } from "@/lib/types"
-import { useEventsById} from "@/lib/backend/hooks/events"
+import { useEventsById } from "@/lib/backend/hooks/events"
+import { useRegisterAttendee } from "@/lib/backend/hooks/events"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
@@ -20,12 +21,25 @@ export default function EventDetailPage() {
   const { data: session } = useSession()
   const token = session?.user?.jwt || ""
   const orgId = session?.user?.organization?.id || ""
+  const userId = session?.user?.id || ""
+  const profilePicture = session?.user?.profilePicture || ""
 
   const {
     data: eventData,
     isLoading,
     error,
   } = useEventsById(orgId, String(eventId), token)
+
+  // Hook for registration
+  const {
+    mutate: register,
+    isPending: isRegistering,
+    error: registerError,
+  } = useRegisterAttendee({
+    onSuccess: () => {
+      // Optionally show a toast or similar here
+    },
+  })
 
   // Extract single event if hook returns array
   const event: EventInfo | null = Array.isArray(eventData)
@@ -194,13 +208,24 @@ export default function EventDetailPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
-              <div className="space-y-4">
-                <Button className="w-full">Anmelden</Button>
-                <Button variant="outline" className="w-full">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Teilen
-                </Button>
-              </div>
+              {registerError && <p className="text-red-500">Fehler: {registerError.message}</p>}
+              <Button
+                className="w-full"
+                onClick={() =>
+                  register({ orgId, eventId: String(eventId), userId, profilePicture, token })
+                }
+                disabled={isRegistering}
+              >
+                {isRegistering ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
+                    Anmelden…
+                  </>
+                ) : (
+                  "Anmelden"
+                )}
+              </Button>
+
             </CardContent>
           </Card>
 

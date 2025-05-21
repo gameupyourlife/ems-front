@@ -279,3 +279,23 @@ export enum EventStatus {
   DELAYED    = "DELAYED",
   ARCHIVED   = "ARCHIVED",
 }
+
+export interface RegisterAttendeeParams {
+  orgId: string
+  eventId: string
+  userId: string
+  profilePicture: string
+  token: string
+}
+export interface DeleteAttendeeParams {
+  orgId: string
+  eventId: string
+  userId: string
+  token: string
+}
+
+export interface DeleteEvent{
+    orgId: string
+    eventId: string
+    token: string
+}

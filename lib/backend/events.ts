@@ -1,5 +1,6 @@
 "use client";;
-import { EventDetails, EventInfo } from '../types';
+import axios from 'axios';
+import { EventDetails, EventInfo, RegisterAttendeeParams } from '../types';
 import { components } from './types';
 import { guardUUID } from './utils';
 
@@ -108,4 +109,95 @@ export async function getEventsById(orgId: string, eventId: string, token: strin
         console.error(err);
         throw new Error('Failed to fetch event details');
     }
+}
+
+export async function registerAttendee(
+  orgId: string, 
+  eventId: string, 
+  userId: string, 
+  profilePicture: string, 
+  token: string
+): Promise<any> {
+  guardUUID(orgId);
+  guardUUID(eventId);
+  guardUUID(userId);
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: JSON.stringify({ userId, profilePicture }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to register attendee');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw new Error('Failed to register attendee');
+  }
+}
+
+export async function deleteAttendee(
+  orgId: string,
+  eventId: string,
+  userId: string,
+  token: string
+): Promise<any> {
+  guardUUID(orgId);
+  guardUUID(eventId);
+  guardUUID(userId);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees/${userId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to delete attendee');
+  }
+
+  return res.json();
+}
+
+export async function deleteEvent(
+  orgId: string,
+  eventId: string,
+  token: string
+): Promise<any> {
+  guardUUID(orgId);
+  guardUUID(eventId);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to delete event');
+  }
+
+  return res.json();
+    
 }

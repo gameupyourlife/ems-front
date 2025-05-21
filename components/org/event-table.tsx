@@ -68,6 +68,8 @@ import {
 } from "@/components/ui/command";
 import { useEvents, useEventsByCreator } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
+import { useDeleteAttendee } from "@/lib/backend/hooks/events";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EventTableProps {
     // events: EventInfo[];
@@ -82,16 +84,27 @@ export default function EventTable({ }: EventTableProps) {
     const [activeStatus, setActiveStatus] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+    const queryClient = useQueryClient();
     // const { currentOrg } = useRequiredOrg();
     const { data: session } = useSession();
-
-
     const token = session?.user?.jwt;
     const orgId = session?.user?.organization.id;
     const userId = session?.user?.id;
 
     const { data: rawEvents, isLoading, error } = useEventsByCreator(orgId || "", userId || "", token || "");
 
+    const { mutate: deleteEventMutate, status: deleteStatus } = useDeleteAttendee({
+  onSuccess: () => {
+    // nach Löschung automatisch neu laden
+    queryClient.invalidateQueries({ queryKey: ["eventsByCreator", orgId ?? "", userId ?? ""] });
+  },
+});
+
+    const handleDelete = (eventId: string) => {
+    if (window.confirm("Möchten Sie dieses Event wirklich löschen?")) {
+      deleteEventMutate({ orgId: orgId || "", eventId: eventId || "", token: token || "" });
+    }
+  };  
 
     const events: EventInfo[] = rawEvents?.map((event: any) => {
 
@@ -286,7 +299,7 @@ export default function EventTable({ }: EventTableProps) {
             cell: ({ row }) => {
                 const attendeeCount = row.original.attendeeCount;
                 const capacity = row.original.capacity;
-                const capacityPercent = capacity ? Math.min(100, (attendeeCount / capacity) * 100) : 0;
+                const capacityPercent = capacity ? Math.min(100, Math.round((attendeeCount / capacity) * 100)) : 0;
 
                 return (
                     <div className="text-right w-32">
@@ -362,9 +375,14 @@ export default function EventTable({ }: EventTableProps) {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                    <span>Event löschen</span>
+                                <DropdownMenuItem asChild>
+                                    <button
+                                        onClick={() => handleDelete(event.id)}
+                                        className="flex items-center gap-2 text-destructive focus:text-destructive w-full text-left"
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4" />
+                                        <span>Event löschen</span>
+                                    </button>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
