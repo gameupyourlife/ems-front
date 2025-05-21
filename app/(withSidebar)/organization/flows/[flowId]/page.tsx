@@ -192,6 +192,8 @@ export default function FlowDetailsPage() {
                     session?.user?.jwt || "")
 
                 toast.success("Flow erfolgreich gelöscht")
+                router.push(`/organization/flows`);
+
             } catch (error) {
                 console.error("Error deleting flow:", error);
                 toast.error("Flow konnte nicht gelöscht werden", {
@@ -208,6 +210,8 @@ export default function FlowDetailsPage() {
                     session?.user?.jwt || "")
 
                 toast.success("Flow erfolgreich gelöscht")
+                router.push(`/organization/flows`);
+
             } catch (error) {
                 console.error("Error deleting flow:", error);
                 toast.error("Flow konnte nicht gelöscht werden", {
@@ -216,14 +220,6 @@ export default function FlowDetailsPage() {
                 });
             }
         }
-
-
-        // In a real app, you would make an API call here
-        router.push(`/organization/flows`);
-        toast.error("Flow deleted", {
-            description: "The flow has been deleted successfully.",
-            duration: 3000,
-        });
     };
 
     // Function to handle duplicating the flow
