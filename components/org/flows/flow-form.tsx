@@ -28,6 +28,8 @@ import { useSession } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteTrigger } from "@/lib/backend/event-flows";
 import { toast } from "sonner";
+import Link from "next/link";
+import { Switch } from "@/components/ui/switch";
 
 
 
@@ -73,8 +75,6 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 )
             }));
 
-            console.log("=== handleAddTrigger edit", editedFlow);
-
             setEditItemId(null);
             setEditItemType(null);
         } else {
@@ -90,9 +90,6 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 description: 'No description',
                 name: 'No name',
             };
-
-
-            console.log("=== handleAddTrigger", newTrigger);
 
             setEditedFlow(prev => ({
                 ...prev,
@@ -207,7 +204,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                 triggers: prev.triggers?.filter(item => item.id !== itemId)
                             }));
                             queryClient.invalidateQueries({ queryKey: [flow.id] });
-                            
+
                             toast.success("Trigger erfolgreich gelöscht");
                         } catch (error) {
                             console.error("Error deleting trigger:", error);
@@ -264,6 +261,34 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                     placeholder="Describe what this flow does"
                                 />
                             </div>
+
+                            {editedFlow.eventId && <div className="space-y-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="description">Multiple Runs</Label>
+                                    <p className="text-sm text-muted-foreground">Allow this flow to run multiple times for the same event</p>
+
+                                    <Switch
+                                        id="multipleRuns"
+                                        checked={editedFlow.multipleRuns || false}
+                                        onCheckedChange={(checked) => setEditedFlow({ ...editedFlow, multipleRuns: checked })}
+                                        disabled={!isEditing}
+                                    />
+
+                                </div>
+
+                                <Label htmlFor="event">Event</Label>
+                                <Input
+                                    id="event"
+                                    value={editedFlow.eventId || ''}
+                                    disabled
+                                    placeholder="Event ID"
+                                />
+                                <Link href={`/organization/events/${editedFlow.eventId}`} className="text-sm text-muted-foreground">
+                                    This flow is associated with the event: {editedFlow.eventId}
+                                </Link>
+                            </div>}
+
+
                         </div>
                     </CardContent>
                 </Card>
