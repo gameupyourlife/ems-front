@@ -1,44 +1,85 @@
 "use client";;
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, SaveIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FlowForm } from "@/components/org/flows/flow-form";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { Flow } from "@/lib/backend/types";
 import { useSession } from "next-auth/react";
-import { createOrgFlowTemplate, createOrgFlowTemplateAction, createOrgFlowTemplateTrigger } from "@/lib/backend/org-flows";
+import { createOrgFlowTemplate, createOrgFlowTemplateAction, createOrgFlowTemplateTrigger, getOrgFlowTemplate } from "@/lib/backend/org-flows";
+import LoadingSpinner from "@/components/loading-spinner";
 
 export default function CreateFlowPage() {
     const router = useRouter();
     const { data: session } = useSession();
+    const searchParams = useSearchParams();
+    const templateId = searchParams.get('templateId');
+    const eventId = searchParams.get('eventId');
 
-    // Initialize with a new empty flow template
-    const [isCreating, setIsCreating] = useState(true);
+    // States
+    const [isCreating, setIsCreating] = useState(false);
+    const [isLoading, setIsLoading] = useState(!!templateId);
+    const [flow, setFlow] = useState<Flow | null>(null);
 
-    // Create a new empty flow template
-    const emptyFlow: Flow = {
-        id: "",
-        name: "",
-        description: "",
-        triggers: [],
-        actions: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: session?.user?.id || "Unbekannt",
-        updatedBy: session?.user?.id || "Unbekannt",
-        existInDb: false,
-        isTemplate: true,
+    // Initialize with a new empty flow template or load from template
+    useEffect(() => {
+        // Create a new empty flow template as default
+        const emptyFlow: Flow = {
+            id: "",
+            name: "",
+            description: "",
+            triggers: [],
+            actions: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            createdBy: session?.user?.id || "Unbekannt",
+            updatedBy: session?.user?.id || "Unbekannt",
+            existInDb: false,
+            isTemplate: true,
 
-        isActive: false,
-        multipleRuns: false,
-        stillPending: false,
-    };
+            isActive: false,
+            multipleRuns: false,
+            stillPending: false,
+        };
+
+        // If templateId is provided, load the template
+        if (templateId && session?.user?.organization?.id) {
+            setIsLoading(true);
+            getOrgFlowTemplate(session.user.organization.id, templateId, session.user.jwt || "")
+                .then(templateFlow => {
+                    // Make a copy of template with modified properties
+                    const newFlow: Flow = {
+                        ...templateFlow,
+                        id: "", // Clear ID since this is a new flow
+                        name: `Copy of ${templateFlow.name}`,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: session?.user?.id || "Unbekannt",
+                        updatedBy: session?.user?.id || "Unbekannt",
+                        existInDb: false,
+                    };
+                    setFlow(newFlow);
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error("Error loading template:", error);
+                    toast.error("Failed to load template", {
+                        description: "There was an error loading the template. Creating a blank flow instead.",
+                        duration: 3000,
+                    });
+                    setFlow(emptyFlow);
+                    setIsLoading(false);
+                });
+        } else {
+            setFlow(emptyFlow);
+        }
+    }, [templateId, session]);
 
     // Function to handle flow creation
     const handleCreateFlow = async (flow: Flow) => {
-        // In a real app, you would make an API call here
+        setIsCreating(true);
 
         try {
             const createdFlow = await createOrgFlowTemplate(
@@ -98,9 +139,13 @@ export default function CreateFlowPage() {
                 duration: 3000,
             });
 
-            // Navigate to the flows list after a short delay
+            // Redirect to appropriate location
             setTimeout(() => {
-                router.push('/organization/flows');
+                if (eventId) {
+                    router.push(`/organization/events/${eventId}`);
+                } else {
+                    router.push('/organization/flows');
+                }
             }, 1500);
 
         } catch (error) {
@@ -116,33 +161,44 @@ export default function CreateFlowPage() {
 
     const quickActions: QuickAction[] = [
         {
-            label: "Zurück",
-            onClick: () => router.push(`/organization/edit`),
+            label: "Back",
+            onClick: () => eventId ? router.push(`/organization/events/${eventId}`) : router.push(`/organization/flows`),
             icon: <ArrowLeft className="h-4 w-4" />,
             variant: "outline",
         },
         {
-            label: "Flow Template speichern",
-            onClick: () => router.push(`/organization/events/create`),
+            label: "Save Flow",
+            onClick: () => {}, // Handled by form
             icon: <SaveIcon className="h-4 w-4" />,
         },
     ];
+
+    if (isLoading) {
+        return (
+            <>
+                <SiteHeader actions={quickActions} />
+                <div className="flex flex-1 flex-col items-center justify-center space-y-6 p-4 md:p-6">
+                    <LoadingSpinner  />
+                    <p className="text-muted-foreground">Loading template...</p>
+                </div>
+            </>
+        );
+    }
 
     return (
         <>
             <SiteHeader actions={quickActions} />
 
             <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-
-                {/* Flow Form */}
-                <FlowForm
-                    flow={emptyFlow}
-                    isEditing={true}
-                    onSave={handleCreateFlow}
-                    isCreating={true}
-                />
+                {flow && (
+                    <FlowForm
+                        flow={flow}
+                        isEditing={true}
+                        onSave={handleCreateFlow}
+                        isCreating={isCreating}
+                    />
+                )}
             </div>
         </>
-
     );
 }

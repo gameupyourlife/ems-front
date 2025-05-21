@@ -1,20 +1,21 @@
 import {
+    Action,
     ActionCreateDto,
     ActionDto,
-    ActionOverviewDto,
     ActionUpdateDto,
+    Flow,
     FlowCreateDto,
     FlowOverviewDto,
     FlowUpdateDto,
+    Trigger,
     TriggerCreateDto,
     TriggerDto,
-    TriggerOverviewDto,
     TriggerUpdateDto,
 } from './types';
 import { guardUUID } from './utils';
 
 // Flow Management
-export async function getFlows(orgId: string, eventId: string, token: string): Promise<FlowOverviewDto[]> {
+export async function getFlows(orgId: string, eventId: string, token: string): Promise<Flow[]> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows`, {
         method: 'GET',
         headers: {
@@ -27,7 +28,33 @@ export async function getFlows(orgId: string, eventId: string, token: string): P
         throw new Error(`Error getting flows: ${response.statusText}`);
     }
 
-    return await response.json();
+
+    const flowTemplates: FlowOverviewDto[] = await response.json();
+
+    const flows: Flow[] = await Promise.all(flowTemplates.map(async (flowTemplate) => ({
+        id: flowTemplate.id,
+        name: flowTemplate.name || '',
+        description: flowTemplate.description || '',
+
+        triggers: await getTriggers(orgId, eventId, flowTemplate.id, token),
+        actions: await getActions(orgId, eventId, flowTemplate.id, token),
+
+        isActive: false,
+        multipleRuns: false,
+        stillPending: false,
+
+        // @ts-ignore
+        createdAt: flowTemplate.createdAt || '',
+        updatedAt: flowTemplate.updatedAt || '',
+        // @ts-ignore
+        createdBy: flowTemplate.createdBy || '',
+        updatedBy: flowTemplate.updatedBy || '',
+
+
+        isTemplate: true,
+        existInDb: true,
+    })));
+    return flows;
 }
 
 export async function createFlow(orgId: string, eventId: string, flowData: FlowCreateDto, token: string): Promise<FlowOverviewDto> {
@@ -47,7 +74,7 @@ export async function createFlow(orgId: string, eventId: string, flowData: FlowC
     return await response.json();
 }
 
-export async function getFlow(orgId: string, eventId: string, flowId: string, token: string): Promise<FlowOverviewDto> {
+export async function getFlow(orgId: string, eventId: string, flowId: string, token: string): Promise<Flow> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
         method: 'GET',
         headers: {
@@ -60,7 +87,32 @@ export async function getFlow(orgId: string, eventId: string, flowId: string, to
         throw new Error(`Error getting flow: ${response.statusText}`);
     }
 
-    return await response.json();
+    const flowTemplate: FlowOverviewDto = await response.json();
+
+    const flow: Flow = {
+        id: flowTemplate.id,
+        name: flowTemplate.name || '',
+        description: flowTemplate.description || '',
+
+        triggers: await getTriggers(orgId, eventId, flowTemplate.id, token),
+        actions: await getActions(orgId, eventId, flowTemplate.id, token),
+
+        isActive: false,
+        multipleRuns: false,
+        stillPending: false,
+
+        // @ts-ignore
+        createdAt: flowTemplate.createdAt || '',
+        updatedAt: flowTemplate.updatedAt || '',
+        // @ts-ignore
+        createdBy: flowTemplate.createdBy || '',
+        updatedBy: flowTemplate.updatedBy || '',
+
+
+        isTemplate: true,
+        existInDb: true,
+    }
+    return flow;
 }
 
 export async function updateFlow(orgId: string, eventId: string, flowId: string, flowData: FlowUpdateDto, token: string): Promise<FlowOverviewDto> {
@@ -95,7 +147,7 @@ export async function deleteFlow(orgId: string, eventId: string, flowId: string,
 }
 
 // Action Management
-export async function getActions(orgId: string, eventId: string, flowId: string, token: string): Promise<ActionOverviewDto[]> {
+export async function getActions(orgId: string, eventId: string, flowId: string, token: string): Promise<Action[]> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
         method: 'GET',
         headers: {
@@ -105,10 +157,25 @@ export async function getActions(orgId: string, eventId: string, flowId: string,
     });
 
     if (!response.ok) {
-        throw new Error(`Error getting actions: ${response.statusText}`);
+        if (response.status === 404) return [];
+        throw new Error(`Failed to fetch actions: ${response.status} ${response.statusText}`);
     }
 
-    return await response.json();
+    const DTOs: ActionDto[] = await response.json();
+    const actions: Action[] = DTOs.map((action) => ({
+        id: action.id,
+        name: action.name,
+        description: action.summary,
+        type: action.type,
+        createdAt: action.createdAt,
+        summary: action.summary,
+        details: action.details,
+        existInDb: true,
+        flowId: flowId,
+        flowTemplateId: action.flowTemplateId,
+    }));
+
+    return actions || [];
 }
 
 export async function createAction(
@@ -189,7 +256,7 @@ export async function deleteAction(orgId: string, eventId: string, flowId: strin
 }
 
 // Trigger Management
-export async function getTriggers(orgId: string, eventId: string, flowId: string, token: string): Promise<TriggerOverviewDto[]> {
+export async function getTriggers(orgId: string, eventId: string, flowId: string, token: string): Promise<Trigger[]> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
         method: 'GET',
         headers: {
@@ -199,10 +266,25 @@ export async function getTriggers(orgId: string, eventId: string, flowId: string
     });
 
     if (!response.ok) {
-        throw new Error(`Error getting triggers: ${response.statusText}`);
+        if (response.status === 404) return [];
+        throw new Error(`Failed to fetch triggers: ${response.status} ${response.statusText}`);
     }
 
-    return await response.json();
+    const dto: TriggerDto[] = await response.json();
+
+    const triggers: Trigger[] = dto.map((trigger) => ({
+        id: trigger.id,
+        name: trigger.name,
+        description: trigger.summary,
+        type: trigger.type,
+        createdAt: trigger.createdAt,
+        summary: trigger.summary,
+        details: trigger.details,
+        existInDb: true,
+        flowId: flowId,
+        flowTemplateId: trigger.flowTemplateId,
+    }));
+    return triggers || [];
 }
 
 export async function createTrigger(
@@ -273,7 +355,7 @@ export async function deleteTrigger(orgId: string, eventId: string, flowId: stri
     guardUUID(flowId);
     guardUUID(eventId);
     guardUUID(orgId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
         method: 'DELETE',
         headers: {

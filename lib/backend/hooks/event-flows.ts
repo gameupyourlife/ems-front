@@ -2,13 +2,13 @@
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getAction, getActions, getFlow, getFlows, getTrigger, getTriggers } from '../event-flows';
-import { ActionOverviewDto, FlowOverviewDto, TriggerDto, TriggerOverviewDto } from '../types';
+import { Action, ActionOverviewDto, Flow, Trigger, TriggerDto } from '../types';
 
 export function useEventFlows(
     orgId: string,
     eventId: string,
     token: string,
-    options?: Omit<UseQueryOptions<FlowOverviewDto[], Error>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<Flow[], Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['useEventFlows', orgId, eventId, token],
@@ -22,7 +22,7 @@ export function useEventFlow(
     eventId: string,
     flowId: string,
     token: string,
-    options?: Omit<UseQueryOptions<FlowOverviewDto, Error>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<Flow, Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['useEventFlow', orgId, eventId, flowId, token],
@@ -36,7 +36,7 @@ export function useActions(
     eventId: string,
     flowId: string,
     token: string,
-    options?: Omit<UseQueryOptions<ActionOverviewDto[], Error>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<Action[], Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['useActions', orgId, eventId, flowId, token],
@@ -65,7 +65,7 @@ export function useTriggers(
     eventId: string,
     flowId: string,
     token: string,
-    options?: Omit<UseQueryOptions<TriggerOverviewDto[], Error>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<Trigger[], Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['useTriggers', orgId, eventId, flowId, token],
