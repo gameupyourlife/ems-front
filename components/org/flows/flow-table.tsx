@@ -1,5 +1,4 @@
-"use client";
-
+"use client";;
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,18 +21,10 @@ import {
     Trash,
     ArrowUpDown,
     Plus,
-    Mail,
-    Bell,
-    FileText,
     Check,
     X,
-    Image,
     LayoutList,
-    PencilLine,
     Activity,
-    Calendar,
-    Users,
-    Tag,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -50,7 +41,6 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { Flow, FlowTemplate } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -68,9 +58,11 @@ import {
     CommandSeparator
 } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ActionType, FlowOverviewDto, FlowTemplateResponseDto, TriggerType } from "@/lib/backend/types";
+import { getActionIcon, getTriggerIcon } from "@/lib/flows/utils";
 
 interface FlowTableProps {
-    flows: Flow[] | FlowTemplate[];
+    flows: FlowOverviewDto[] | FlowTemplateResponseDto[];
 }
 
 export default function FlowTable({ flows }: FlowTableProps) {
@@ -80,59 +72,21 @@ export default function FlowTable({ flows }: FlowTableProps) {
     const [rowSelection, setRowSelection] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [columnsOpen, setColumnsOpen] = useState(false);
-    const [activeTriggerType, setActiveTriggerType] = useState<string | null>(null);
-    const [activeActionType, setActiveActionType] = useState<string | null>(null);
-
-    // Map icons to trigger types
-    const getTriggerIcon = (type: string) => {
-        switch (type) {
-            case 'date':
-                return <Calendar className="h-4 w-4" />;
-            case 'numOfAttendees':
-                return <Users className="h-4 w-4" />;
-            case 'status':
-                return <Tag className="h-4 w-4" />;
-            case 'registration':
-                return <Check className="h-4 w-4" />;
-            default:
-                return <Activity className="h-4 w-4" />;
-        }
-    };
-
-    // Map icons to action types
-    const getActionIcon = (type: string) => {
-        switch (type) {
-            case 'email':
-                return <Mail className="h-4 w-4" />;
-            case 'notification':
-                return <Bell className="h-4 w-4" />;
-            case 'statusChange':
-                return <Tag className="h-4 w-4" />;
-            case 'fileShare':
-                return <FileText className="h-4 w-4" />;
-            case 'imageChange':
-                return <Image className="h-4 w-4" />;
-            case 'titleChange':
-                return <LayoutList className="h-4 w-4" />;
-            case 'descriptionChange':
-                return <PencilLine className="h-4 w-4" />;
-            default:
-                return <Activity className="h-4 w-4" />;
-        }
-    };
+    const [activeTriggerType, setActiveTriggerType] = useState<TriggerType | null>(null);
+    const [activeActionType, setActiveActionType] = useState<ActionType | null>(null);
 
     // Define all unique trigger types from the data
     const triggerTypes = Array.from(new Set(
-        flows.flatMap(flow => flow.trigger.map(trigger => trigger.type))
+        flows.flatMap(flow => flow.triggers?.map(trigger => trigger.type) || [])
     ));
 
     // Define all unique action types from the data
     const actionTypes = Array.from(new Set(
-        flows.flatMap(flow => flow.actions.map(action => action.type))
+        flows.flatMap(flow => flow.actions?.map(action => action.type) || [])
     ));
 
     // Define the columns for the table
-    const columns: ColumnDef<Flow | FlowTemplate>[] = [
+    const columns: ColumnDef<FlowOverviewDto | FlowTemplateResponseDto>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -183,11 +137,11 @@ export default function FlowTable({ flows }: FlowTableProps) {
             accessorKey: "trigger",
             header: "Triggers",
             cell: ({ row }) => {
-                const triggers = row.original.trigger;
+                const triggers = row.original.triggers;
 
                 return (
                     <div className="flex flex-wrap gap-1.5">
-                        {triggers.map((trigger) => (
+                        {triggers?.map((trigger) => (
                             <TooltipProvider key={trigger.id}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -197,7 +151,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        {trigger.details ?
+                                        {/* {trigger.details ?
                                             <div className="text-xs">
                                                 {Object.entries(trigger.details).map(([key, value]) => (
                                                     <div key={key}>
@@ -207,7 +161,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                             </div>
                                             :
                                             <span className="text-xs">No additional details</span>
-                                        }
+                                        } */}
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -217,8 +171,8 @@ export default function FlowTable({ flows }: FlowTableProps) {
             },
             filterFn: (row, id, value) => {
                 if (!value) return true;
-                const triggerTypes = row.original.trigger.map(t => t.type);
-                return triggerTypes.some(type => type === value);
+                const triggerTypes = row.original.triggers?.map(t => t.type);
+                return triggerTypes?.some(type => type === value) || false;
             },
         },
         {
@@ -229,7 +183,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
 
                 return (
                     <div className="flex flex-wrap gap-1.5">
-                        {actions.map((action) => (
+                        {actions?.map((action) => (
                             <TooltipProvider key={action.id}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -239,7 +193,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        {action.details ?
+                                        {/* {action.details ?
                                             <div className="text-xs">
                                                 {Object.entries(action.details).map(([key, value]) => (
                                                     <div key={key}>
@@ -249,7 +203,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                             </div>
                                             :
                                             <span className="text-xs">No additional details</span>
-                                        }
+                                        } */}
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -259,8 +213,8 @@ export default function FlowTable({ flows }: FlowTableProps) {
             },
             filterFn: (row, id, value) => {
                 if (!value) return true;
-                const actionTypes = row.original.actions.map(a => a.type);
-                return actionTypes.some(type => type === value);
+                const actionTypes = row.original.actions?.map(a => a.type);
+                return actionTypes?.some(type => type === value) || false;
             },
         },
         {
@@ -275,7 +229,8 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 </Button>
             ),
             cell: ({ row }) => {
-                const date = new Date(row.original.createdAt);
+                // @ts-ignore
+                const date = new Date(row.original.createdAt || Date.now());
                 return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
             },
             sortingFn: "datetime",
@@ -292,7 +247,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 </Button>
             ),
             cell: ({ row }) => {
-                const date = new Date(row.original.updatedAt);
+                const date = new Date(row.original.updatedAt || Date.now());
                 return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
             },
             sortingFn: "datetime",
@@ -302,11 +257,12 @@ export default function FlowTable({ flows }: FlowTableProps) {
             header: "Options",
             cell: ({ row }) => {
                 const flow = row.original;
+                const id = 'id' in flow ? flow.id : flow.flowTemplateId;
 
                 return (
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
-                            <Link href={`/organization/flows/${flow.id}`}>
+                            <Link href={`/organization/flows/${id}`}>
                                 Manage
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
@@ -320,7 +276,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organization/flows/${flow.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/flows/${id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>Edit Flow</span>
                                     </Link>
@@ -343,7 +299,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     ];
 
     // Function to toggle trigger type filter
-    const toggleTriggerTypeFilter = (type: string) => {
+    const toggleTriggerTypeFilter = (type: TriggerType) => {
         if (activeTriggerType === type) {
             setActiveTriggerType(null);
             setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "trigger"));
@@ -361,7 +317,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     };
 
     // Function to toggle action type filter
-    const toggleActionTypeFilter = (type: string) => {
+    const toggleActionTypeFilter = (type: ActionType) => {
         if (activeActionType === type) {
             setActiveActionType(null);
             setColumnFilters(prevFilters => prevFilters.filter(filter => filter.id !== "actions"));
@@ -379,7 +335,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     };
 
     // Function to check if a filter is active
-    const isFilterActive = (type: 'triggerType' | 'actionType', value: string) => {
+    const isFilterActive = (type: 'triggerType' | 'actionType', value: TriggerType | ActionType) => {
         if (type === 'triggerType') {
             return activeTriggerType === value;
         } else {

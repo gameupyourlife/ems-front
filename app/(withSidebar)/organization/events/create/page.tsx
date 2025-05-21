@@ -18,7 +18,7 @@ import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-for
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 import { mockFlows } from "@/lib/data";
-import type { Flow, AgendaStep } from "@/lib/types";
+import type { Flow, AgendaStep } from "@/lib/types-old";
 import {
   eventBasicInfoSchema as eventFormSchema,
   EventBasicInfoFormData as EventFormData,

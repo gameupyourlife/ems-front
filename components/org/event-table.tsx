@@ -49,7 +49,7 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { EventInfo } from "@/lib/types";
+import { EventInfo } from "@/lib/types-old";
 import { format, formatDistanceToNow } from "date-fns";
 import { de } from 'date-fns/locale';
 import {

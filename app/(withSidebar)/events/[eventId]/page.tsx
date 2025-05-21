@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getEventById } from "@/lib/api/getEvents"
-import type { EventInfo } from "@/lib/types"
+import type { EventInfo } from "@/lib/types-old"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MapPin, Users, ArrowLeft, Share2 } from "lucide-react"
 import Image from "next/image"

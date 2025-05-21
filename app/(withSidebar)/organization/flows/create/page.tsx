@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ArrowLeft, SaveIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FlowForm } from "@/components/org/flows/flow-form";
-import { Flow } from "@/lib/types";
+import { Flow } from "@/lib/types-old";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 

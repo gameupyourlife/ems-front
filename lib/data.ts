@@ -1,4 +1,4 @@
-import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, FlowTemplate, Organization, OrgUser } from "./types"
+import { AgendaStep, EmsFile, EventDetails, EventInfo, Flow, FlowTemplate, Organization, OrgUser } from "./types-old"
 import { getRandomDate, randomImage } from "./utils"
 
 export const data = [

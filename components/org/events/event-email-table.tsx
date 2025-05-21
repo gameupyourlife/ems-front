@@ -39,7 +39,7 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { Email } from "@/lib/types";
+import { Email } from "@/lib/types-old";
 import { format } from "date-fns";
 import {
     Popover,

@@ -1,7 +1,18 @@
-import { FlowTemplateResponseDto, ActionDto, TriggerDto, ActionCreateDto, ActionUpdateDto, TriggerCreateDto, TriggerUpdateDto, FlowTemplateCreateDto, FlowTemplateUpdateDto } from './types';
-
-// Base API URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import {
+    FlowTemplateResponseDto,
+    ActionDto,
+    TriggerDto,
+    ActionCreateDto,
+    ActionUpdateDto,
+    TriggerCreateDto,
+    TriggerUpdateDto,
+    FlowTemplateCreateDto,
+    FlowTemplateUpdateDto,
+    Flow,
+    Action,
+    Trigger,
+} from './types';
+import { guardUUID } from './utils';
 
 /**
  * Get all flow templates for an organization
@@ -10,19 +21,21 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
  * @returns List of flow templates
  */
 export async function getOrgFlowTemplates(orgId: string, accessToken: string): Promise<FlowTemplateResponseDto[]> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    guardUUID(orgId);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch flow templates: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to fetch flow templates: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -33,24 +46,26 @@ export async function getOrgFlowTemplates(orgId: string, accessToken: string): P
  * @returns The created flow template
  */
 export async function createOrgFlowTemplate(
-  orgId: string, 
-  template: FlowTemplateCreateDto, 
-  accessToken: string
+    orgId: string,
+    template: FlowTemplateCreateDto,
+    accessToken: string
 ): Promise<FlowTemplateResponseDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(template),
-  });
+    guardUUID(orgId);
 
-  if (!response.ok) {
-    throw new Error(`Failed to create flow template: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(template),
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to create flow template: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -61,23 +76,48 @@ export async function createOrgFlowTemplate(
  * @returns The flow template
  */
 export async function getOrgFlowTemplate(
-  orgId: string, 
-  templateId: string, 
-  accessToken: string
-): Promise<FlowTemplateResponseDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    orgId: string,
+    templateId: string,
+    accessToken: string
+): Promise<Flow> {
+    guardUUID(orgId);
+    guardUUID(templateId);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch flow template: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to fetch flow template: ${response.status} ${response.statusText}`);
+    }
+
+    const flowTemplate: FlowTemplateResponseDto = await response.json();
+
+    const flow: Flow = {
+        id: flowTemplate.id,
+        name: flowTemplate.name || '',
+        description: flowTemplate.description || '',
+
+        triggers: await getOrgFlowTemplateTriggers(orgId, flowTemplate.id, accessToken),
+        actions: await getOrgFlowTemplateActions(orgId, flowTemplate.id, accessToken),
+
+        isActive: false,
+        multipleRuns: false,
+        stillPending: false,
+
+        createdAt: flowTemplate.createdAt,
+        updatedAt: flowTemplate.updatedAt,
+        createdBy: flowTemplate.createdBy,
+        updatedBy: flowTemplate.updatedBy,
+
+        isTemplate: true,
+        existInDb: true,
+    }
+    return flow;
 }
 
 /**
@@ -89,25 +129,28 @@ export async function getOrgFlowTemplate(
  * @returns The updated flow template
  */
 export async function updateOrgFlowTemplate(
-  orgId: string, 
-  templateId: string, 
-  template: FlowTemplateUpdateDto, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    template: FlowTemplateUpdateDto,
+    accessToken: string
 ): Promise<FlowTemplateResponseDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(template),
-  });
+    guardUUID(orgId);
+    guardUUID(templateId);
 
-  if (!response.ok) {
-    throw new Error(`Failed to update flow template: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(template),
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to update flow template: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -117,21 +160,21 @@ export async function updateOrgFlowTemplate(
  * @param accessToken Auth token
  */
 export async function deleteOrgFlowTemplate(
-  orgId: string, 
-  templateId: string, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    accessToken: string
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete flow template: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to delete flow template: ${response.status} ${response.statusText}`);
+    }
 }
 
 // ACTIONS
@@ -144,23 +187,38 @@ export async function deleteOrgFlowTemplate(
  * @returns List of actions
  */
 export async function getOrgFlowTemplateActions(
-  orgId: string, 
-  templateId: string, 
-  accessToken: string
-): Promise<ActionDto[]> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/actions`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    orgId: string,
+    templateId: string,
+    accessToken: string
+): Promise<Action[]> {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/actions`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch flow template actions: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        if(response.status === 404) return [];
+        throw new Error(`Failed to fetch flow template actions: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    const DTOs: ActionDto[] = await response.json();
+    const actions: Action[] = DTOs.map((action) => ({
+        id: action.id,
+        name: action.name,
+        description: action.summary,
+        type: action.type,
+        createdAt: action.createdAt,
+        summary: action.summary,
+        details: action.details,
+        existInDb: true,
+        flowId: templateId,
+        flowTemplateId: templateId,
+    }));
+    
+    return actions || [];
 }
 
 /**
@@ -172,25 +230,27 @@ export async function getOrgFlowTemplateActions(
  * @returns The created action
  */
 export async function createOrgFlowTemplateAction(
-  orgId: string, 
-  templateId: string, 
-  action: ActionCreateDto, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    action: ActionCreateDto,
+    accessToken: string
 ): Promise<ActionDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/actions`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(action),
-  });
+    action.details = JSON.stringify(action.details);
 
-  if (!response.ok) {
-    throw new Error(`Failed to create action: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/actions`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(action),
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to create action: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -202,24 +262,24 @@ export async function createOrgFlowTemplateAction(
  * @returns The action
  */
 export async function getOrgFlowTemplateAction(
-  orgId: string, 
-  templateId: string, 
-  actionId: string, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    actionId: string,
+    accessToken: string
 ): Promise<ActionDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch action: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch action: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    return response.json();
 }
 
 /**
@@ -232,26 +292,30 @@ export async function getOrgFlowTemplateAction(
  * @returns The updated action
  */
 export async function updateOrgFlowTemplateAction(
-  orgId: string, 
-  templateId: string, 
-  actionId: string, 
-  action: ActionUpdateDto, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    actionId: string,
+    action: ActionUpdateDto,
+    accessToken: string
 ): Promise<ActionDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(action),
-  });
+    
+    action.details = JSON.stringify(action.details);
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(action),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update action: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        console.error(await response.json());
+        throw new Error(`Failed to update action: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    return response.json();
 }
 
 /**
@@ -262,22 +326,22 @@ export async function updateOrgFlowTemplateAction(
  * @param accessToken Auth token
  */
 export async function deleteOrgFlowTemplateAction(
-  orgId: string, 
-  templateId: string, 
-  actionId: string, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    actionId: string,
+    accessToken: string
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/actions/${actionId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete action: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to delete action: ${response.status} ${response.statusText}`);
+    }
 }
 
 // TRIGGERS
@@ -290,23 +354,38 @@ export async function deleteOrgFlowTemplateAction(
  * @returns List of triggers
  */
 export async function getOrgFlowTemplateTriggers(
-  orgId: string, 
-  templateId: string, 
-  accessToken: string
-): Promise<TriggerDto[]> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/triggers`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    orgId: string,
+    templateId: string,
+    accessToken: string
+): Promise<Trigger[]> {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/triggers`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch flow template triggers: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        if(response.status === 404) return [];
+        throw new Error(`Failed to fetch flow template triggers: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    const dto: TriggerDto[] = await response.json();
+
+    const triggers: Trigger[] = dto.map((trigger) => ({
+        id: trigger.id,
+        name: trigger.name,
+        description: trigger.summary,
+        type: trigger.type,
+        createdAt: trigger.createdAt,
+        summary: trigger.summary,
+        details: trigger.details,
+        existInDb: true,
+        flowId: templateId,
+        flowTemplateId: templateId,
+    }));
+    return triggers || [];
 }
 
 /**
@@ -318,25 +397,27 @@ export async function getOrgFlowTemplateTriggers(
  * @returns The created trigger
  */
 export async function createOrgFlowTemplateTrigger(
-  orgId: string, 
-  templateId: string, 
-  trigger: TriggerCreateDto, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    trigger: TriggerCreateDto,
+    accessToken: string
 ): Promise<TriggerDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/triggers`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(trigger),
-  });
+    trigger.details = JSON.stringify(trigger.details);
 
-  if (!response.ok) {
-    throw new Error(`Failed to create trigger: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/triggers`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(trigger),
+    });
 
-  return response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to create trigger: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -348,24 +429,24 @@ export async function createOrgFlowTemplateTrigger(
  * @returns The trigger
  */
 export async function getOrgFlowTemplateTrigger(
-  orgId: string, 
-  templateId: string, 
-  triggerId: string, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    triggerId: string,
+    accessToken: string
 ): Promise<TriggerDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch trigger: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch trigger: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    return response.json();
 }
 
 /**
@@ -378,26 +459,28 @@ export async function getOrgFlowTemplateTrigger(
  * @returns The updated trigger
  */
 export async function updateOrgFlowTemplateTrigger(
-  orgId: string, 
-  templateId: string, 
-  triggerId: string, 
-  trigger: TriggerUpdateDto, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    triggerId: string,
+    trigger: TriggerUpdateDto,
+    accessToken: string
 ): Promise<TriggerDto> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(trigger),
-  });
+    trigger.details = JSON.stringify(trigger.details);
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(trigger),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update trigger: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to update trigger: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json();
+    return response.json();
 }
 
 /**
@@ -408,20 +491,20 @@ export async function updateOrgFlowTemplateTrigger(
  * @param accessToken Auth token
  */
 export async function deleteOrgFlowTemplateTrigger(
-  orgId: string, 
-  templateId: string, 
-  triggerId: string, 
-  accessToken: string
+    orgId: string,
+    templateId: string,
+    triggerId: string,
+    accessToken: string
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/flowTemplates/${templateId}/triggers/${triggerId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete trigger: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to delete trigger: ${response.status} ${response.statusText}`);
+    }
 }

@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { EventDetails } from "@/lib/types";
+import { EventDetails } from "@/lib/types-old";
 
 export default function EventOverviewTab({ eventDetails }: { eventDetails: EventDetails }) {
 

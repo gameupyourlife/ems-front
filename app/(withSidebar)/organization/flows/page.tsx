@@ -1,7 +1,6 @@
 "use client";;
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockFlowTemplates } from "@/lib/data";
 import Link from "next/link";
 import { Plus, BarChart3, Zap, Info, ExternalLink, Play } from "lucide-react";
 import FlowTable from "@/components/org/flows/flow-table";
@@ -9,19 +8,48 @@ import { Badge } from "@/components/ui/badge";
 import { getTriggerIcon } from "@/lib/flows/utils";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
+import { useOrgFlowTemplates } from "@/lib/backend/hooks/org-flows";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { TriggerType } from "@/lib/backend/types";
 
 export default function FlowsOverview() {
-  const activeFlows = mockFlowTemplates.length;
-  const triggersCount = mockFlowTemplates.reduce((acc, flow) => acc + flow.trigger.length, 0);
-  const actionsCount = mockFlowTemplates.reduce((acc, flow) => acc + flow.actions.length, 0);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { data, isLoading } = useOrgFlowTemplates(session?.user?.organization?.id || "", session?.user?.jwt || "");
+
+  const flows = data || [];
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="container mx-auto py-20 text-center">
+  //       <div className="animate-pulse">Loading flows...</div>
+  //     </div>
+  //   );
+  // }
+
+  if (!flows) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="text-muted-foreground mb-4">No flows found.</div>
+        <Button variant="outline" onClick={() => router.refresh()}>
+          Reload
+        </Button>
+      </div>
+    );
+  }
+
+  const activeFlows = flows.length;
+  const triggersCount = flows.reduce((acc, flow) => acc + (flow?.triggers?.length || 0), 0);
+  const actionsCount = flows.reduce((acc, flow) => acc + (flow?.actions?.length || 0), 0);
 
   // Count flows by trigger type
-  const triggerTypeCounts = mockFlowTemplates.reduce((acc, flow) => {
-    flow.trigger.forEach(trigger => {
+  const triggerTypeCounts = flows.reduce((acc, flow) => {
+    flow.triggers?.forEach(trigger => {
       acc[trigger.type] = (acc[trigger.type] || 0) + 1;
     });
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<TriggerType, number>);
 
   // Get the trigger types ordered by count (descending)
   const orderedTriggerTypes = Object.entries(triggerTypeCounts)
@@ -29,8 +57,8 @@ export default function FlowsOverview() {
     .slice(0, 4); // Show top 4 trigger types
 
   // Count flows by action type  
-  const actionTypeCounts = mockFlowTemplates.reduce((acc, flow) => {
-    flow.actions.forEach(action => {
+  const actionTypeCounts = flows.reduce((acc, flow) => {
+    flow.actions?.forEach(action => {
       acc[action.type] = (acc[action.type] || 0) + 1;
     });
     return acc;
@@ -120,7 +148,7 @@ export default function FlowsOverview() {
                   <div key={type} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="mr-2 h-8 w-8 rounded-md border bg-background flex items-center justify-center">
-                        {getTriggerIcon(type)}
+                        {getTriggerIcon(type as unknown as TriggerType)}
                       </div>
                       <div>
                         <p className="text-sm font-medium capitalize">{type}</p>
@@ -164,7 +192,7 @@ export default function FlowsOverview() {
         </div>
 
         {/* Flows List */}
-        <FlowTable flows={mockFlowTemplates} />
+        <FlowTable flows={flows} />
 
       </div>
     </>

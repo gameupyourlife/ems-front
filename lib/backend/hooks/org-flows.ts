@@ -1,7 +1,7 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { ActionDto, FlowTemplateResponseDto, TriggerDto } from '../types';
+import { ActionDto, Flow, FlowTemplateResponseDto, TriggerDto } from '../types';
 import { getOrgFlowTemplate, getOrgFlowTemplateAction, getOrgFlowTemplateActions, getOrgFlowTemplates, getOrgFlowTemplateTrigger, getOrgFlowTemplateTriggers } from '../org-flows';
 
 export function useOrgFlowTemplates(
@@ -20,7 +20,7 @@ export function useOrgFlowTemplate(
     orgId: string,
     flowId: string,
     token: string,
-    options?: Omit<UseQueryOptions<FlowTemplateResponseDto, Error>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<Flow, Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
         queryKey: ['useOrgFlowTemplate', orgId, flowId, token],

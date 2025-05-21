@@ -1,5 +1,5 @@
 "use client";;
-import { EventDetails } from '../types';
+import { EventDetails } from '../types-old';
 import { components } from './types';
 import { guardUUID } from './utils';
 

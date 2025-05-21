@@ -1,7 +1,7 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { EventDetails, EventInfo } from '@/lib/types';
+import { EventDetails, EventInfo } from '@/lib/types-old';
 import { getEventDetails, getEvents } from '../events';
 
 /**

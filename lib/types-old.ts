@@ -134,8 +134,6 @@ const dateCondition : TypeSafeCondition<"date"> = {
 };
 
 
-// Action types
-export type ActionType = "email" | "notification" | "statusChange" | "fileShare" | "imageChange" | "titleChange" | "descriptionChange";
 
 export interface EmailActionDetails {
     subject: string;

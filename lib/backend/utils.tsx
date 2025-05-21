@@ -1,5 +1,4 @@
 import { isUUID } from '../utils';
-
 /**
  * Check if the app is running in mock mode
  * @returns True if the app is running in mock mode, false otherwise
@@ -24,3 +23,4 @@ export function guardUUID(id: string) {
         throw new Error(`Invalid UUID: ${id}`);
     }
 }
+

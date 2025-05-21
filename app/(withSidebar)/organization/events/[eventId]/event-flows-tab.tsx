@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, FunctionSquare, Zap, History, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { EventDetails } from "@/lib/types";
+import { EventDetails } from "@/lib/types-old";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActionDescription, getActionIcon, getTriggerDescription, getTriggerIcon } from "@/lib/flows/utils";

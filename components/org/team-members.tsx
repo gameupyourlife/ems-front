@@ -35,7 +35,7 @@ import {
     ColumnFiltersState,
     getFilteredRowModel,
 } from "@tanstack/react-table";
-import { OrgUser } from "@/lib/types";
+import { OrgUser } from "@/lib/types-old";
 
 interface TeamMembersProps {
     members: OrgUser[];

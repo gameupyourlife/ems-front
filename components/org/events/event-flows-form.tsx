@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 
 // Types
-import { Flow } from "@/lib/types";
+import { Flow } from "@/lib/types-old";
 
 interface EventFlowsFormProps {
   selectedFlows: Flow[];

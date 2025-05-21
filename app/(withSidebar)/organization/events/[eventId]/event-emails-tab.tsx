@@ -1,6 +1,6 @@
 "use client";;
 import { useEffect, useState } from "react";
-import { Email, EventDetails } from "@/lib/types";
+import { Email, EventDetails } from "@/lib/types-old";
 import EmailTable from "@/components/org/events/event-email-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, FileText, Plus } from "lucide-react";

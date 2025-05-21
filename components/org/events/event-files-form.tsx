@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,14 +21,14 @@ import FileUploadDialog from "@/components/org/file-upload-dialog";
 
 // Icons
 import {
-  ArrowLeftIcon,
-  Check,
-  FileText,
-  Plus, Upload
+    ArrowLeftIcon,
+    Check,
+    FileText,
+    Plus, Upload
 } from "lucide-react";
 
 // Types
-import { EmsFile } from "@/lib/types";
+import { EmsFile } from "@/lib/types-old";
 
 interface EventFilesFormProps {
   selectedFiles: EmsFile[];

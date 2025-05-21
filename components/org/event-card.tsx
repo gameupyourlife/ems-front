@@ -2,7 +2,7 @@ import { Calendar, MapPin, Users, Edit, Clock, TrashIcon, ShareIcon, ChevronRigh
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { EventInfo } from "@/lib/types";
+import { EventInfo } from "@/lib/types-old";
 import Link from "next/link";
 import { Progress } from "../ui/progress";
 import {

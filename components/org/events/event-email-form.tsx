@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CalendarIcon, ChevronLeft, Send, Users, UserPlus, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Email, User, EventInfo } from "@/lib/types";
+import { Email, User, EventInfo } from "@/lib/types-old";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { emailTemplates, applyTemplateValues, generatePlaceholderValues } from "@/lib/mock/email-data";

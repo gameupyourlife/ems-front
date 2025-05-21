@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import EventCard from "@/components/event-card";
-import type { EventInfo } from "@/lib/types";
+import type { EventInfo } from "@/lib/types-old";
 import FilterDropdown from "./filter-dropdown";
 import ActiveFilters from "./active-filters";
 import { useEventFilters } from "./use-event-filters";

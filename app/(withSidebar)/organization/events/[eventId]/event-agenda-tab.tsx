@@ -5,7 +5,7 @@ import { Clock, Edit, ListTodo } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
-import { EventDetails } from "@/lib/types";
+import { EventDetails } from "@/lib/types-old";
 
 export default function EventAgendaTab ({ eventDetails }: { eventDetails: EventDetails }) {
     const eventId = eventDetails.metadata.id;

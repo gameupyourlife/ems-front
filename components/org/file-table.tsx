@@ -46,7 +46,7 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { EmsFile } from "@/lib/types";
+import { EmsFile } from "@/lib/types-old";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {

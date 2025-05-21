@@ -11,10 +11,11 @@ import {
     TriggerOverviewDto,
     TriggerUpdateDto,
 } from './types';
+import { guardUUID } from './utils';
 
 // Flow Management
 export async function getFlows(orgId: string, eventId: string, token: string): Promise<FlowOverviewDto[]> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -30,7 +31,7 @@ export async function getFlows(orgId: string, eventId: string, token: string): P
 }
 
 export async function createFlow(orgId: string, eventId: string, flowData: FlowCreateDto, token: string): Promise<FlowOverviewDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -47,7 +48,7 @@ export async function createFlow(orgId: string, eventId: string, flowData: FlowC
 }
 
 export async function getFlow(orgId: string, eventId: string, flowId: string, token: string): Promise<FlowOverviewDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -63,7 +64,7 @@ export async function getFlow(orgId: string, eventId: string, flowId: string, to
 }
 
 export async function updateFlow(orgId: string, eventId: string, flowId: string, flowData: FlowUpdateDto, token: string): Promise<FlowOverviewDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -80,7 +81,7 @@ export async function updateFlow(orgId: string, eventId: string, flowId: string,
 }
 
 export async function deleteFlow(orgId: string, eventId: string, flowId: string, token: string): Promise<void> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -95,7 +96,7 @@ export async function deleteFlow(orgId: string, eventId: string, flowId: string,
 
 // Action Management
 export async function getActions(orgId: string, eventId: string, flowId: string, token: string): Promise<ActionOverviewDto[]> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -117,7 +118,7 @@ export async function createAction(
     actionData: ActionCreateDto,
     token: string
 ): Promise<ActionDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -134,7 +135,7 @@ export async function createAction(
 }
 
 export async function getAction(orgId: string, eventId: string, flowId: string, actionId: string, token: string): Promise<ActionDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -157,7 +158,7 @@ export async function updateAction(
     actionData: ActionUpdateDto,
     token: string
 ): Promise<ActionDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -174,7 +175,7 @@ export async function updateAction(
 }
 
 export async function deleteAction(orgId: string, eventId: string, flowId: string, actionId: string, token: string): Promise<void> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -189,7 +190,7 @@ export async function deleteAction(orgId: string, eventId: string, flowId: strin
 
 // Trigger Management
 export async function getTriggers(orgId: string, eventId: string, flowId: string, token: string): Promise<TriggerOverviewDto[]> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -211,7 +212,7 @@ export async function createTrigger(
     triggerData: TriggerCreateDto,
     token: string
 ): Promise<TriggerDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -228,7 +229,7 @@ export async function createTrigger(
 }
 
 export async function getTrigger(orgId: string, eventId: string, flowId: string, triggerId: string, token: string): Promise<TriggerDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -251,7 +252,7 @@ export async function updateTrigger(
     triggerData: TriggerUpdateDto,
     token: string
 ): Promise<TriggerDto> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -268,7 +269,12 @@ export async function updateTrigger(
 }
 
 export async function deleteTrigger(orgId: string, eventId: string, flowId: string, triggerId: string, token: string): Promise<void> {
-    const response = await fetch(`/api/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
+    guardUUID(triggerId);
+    guardUUID(flowId);
+    guardUUID(eventId);
+    guardUUID(orgId);
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,

@@ -11,63 +11,50 @@ import {
     Users,
     Tag,
     Check,
-    Mail, FileText, Clock,
+    Mail,
+    Clock,
     AlertCircle,
     ChevronRight,
     Percent,
     ChevronLeft,
-    Globe,
     LayoutList,
     PencilLine,
-    Bell,
-    Image
+    Image,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Flow } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SelectionCard } from "@/components/selection-card";
+import { Action, ActionType, Flow, Trigger, TriggerType } from "@/lib/backend/types";
 
 const actionTypes = [
     {
-        id: "email",
+        id: ActionType.SendEmail,
         name: "Send Email",
         description: "Send an email notification",
         icon: <Mail className="h-5 w-5" />
     },
     {
-        id: "notification",
-        name: "Send Notification",
-        description: "Send an in-app notification",
-        icon: <Bell className="h-5 w-5" />
-    },
-    {
-        id: "statusChange",
+        id: ActionType.ChangeStatus,
         name: "Change Status",
         description: "Update the event status",
         icon: <Tag className="h-5 w-5" />
     },
     {
-        id: "fileShare",
-        name: "Share File",
-        description: "Change file sharing settings",
-        icon: <FileText className="h-5 w-5" />
-    },
-    {
-        id: "imageChange",
+        id: ActionType.ChangeImage,
         name: "Update Image",
         description: "Change event image",
         icon: <Image className="h-5 w-5" />
     },
     {
-        id: "titleChange",
+        id: ActionType.ChangeTitle,
         name: "Change Title",
         description: "Update event title",
         icon: <LayoutList className="h-5 w-5" />
     },
     {
-        id: "descriptionChange",
+        id: ActionType.ChangeDescription,
         name: "Change Description",
         description: "Update event description",
         icon: <PencilLine className="h-5 w-5" />
@@ -86,40 +73,65 @@ export function AddTriggerDialog({
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onAdd: (triggerType: string, details: any) => void;
+    onAdd: (triggerType: TriggerType, details: any) => void;
     existingFlow?: Flow;
-    itemToEdit?: any;
+    itemToEdit?: Trigger;
 }) {
-    const [triggerType, setTriggerType] = useState<string>("");
+    const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
     const [details, setDetails] = useState<any>({});
-    const [selectedTrigger, setSelectedTrigger] = useState<string>("");
-    const [dateReferenceType, setDateReferenceType] = useState<string>("absolute");
     const [attendeesValueType, setAttendeesValueType] = useState<string>("absolute");
 
     // Check if registration trigger already exists
     const registrationTriggerExists = useMemo(() => {
-        return existingFlow?.trigger.some(t => t.type === "registration" && (!itemToEdit || t.id !== itemToEdit.id));
+        return existingFlow?.triggers?.some(t => t.type === TriggerType.Registration && (!itemToEdit || t.id !== itemToEdit.id));
     }, [existingFlow, itemToEdit]);
+
+    // Trigger types with their icons and descriptions
+    const triggerTypes = [
+        {
+            id: TriggerType.Date,
+            name: "Date & Time",
+            description: "Trigger based on a specific date and time",
+            icon: <Calendar className="h-5 w-5" />
+        },
+        {
+            id: TriggerType.RelativeDate,
+            name: "Relative Date & Time",
+            description: "Trigger based on a relative date and time",
+            icon: <Calendar className="h-5 w-5" />
+        },
+        {
+            id: TriggerType.NumOfAttendees,
+            name: "Attendees Count",
+            description: "Trigger when attendance reaches a certain level",
+            icon: <Users className="h-5 w-5" />
+        },
+        {
+            id: TriggerType.Status,
+            name: "Status Change",
+            description: "Trigger when event status changes",
+            icon: <Tag className="h-5 w-5" />
+        },
+        {
+            id: TriggerType.Registration,
+            name: "New Registration",
+            description: "Trigger when someone registers for the event",
+            icon: <Check className="h-5 w-5" />,
+            disabled: registrationTriggerExists,
+        }
+    ];
 
     // Initialize form when editing an existing trigger
     useEffect(() => {
         if (open && itemToEdit) {
             setTriggerType(itemToEdit.type);
             setDetails(itemToEdit.details || {});
-            
-            // Set specific state based on trigger type
-            if (itemToEdit.type === "date" && itemToEdit.details) {
-                // Determine if relative or absolute date
-                if (itemToEdit.details.reference && itemToEdit.details.direction) {
-                    setDateReferenceType("relative");
-                } else {
-                    setDateReferenceType("absolute");
-                }
-            } else if (itemToEdit.type === "numOfAttendees" && itemToEdit.details) {
+
+            if (itemToEdit.type === TriggerType.NumOfAttendees && itemToEdit.details) {
                 // Determine value type (percentage or absolute)
-                const isPercentage = itemToEdit.details.value <= 100 && 
-                                    (itemToEdit.details.valueType === "percentage" || 
-                                     itemToEdit.details.unit === "%");
+                const isPercentage = itemToEdit.details.value <= 100 &&
+                    (itemToEdit.details.valueType === "percentage" ||
+                        itemToEdit.details.unit === "%");
                 setAttendeesValueType(isPercentage ? "percentage" : "absolute");
             }
         }
@@ -129,61 +141,31 @@ export function AddTriggerDialog({
     useEffect(() => {
         if (!open && !itemToEdit) {
             setTimeout(() => {
-                setTriggerType("");
+                setTriggerType(null);
                 setDetails({});
-                setSelectedTrigger("");
-                setDateReferenceType("absolute");
                 setAttendeesValueType("absolute");
             }, 300); // Small delay to avoid visual glitches during animation
         }
     }, [open, itemToEdit]);
 
     const handleAddTrigger = () => {
+        if (triggerType === null) return;
+
         onAdd(triggerType, details);
         onOpenChange(false);
         // Form will be reset when the dialog closes
     };
 
-    // Trigger types with their icons and descriptions
-    const triggerTypes = [
-        {
-            id: "date",
-            name: "Date & Time",
-            description: "Trigger based on a specific date and time",
-            icon: <Calendar className="h-5 w-5" />
-        },
-        {
-            id: "numOfAttendees",
-            name: "Attendees Count",
-            description: "Trigger when attendance reaches a certain level",
-            icon: <Users className="h-5 w-5" />
-        },
-        {
-            id: "status",
-            name: "Status Change",
-            description: "Trigger when event status changes",
-            icon: <Tag className="h-5 w-5" />
-        },
-        {
-            id: "registration",
-            name: "New Registration",
-            description: "Trigger when someone registers for the event",
-            icon: <Check className="h-5 w-5" />,
-            disabled: registrationTriggerExists
-        }
-    ];
-
     useEffect(() => {
         // Reset details when trigger type changes
         setDetails({});
 
-        // Reset specific state for trigger types
-        if (triggerType === "date") {
-            setDateReferenceType("absolute");
-        } else if (triggerType === "numOfAttendees") {
+        if (triggerType === TriggerType.NumOfAttendees) {
             setAttendeesValueType("absolute");
         }
     }, [triggerType]);
+
+
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -220,14 +202,14 @@ export function AddTriggerDialog({
 
                     {/* Right side - Configuration for selected trigger */}
                     <div className="w-2/3 space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
-                        {!triggerType && (
+                        {triggerType === null && (
                             <div className="flex flex-col items-center justify-center h-[200px] text-center text-muted-foreground">
                                 <AlertCircle className="h-8 w-8 mb-2 text-muted-foreground/70" />
                                 <p>Select a trigger type to configure</p>
                             </div>
                         )}
 
-                        {triggerType && (
+                        {triggerType !== null && (
                             <div className="space-y-4">
                                 <div>
                                     <h3 className="text-lg font-semibold">
@@ -238,17 +220,19 @@ export function AddTriggerDialog({
                                     </p>
                                 </div>
 
+                                {triggerType}
+
                                 <Separator />
 
-                                {triggerType === "date" && (
+                                {(triggerType === TriggerType.Date || triggerType === TriggerType.RelativeDate) && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label>Date Reference</Label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <SelectionCard
-                                                    selected={dateReferenceType === "absolute"}
+                                                    selected={triggerType === TriggerType.Date}
                                                     onClick={() => {
-                                                        setDateReferenceType("absolute");
+                                                        setTriggerType(TriggerType.Date);
                                                         setDetails({});
                                                     }}
                                                     icon={<Calendar className="h-5 w-5" />}
@@ -256,9 +240,9 @@ export function AddTriggerDialog({
                                                     description="Trigger on an exact date"
                                                 />
                                                 <SelectionCard
-                                                    selected={dateReferenceType === "relative"}
+                                                    selected={triggerType === TriggerType.RelativeDate}
                                                     onClick={() => {
-                                                        setDateReferenceType("relative");
+                                                        setTriggerType(TriggerType.RelativeDate);
                                                         setDetails({});
                                                     }}
                                                     icon={<Clock className="h-5 w-5" />}
@@ -268,7 +252,7 @@ export function AddTriggerDialog({
                                             </div>
                                         </div>
 
-                                        {dateReferenceType === "absolute" ? (
+                                        {triggerType === TriggerType.Date ? (
                                             <>
                                                 <div className="space-y-2">
                                                     <Label htmlFor="dateOperator">When should this trigger?</Label>
@@ -399,7 +383,7 @@ export function AddTriggerDialog({
                                     </div>
                                 )}
 
-                                {triggerType === "numOfAttendees" && (
+                                {triggerType === TriggerType.NumOfAttendees && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label>Value Type</Label>
@@ -483,7 +467,7 @@ export function AddTriggerDialog({
                                     </div>
                                 )}
 
-                                {triggerType === "status" && (
+                                {triggerType === TriggerType.Status && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="statusValue">When status changes to</Label>
@@ -526,7 +510,7 @@ export function AddTriggerDialog({
                                     </div>
                                 )}
 
-                                {triggerType === "registration" && (
+                                {triggerType === TriggerType.Registration && (
                                     <div className="bg-muted/50 p-4 rounded-lg border">
                                         <div className="flex items-center gap-3">
                                             <div className="bg-primary/10 p-2 rounded">
@@ -556,7 +540,7 @@ export function AddTriggerDialog({
 
                 <DialogFooter className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                        {triggerType && `Adding a ${triggerTypes.find(t => t.id === triggerType)?.name} trigger`}
+                        {triggerType !== null && `Adding a ${triggerTypes.find(t => t.id === triggerType)?.name} trigger`}
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -565,11 +549,11 @@ export function AddTriggerDialog({
                         <Button
                             onClick={handleAddTrigger}
                             disabled={
-                                !triggerType ||
-                                (triggerType !== "registration" && Object.keys(details).length === 0) ||
-                                (triggerType === "date" && dateReferenceType === "absolute" && (!details.operator || !details.value)) ||
-                                (triggerType === "date" && dateReferenceType === "relative" && (!details.reference || !details.direction || !details.amount || !details.unit)) ||
-                                (triggerType === "numOfAttendees" && (!details.operator || details.value === undefined))
+                                triggerType === null ||
+                                (triggerType !== TriggerType.Registration && Object.keys(details).length === 0) ||
+                                (triggerType === TriggerType.Date && (!details.operator || !details.value)) ||
+                                (triggerType === TriggerType.RelativeDate && (!details.reference || !details.direction || !details.amount || !details.unit)) ||
+                                (triggerType === TriggerType.NumOfAttendees && (!details.operator || details.value === undefined))
                             }
                         >
                             Add Trigger
@@ -591,24 +575,23 @@ export function AddActionDialog({
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onAdd: (actionType: string, details: any) => void;
+    onAdd: (actionType: ActionType, details: any) => void;
     existingFlow?: Flow;
-    itemToEdit?: any;
+    itemToEdit?: Action | undefined | null;
 }) {
-    const [actionType, setActionType] = useState<string>("");
+    const [actionType, setActionType] = useState<ActionType | null>(null);
     const [details, setDetails] = useState<any>({});
     const [emailRecipientType, setEmailRecipientType] = useState<string>("specific");
-    const [notificationRecipientType, setNotificationRecipientType] = useState<string>("specific");
-    const [availableTriggerVariables, setAvailableTriggerVariables] = useState<{ id: string, type: string, label: string, variables?: string[] }[]>([]);
+    const [availableTriggerVariables, setAvailableTriggerVariables] = useState<{ id: string, type: TriggerType, label: string, variables?: string[] }[]>([]);
     const [activeTab, setActiveTab] = useState<string>("");
 
     // Parse existing triggers to create available variables
     useEffect(() => {
-        if (existingFlow?.trigger) {
-            const variables = existingFlow.trigger.map(trigger => {
+        if (existingFlow?.triggers) {
+            const variables = existingFlow.triggers.map(trigger => {
                 let label = '';
                 switch (trigger.type) {
-                    case 'registration':
+                    case TriggerType.Registration:
                         label = 'New Registered User';
                         return {
                             id: trigger.id,
@@ -616,21 +599,22 @@ export function AddActionDialog({
                             label: label,
                             variables: ['email', 'name', 'userId']
                         };
-                    case 'date':
+                    case TriggerType.Date:
+                    case TriggerType.RelativeDate:
                         label = 'Date Trigger';
                         return {
                             id: trigger.id,
                             type: trigger.type,
                             label: label
                         };
-                    case 'numOfAttendees':
+                    case TriggerType.NumOfAttendees:
                         label = 'Attendees Count Trigger';
                         return {
                             id: trigger.id,
                             type: trigger.type,
                             label: label
                         };
-                    case 'status':
+                    case TriggerType.Status:
                         label = 'Status Change Trigger';
                         return {
                             id: trigger.id,
@@ -649,15 +633,15 @@ export function AddActionDialog({
         }
     }, [existingFlow]);
 
-    // Initialize form when editing an existing action
+    // Initialize form when editing an existing action6
     useEffect(() => {
         if (open && itemToEdit) {
             setActionType(itemToEdit.type);
             setDetails(itemToEdit.details || {});
             setActiveTab("config");
-            
+
             // Set recipient type based on action details
-            if (itemToEdit.type === "email") {
+            if (itemToEdit.type === ActionType.SendEmail) {
                 if (typeof itemToEdit.details?.recipients === 'string') {
                     if (itemToEdit.details.recipients.includes('trigger.')) {
                         setEmailRecipientType("registeredUser");
@@ -665,19 +649,6 @@ export function AddActionDialog({
                         setEmailRecipientType("allUsers");
                     } else {
                         setEmailRecipientType("specific");
-                    }
-                }
-            } else if (itemToEdit.type === "notification") {
-                if (Array.isArray(itemToEdit.details?.recipients)) {
-                    if (itemToEdit.details.recipients.length > 0 && 
-                        typeof itemToEdit.details.recipients[0] === 'string' && 
-                        itemToEdit.details.recipients[0].includes('trigger.')) {
-                        setNotificationRecipientType("registeredUser");
-                    } else if (itemToEdit.details.recipients.length > 0 && 
-                             itemToEdit.details.recipients[0] === 'all.users') {
-                        setNotificationRecipientType("allUsers");
-                    } else {
-                        setNotificationRecipientType("specific");
                     }
                 }
             }
@@ -689,10 +660,9 @@ export function AddActionDialog({
         if (!open && !itemToEdit) {
             // Reset all states when dialog is closed
             setTimeout(() => {
-                setActionType("");
+                setActionType(null);
                 setDetails({});
                 setEmailRecipientType("specific");
-                setNotificationRecipientType("specific");
                 setActiveTab("");
             }, 300); // Small delay to avoid visual glitches during animation
         }
@@ -707,7 +677,6 @@ export function AddActionDialog({
 
             // Reset recipient types
             setEmailRecipientType("specific");
-            setNotificationRecipientType("specific");
         }
 
         // Set active tab based on action type
@@ -725,10 +694,12 @@ export function AddActionDialog({
     };
 
     const handleAddAction = () => {
+        if (actionType === null) return;
+
         // Prepare the details based on recipient types for email and notification
         let finalDetails = { ...details };
 
-        if (actionType === "email") {
+        if (actionType === ActionType.SendEmail) {
             if (emailRecipientType === "registeredUser" && details.selectedTriggerId) {
                 finalDetails.recipients = `trigger.${details.selectedTriggerId}.user.email`;
             } else if (emailRecipientType === "allUsers") {
@@ -737,22 +708,13 @@ export function AddActionDialog({
             // For specific emails, use the existing recipients
         }
 
-        if (actionType === "notification") {
-            if (notificationRecipientType === "registeredUser" && details.selectedTriggerId) {
-                finalDetails.recipients = [`trigger.${details.selectedTriggerId}.user.id`];
-            } else if (notificationRecipientType === "allUsers") {
-                finalDetails.recipients = ["all.users"];
-            }
-            // For specific users, use the existing recipients
-        }
-
         onAdd(actionType, finalDetails);
         onOpenChange(false);
     };
 
     // Helper to check if a registration trigger exists
     const hasRegistrationTrigger = useMemo(() => {
-        return availableTriggerVariables.some(v => v.type === 'registration');
+        return availableTriggerVariables.some(v => v.type === TriggerType.Registration);
     }, [availableTriggerVariables]);
 
     return (
@@ -768,7 +730,7 @@ export function AddActionDialog({
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="my-2">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="" onClick={handleBackToActionTypes}>Choose Action Type</TabsTrigger>
-                        <TabsTrigger value="config" disabled={!actionType}>Configure Action</TabsTrigger>
+                        <TabsTrigger value="config" disabled={actionType === null}>Configure Action</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="" className="py-4">
@@ -818,7 +780,7 @@ export function AddActionDialog({
                         </div>
 
                         <ScrollArea className="max-h-[calc(100vh-370px)] overflow-auto">
-                            {actionType === "email" && (
+                            {actionType === ActionType.SendEmail && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="emailSubject">Email Subject</Label>
@@ -865,9 +827,9 @@ export function AddActionDialog({
                                                         setEmailRecipientType("registeredUser");
 
                                                         // If there's only one registration trigger, select it automatically
-                                                        const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
+                                                        const registrationTriggers = availableTriggerVariables.filter(v => v.type === TriggerType.Registration);
                                                         if (registrationTriggers.length === 1) {
-                                                            setDetails((prev: any)=> ({ ...prev, selectedTriggerId: registrationTriggers[0].id }));
+                                                            setDetails((prev: any) => ({ ...prev, selectedTriggerId: registrationTriggers[0].id }));
                                                         }
                                                     }}
                                                     title="New Registered User"
@@ -904,12 +866,12 @@ export function AddActionDialog({
                                                 </div>
                                             )}
 
-                                            {emailRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === 'registration').length > 1 && (
+                                            {emailRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === TriggerType.Registration).length > 1 && (
                                                 <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
                                                     <Label htmlFor="triggerSelect" className="text-sm font-medium mb-2 block">Select registration trigger</Label>
                                                     <div className="grid grid-cols-1 gap-2">
                                                         {availableTriggerVariables
-                                                            .filter(v => v.type === 'registration')
+                                                            .filter(v => v.type === TriggerType.Registration)
                                                             .map(trigger => (
                                                                 <SelectionCard
                                                                     key={trigger.id}
@@ -928,117 +890,7 @@ export function AddActionDialog({
                                 </div>
                             )}
 
-                            {actionType === "notification" && (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="notificationMessage">Notification Message</Label>
-                                        <Textarea
-                                            id="notificationMessage"
-                                            value={details.message || ""}
-                                            onChange={(e) => setDetails({ ...details, message: e.target.value })}
-                                            placeholder="Enter notification message"
-                                            className="min-h-[120px]"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>Recipients</Label>
-                                        <div className={
-                                            cn(
-                                                "grid grid-cols-1 sm:grid-cols-2 gap-2",
-                                                hasRegistrationTrigger && "md:grid-cols-3"
-                                            )
-                                        }>
-                                            <SelectionCard
-                                                selected={notificationRecipientType === "specific"}
-                                                onClick={() => {
-                                                    setNotificationRecipientType("specific");
-                                                }}
-                                                title="Specific User IDs"
-                                                description="Send to individual users you specify"
-                                                icon={<Users className="h-5 w-5" />}
-                                            />
-
-
-                                            {hasRegistrationTrigger && (
-                                                <SelectionCard
-                                                    selected={notificationRecipientType === "registeredUser"}
-                                                    onClick={() => {
-                                                        setNotificationRecipientType("registeredUser");
-
-                                                        // If there's only one registration trigger, select it automatically
-                                                        const registrationTriggers = availableTriggerVariables.filter(v => v.type === 'registration');
-                                                        if (registrationTriggers.length === 1) {
-                                                            setDetails((prev: any) => ({ ...details, selectedTriggerId: registrationTriggers[0].id }));
-                                                        }
-                                                    }}
-                                                    title="New Registered User"
-                                                    description="Send to the user who just registered"
-                                                    icon={<Check className="h-5 w-5" />}
-                                                />
-                                            )}
-
-                                            {notificationRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === 'registration').length > 1 && (
-                                                <div className="px-4 py-2 bg-muted/50 rounded-md ml-4 border-l-2 border-primary/30">
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="notificationTriggerSelect">Select registration trigger</Label>
-                                                        <div className="grid grid-cols-1 gap-2">
-                                                            {availableTriggerVariables
-                                                                .filter(v => v.type === 'registration')
-                                                                .map(trigger => (
-                                                                    <SelectionCard
-                                                                        key={trigger.id}
-                                                                        selected={details.selectedTriggerId === trigger.id}
-                                                                        onClick={() => setDetails({ ...details, selectedTriggerId: trigger.id })}
-                                                                        title={trigger.label}
-                                                                        description={`Trigger ID: ${trigger.id}`}
-                                                                    />
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <SelectionCard
-                                                selected={notificationRecipientType === "allUsers"}
-                                                onClick={() => {
-                                                    setNotificationRecipientType("allUsers");
-                                                }}
-                                                title="All Event Users"
-                                                description="Send to all users registered for the event"
-                                                icon={<Users className="h-5 w-5" />}
-                                            />
-
-
-                                        </div>
-
-                                        <div className="mt-3">
-                                        {notificationRecipientType === "specific" && (
-
-                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
-                                                    <Label htmlFor="emailRecipients" className="text-sm font-medium mb-2 block">Users</Label>
-                                                    <Input
-                                                        id="notificationRecipients"
-                                                        value={details.recipients ? (Array.isArray(details.recipients) ? details.recipients.join(", ") : details.recipients) : ""}
-                                                        onChange={(e) => setDetails({
-                                                            ...details,
-                                                            recipients: e.target.value.split(",").map((item: string) => item.trim())
-                                                        })}
-                                                        placeholder="Enter user IDs, separated by commas"
-                                                    />
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Enter user IDs separated by commas
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {actionType === "statusChange" && (
+                            {actionType === ActionType.ChangeStatus && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="statusValue">Change Event Status To</Label>
@@ -1081,46 +933,8 @@ export function AddActionDialog({
                                 </div>
                             )}
 
-                            {actionType === "fileShare" && (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fileId">File ID</Label>
-                                        <Input
-                                            id="fileId"
-                                            value={details.fileId || ""}
-                                            onChange={(e) => setDetails({ ...details, fileId: e.target.value })}
-                                            placeholder="Enter file ID"
-                                        />
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            The ID of the file to modify sharing permissions for
-                                        </p>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fileStatus">Share Status</Label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <SelectionCard
-                                                selected={details.status === "private"}
-                                                onClick={() => setDetails({ ...details, status: "private" })}
-                                                title="Private"
-                                                description="Only invited users can access"
-                                                icon={<FileText className="h-5 w-5" />}
-                                            />
-                                            <SelectionCard
-                                                selected={details.status === "public"}
-                                                onClick={() => setDetails({ ...details, status: "public" })}
-                                                title="Public"
-                                                description="Anyone can access"
-                                                icon={<Globe className="h-5 w-5" />}
-                                            />
-                                        </div>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            The access level for the file
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
 
-                            {actionType === "imageChange" && (
+                            {actionType === ActionType.ChangeImage && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="newImage">New Image URL</Label>
@@ -1137,7 +951,7 @@ export function AddActionDialog({
                                 </div>
                             )}
 
-                            {actionType === "titleChange" && (
+                            {actionType === ActionType.ChangeTitle && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="newTitle">New Event Title</Label>
@@ -1154,7 +968,7 @@ export function AddActionDialog({
                                 </div>
                             )}
 
-                            {actionType === "descriptionChange" && (
+                            {actionType === ActionType.ChangeDescription && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="newDescription">New Event Description</Label>
@@ -1188,14 +1002,11 @@ export function AddActionDialog({
                                 onClick={handleAddAction}
                                 disabled={
                                     (emailRecipientType === "registeredUser" && !details.selectedTriggerId) ||
-                                    (notificationRecipientType === "registeredUser" && !details.selectedTriggerId) ||
-                                    (actionType === "email" && (!details.subject || !details.body)) ||
-                                    (actionType === "notification" && !details.message) ||
-                                    (actionType === "statusChange" && !details.newStatus) ||
-                                    (actionType === "fileShare" && (!details.fileId || !details.status)) ||
-                                    (actionType === "imageChange" && !details.newImage) ||
-                                    (actionType === "titleChange" && !details.newTitle) ||
-                                    (actionType === "descriptionChange" && !details.newDescription)
+                                    (actionType === ActionType.SendEmail && (!details.subject || !details.body)) ||
+                                    (actionType === ActionType.ChangeStatus && !details.newStatus) ||
+                                    (actionType === ActionType.ChangeImage && !details.newImage) ||
+                                    (actionType === ActionType.ChangeTitle && !details.newTitle) ||
+                                    (actionType === ActionType.ChangeDescription && !details.newDescription)
                                 }
                             >
                                 Add Action
