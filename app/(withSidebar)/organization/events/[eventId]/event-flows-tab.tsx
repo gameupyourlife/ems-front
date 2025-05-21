@@ -337,14 +337,14 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                                         {template.description || "No description provided"}
                                                                     </p>
                                                                     <div className="flex flex-wrap gap-2 mt-2">
-                                                                        {template.triggers?.length > 0 && (
+                                                                        {(template.triggers?.length || 0) > 0 && (
                                                                             <Badge variant="outline" className="bg-background text-xs">
-                                                                                {template.triggers.length} {template.triggers.length === 1 ? 'Trigger' : 'Triggers'}
+                                                                                {template.triggers?.length} {template.triggers?.length === 1 ? 'Trigger' : 'Triggers'}
                                                                             </Badge>
                                                                         )}
-                                                                        {template.actions?.length > 0 && (
+                                                                        {(template.actions?.length || 0) > 0 && (
                                                                             <Badge variant="outline" className="bg-background text-xs">
-                                                                                {template.actions.length} {template.actions.length === 1 ? 'Action' : 'Actions'}
+                                                                                {template.actions?.length} {template.actions?.length === 1 ? 'Action' : 'Actions'}
                                                                             </Badge>
                                                                         )}
                                                                     </div>

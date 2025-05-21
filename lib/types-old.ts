@@ -7,7 +7,7 @@ export interface EventInfo {
     location: string,
     description: string,
     category: string,
-    attendees: number,
+    attendeeCount: number,
     capacity: number,
     image: string,
     status: number,
@@ -134,6 +134,8 @@ const dateCondition : TypeSafeCondition<"date"> = {
 };
 
 
+// Action types
+export type ActionType = "email" | "notification" | "statusChange" | "fileShare" | "imageChange" | "titleChange" | "descriptionChange";
 
 export interface EmailActionDetails {
     subject: string;
@@ -197,6 +199,7 @@ export interface Flow {
 }
 
 export interface EventDetails {
+    start: Date;
     metadata: EventInfo;
     organization: Organization;
     attendees: User[];
@@ -275,4 +278,24 @@ export enum EventStatus {
   POSTPONED  = "POSTPONED",
   DELAYED    = "DELAYED",
   ARCHIVED   = "ARCHIVED",
+}
+
+export interface RegisterAttendeeParams {
+  orgId: string
+  eventId: string
+  userId: string
+  profilePicture: string
+  token: string
+}
+export interface DeleteAttendeeParams {
+  orgId: string
+  eventId: string
+  userId: string
+  token: string
+}
+
+export interface DeleteEvent{
+    orgId: string
+    eventId: string
+    token: string
 }

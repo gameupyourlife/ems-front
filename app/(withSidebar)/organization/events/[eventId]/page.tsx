@@ -34,8 +34,8 @@ import {
 import EventOverviewTab from "./event-overview-tab";
 import EventFlowsTab from "./event-flows-tab";
 import EventAgendaTab from "./event-agenda-tab";
-import EventAttendeesTab from "./event-attendees-tab";
 import EventEmailsTab from "./event-emails-tab";
+import EventAttendeesTab from "./event-attendees-tab";
 
 
 export default function EventDetailsPage() {
@@ -67,7 +67,7 @@ export default function EventDetailsPage() {
   };
 
   // Calculate attendance percentage
-  const attendancePercentage = Math.round((event.attendees / event.capacity) * 100);
+  const attendancePercentage = Math.round((event.attendeeCount / event.capacity) * 100);
 
   // Function to get appropriate status badge
   const getStatusBadge = (status: string) => {
@@ -124,7 +124,7 @@ export default function EventDetailsPage() {
               <DropdownMenuItem asChild>
                 <Link href={`/organization/events/${eventId}/invite`}>
                   <Mail className="mr-2 h-4 w-4" />
-                  Invite Attendees
+                  Invite attendeeCount
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -153,7 +153,7 @@ export default function EventDetailsPage() {
               </Badge>
               <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                 <Users className="mr-1 h-3 w-3" />
-                {event.attendees} / {event.capacity} attendees
+                {event.attendeeCount} / {event.capacity} attendeeCount
               </Badge>
               <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                 <MapPin className="mr-1 h-3 w-3" />
@@ -196,7 +196,7 @@ export default function EventDetailsPage() {
             <span>Mails</span>
           </TabsTrigger>
           <TabsTrigger
-            value="attendees"
+            value="attendeeCount"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <UsersIcon className="h-4 w-4" />
@@ -219,8 +219,8 @@ export default function EventDetailsPage() {
           <EventAgendaTab eventDetails={eventDetails} />
         </TabsContent>
 
-        {/* Attendees Tab */}
-        <TabsContent value="attendees" className="space-y-6">
+        {/* attendeeCount Tab */}
+        <TabsContent value="attendeeCount" className="space-y-6">
           <EventAttendeesTab eventDetails={eventDetails} />
         </TabsContent>
 
