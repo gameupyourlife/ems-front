@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Plus, BarChart3, Zap, Info, ExternalLink, Play } from "lucide-react";
 import FlowTable from "@/components/org/flows/flow-table";
 import { Badge } from "@/components/ui/badge";
-import { getTriggerIcon } from "@/lib/flows/utils";
+import { getActionTitle, getTriggerIcon, getTriggerTitle } from "@/lib/flows/utils";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { useOrgFlowTemplates } from "@/lib/backend/hooks/org-flows";
@@ -151,7 +151,7 @@ export default function FlowsOverview() {
                         {getTriggerIcon(type as unknown as TriggerType)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium capitalize">{type}</p>
+                        <p className="text-sm font-medium capitalize">{getTriggerTitle(Number(type))}</p>
                         <p className="text-xs text-muted-foreground">Trigger type</p>
                       </div>
                     </div>
@@ -177,7 +177,7 @@ export default function FlowsOverview() {
                         <Info className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium capitalize">{type}</p>
+                        <p className="text-sm font-medium capitalize">{getActionTitle(Number(type))}</p>
                         <p className="text-xs text-muted-foreground">Action type</p>
                       </div>
                     </div>

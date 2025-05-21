@@ -58,11 +58,11 @@ import {
     CommandSeparator
 } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ActionType, FlowOverviewDto, FlowTemplateResponseDto, TriggerType } from "@/lib/backend/types";
-import { getActionIcon, getTriggerIcon } from "@/lib/flows/utils";
+import { ActionType, Flow, TriggerType } from "@/lib/backend/types";
+import { getActionIcon, getActionTitle, getTriggerIcon, getTriggerTitle } from "@/lib/flows/utils";
 
 interface FlowTableProps {
-    flows: FlowOverviewDto[] | FlowTemplateResponseDto[];
+    flows: Flow[];
 }
 
 export default function FlowTable({ flows }: FlowTableProps) {
@@ -86,7 +86,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     ));
 
     // Define the columns for the table
-    const columns: ColumnDef<FlowOverviewDto | FlowTemplateResponseDto>[] = [
+    const columns: ColumnDef<Flow>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -147,11 +147,11 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                     <TooltipTrigger asChild>
                                         <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
                                             {getTriggerIcon(trigger.type)}
-                                            <span className="capitalize">{trigger.type}</span>
+                                            <span className="capitalize">{getTriggerTitle(trigger.type)}</span>
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        {/* {trigger.details ?
+                                        {trigger.details ?
                                             <div className="text-xs">
                                                 {Object.entries(trigger.details).map(([key, value]) => (
                                                     <div key={key}>
@@ -161,7 +161,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                             </div>
                                             :
                                             <span className="text-xs">No additional details</span>
-                                        } */}
+                                        }
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -189,11 +189,11 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                     <TooltipTrigger asChild>
                                         <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
                                             {getActionIcon(action.type)}
-                                            <span className="capitalize">{action.type}</span>
+                                            <span className="capitalize">{getActionTitle(action.type)}</span>
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        {/* {action.details ?
+                                        {action.details ?
                                             <div className="text-xs">
                                                 {Object.entries(action.details).map(([key, value]) => (
                                                     <div key={key}>
@@ -203,7 +203,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                             </div>
                                             :
                                             <span className="text-xs">No additional details</span>
-                                        } */}
+                                        }
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -247,8 +247,9 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 </Button>
             ),
             cell: ({ row }) => {
+                console.log(row.original.updatedAt)
                 const date = new Date(row.original.updatedAt || Date.now());
-                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{row.original.updatedAt == "0001-01-01T00:00:00" ? "-" : format(date, "MMM dd, yyyy")}</div>;
             },
             sortingFn: "datetime",
         },
@@ -257,7 +258,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
             header: "Options",
             cell: ({ row }) => {
                 const flow = row.original;
-                const id = 'id' in flow ? flow.id : flow.flowTemplateId;
+                const id = flow.id;
 
                 return (
                     <div className="flex justify-end">
