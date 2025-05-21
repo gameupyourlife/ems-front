@@ -1,5 +1,5 @@
 "use client";;
-import { EventDetails } from '../types';
+import { EventDetails, EventInfo } from '../types';
 import { components } from './types';
 import { guardUUID } from './utils';
 
@@ -83,6 +83,27 @@ export async function getEventsByCreator(orgId: string, userId: string, token: s
 
         const basicData : EventDetails[] = await response.json();
         return basicData;
+    } catch (err) {
+        console.error(err);
+        throw new Error('Failed to fetch event details');
+    }
+}
+
+export async function getEventsById(orgId: string, eventId: string, token: string): Promise<EventDetails> {
+    guardUUID(orgId);
+    guardUUID(eventId);
+
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+        });
+
+        const data = (await response.json()) as EventDetails;
+        return data;
     } catch (err) {
         console.error(err);
         throw new Error('Failed to fetch event details');

@@ -1,53 +1,45 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getEventById } from "@/lib/api/getEvents"
-import type { EventInfo } from "@/lib/types"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, Users, ArrowLeft, Share2 } from "lucide-react"
+import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
+import { Calendar, Clock, MapPin, Users, ArrowLeft, Share2, Loader2 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { useSession } from "next-auth/react"
+import type { EventInfo } from "@/lib/types"
+import { useEventsById} from "@/lib/backend/hooks/events"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
   const router = useRouter()
-  const { data: session } = useSession();
-    const token = session?.user?.jwt;
-    const orgId = session?.user?.organization.id; 
+  const { data: session } = useSession()
+  const token = session?.user?.jwt || ""
+  const orgId = session?.user?.organization?.id || ""
 
-  const [event, setEvent] = useState<EventInfo | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    data: eventData,
+    isLoading,
+    error,
+  } = useEventsById(orgId, String(eventId), token)
 
-  useEffect(() => {
-    if (!eventId || typeof eventId !== "string") return
-
-    async function loadEvent() {
-      try {
-        setIsLoading(true)
-        const single = await getEventById(orgId as string, eventId as string)
-        setEvent(single)
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadEvent()
-  }, [eventId])
+  // Extract single event if hook returns array
+  const event: EventInfo | null = Array.isArray(eventData)
+    ? eventData[0] ?? null
+    : (eventData as unknown as EventInfo) || null
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-20 text-center">
-        <div className="text-muted-foreground mb-4">Lade Event …</div>
-        <Button variant="outline" onClick={() => router.back()}>
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-muted-foreground">Lade Event-Details...</div>
+        </div>
+        <Button variant="outline" onClick={() => router.back()} className="mt-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
         </Button>
       </div>
@@ -57,7 +49,9 @@ export default function EventDetailPage() {
   if (error || !event) {
     return (
       <div className="container mx-auto py-20 text-center">
-        <div className="text-red-500 mb-4">{error || "Event nicht gefunden"}</div>
+        <div className="text-red-500 mb-4 font-medium">
+          {error?.message || "Event nicht gefunden"}
+        </div>
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
         </Button>
@@ -65,28 +59,30 @@ export default function EventDetailPage() {
     )
   }
 
-  const formatDate = (date: Date) => format(date, "EEEE, d. MMMM yyyy", { locale: de })
-  const formatTime = (date: Date) => format(date, "HH:mm", { locale: de })
+  const formatDate = (date: Date) =>
+    format(new Date(date), "EEEE, d. MMMM yyyy", { locale: de })
+  const formatTime = (date: Date) => format(new Date(date), "HH:mm", { locale: de })
+
   const getStatusBadge = (status: number | string) => {
-  const st = typeof status === 'string' ? parseInt(status, 10) : status;
-  switch (st) {
-    case 0:
-      return <Badge className="bg-white text-black">Geplant</Badge>;
-    case 1:
-      return <Badge className="bg-green-500 text-white">Läuft</Badge>;
-    case 2:
-      return <Badge className="bg-white text-black">Abgeschlossen</Badge>;
-    case 3:
-      return <Badge className="bg-red-500 text-white">Abgesagt</Badge>;
-    case 4:
-      return <Badge className="bg-orange-500 text-white">Verschoben</Badge>;
-    case 5:
-      return <Badge className="bg-gray-500 text-white">Archiviert</Badge>;
-    default:
-      return <Badge className="bg-white text-black">Unbekannt</Badge>;
+    const st = typeof status === "string" ? Number.parseInt(status, 10) : status
+    switch (st) {
+      case 0:
+        return <Badge className="bg-white text-black">Geplant</Badge>
+      case 1:
+        return <Badge className="bg-green-500 text-white">Läuft</Badge>
+      case 2:
+        return <Badge className="bg-white text-black">Abgeschlossen</Badge>
+      case 3:
+        return <Badge className="bg-red-500 text-white">Abgesagt</Badge>
+      case 4:
+        return <Badge className="bg-orange-500 text-white">Verschoben</Badge>
+      case 5:
+        return <Badge className="bg-gray-500 text-white">Archiviert</Badge>
+      default:
+        return <Badge className="bg-white text-black">Unbekannt</Badge>
+    }
   }
-}
- 
+
   return (
     <main className="container mx-auto py-8 px-4 md:px-6">
       <div className="mb-6">
@@ -96,23 +92,31 @@ export default function EventDetailPage() {
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-3xl md:text-4xl font-bold">{event.title}</h1>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {getStatusBadge(event.status)}
-            <Badge className="bg-primary text-primary-foreground font-bold" variant="outline">{event.category}</Badge>
+            <Badge className="bg-primary text-primary-foreground font-bold" variant="outline">
+              {event.category}
+            </Badge>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
-          <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden">
-            <Image
-              src={event.image || "/placeholder.svg"}
-              alt={event.title}
-              fill
-              className="object-cover"
-              priority
-            />
+          <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden bg-muted">
+            {event.image ? (
+              <Image
+                src={event.image || "/placeholder.svg"}
+                alt={event.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Kein Bild verfügbar
+              </div>
+            )}
           </div>
 
           <div>
@@ -163,7 +167,7 @@ export default function EventDetailPage() {
                     <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <h3 className="font-medium">Ort</h3>
-                      <p>{event.location}</p>
+                      <p>{event.location || "Kein Ort angegeben"}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -203,7 +207,9 @@ export default function EventDetailPage() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-4">Ersteller</h3>
-              <p className="text-muted-foreground">{event.creatorName || "Keine Informationen zum Veranstalter"}</p>
+              <p className="text-muted-foreground">
+                {event.creatorName || "Keine Informationen zum Veranstalter"}
+              </p>
             </CardContent>
           </Card>
 
@@ -213,12 +219,18 @@ export default function EventDetailPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Erstellt am:</span>
-                  <span>{format(event.createdAt, "dd.MM.yyyy")}</span>
+                  <span>{format(new Date(event.createdAt), "dd.MM.yyyy")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Aktualisiert am:</span>
-                  <span>{format(event.updatedAt, "dd.MM.yyyy")}</span>
+                  <span>{format(new Date(event.updatedAt), "dd.MM.yyyy")}</span>
                 </div>
+                {event.organization && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Organisation:</span>
+                    <span>{event.organization}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
