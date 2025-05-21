@@ -199,6 +199,7 @@ export interface Flow {
 }
 
 export interface EventDetails {
+    start: Date;
     metadata: EventInfo;
     organization: Organization;
     attendees: User[];

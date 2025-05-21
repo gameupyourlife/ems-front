@@ -7,15 +7,16 @@ import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import EventTable from "@/components/org/event-table";
 import { useSession } from "next-auth/react";
-import { useEvents } from "@/lib/backend/hooks/events";
+import { useEventsByCreator } from "@/lib/backend/hooks/events";
 
 export default function OrganizationEventsPage() {
   const router = useRouter()
   const { data: session } = useSession();
   const token = session?.user?.jwt;
   const orgId = session?.user?.organization.id;
+  const creatorId = session?.user?.id;
 
-  const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
+  const { data: events, isLoading, error } = useEventsByCreator(orgId || "", creatorId || "", token || "");
 
   if (!events) {
     return (
@@ -62,7 +63,7 @@ export default function OrganizationEventsPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Events Management</h1>
-          <p className="text-muted-foreground">Manage all events for org {orgId}</p>
+          <p className="text-muted-foreground">Hier findest du alle Events, die du erstellt hast.</p>
         </div>
         <Button size="sm" asChild>
           <Link href={`/organization/${orgId}/events/create`}>

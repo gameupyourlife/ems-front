@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { EventDetails, EventInfo } from '@/lib/types';
-import { getEventDetails, getEvents } from '../events';
+import { getEventDetails, getEvents, getEventsByCreator } from '../events';
 
 /**
  * TanStack Query hook for fetching events for an organization
@@ -31,6 +31,19 @@ export function useEventDetails(
     return useQuery({
         queryKey: ['eventDetails', eventId, token],
         queryFn: () => getEventDetails(eventId, token),
+        ...options,
+    });
+}
+
+export function useEventsByCreator(
+    orgId: string,
+    userId: string,
+    token: string,
+    options?: Omit<UseQueryOptions<EventDetails[], Error>, 'queryKey' | 'queryFn'>
+) {
+    return useQuery({
+        queryKey: ['eventsByCreator', orgId, userId, token],
+        queryFn: () => getEventsByCreator(orgId, userId, token),
         ...options,
     });
 }

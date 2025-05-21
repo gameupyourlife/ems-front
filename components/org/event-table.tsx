@@ -66,7 +66,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
-import { useEvents } from "@/lib/backend/hooks/events";
+import { useEvents, useEventsByCreator } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 
 interface EventTableProps {
@@ -88,8 +88,9 @@ export default function EventTable({ }: EventTableProps) {
 
     const token = session?.user?.jwt;
     const orgId = session?.user?.organization.id;
+    const userId = session?.user?.id;
 
-    const { data: rawEvents, isLoading, error } = useEvents(orgId || "", token || "");
+    const { data: rawEvents, isLoading, error } = useEventsByCreator(orgId || "", userId || "", token || "");
 
 
     const events: EventInfo[] = rawEvents?.map((event: any) => {
@@ -110,7 +111,7 @@ export default function EventTable({ }: EventTableProps) {
             organization: "",
             category: event.category!,
             attendees: event.attendeeCount!,
-            capacity: 500,
+            capacity: event.capacity!,
             image: "",
 
         }

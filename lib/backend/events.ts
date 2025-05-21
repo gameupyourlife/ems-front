@@ -68,3 +68,23 @@ async function getEventFlows(eventId: string, token: string): Promise<EventBasic
     }
 }
 
+export async function getEventsByCreator(orgId: string, userId: string, token: string): Promise<EventDetails[]> {
+    guardUUID(orgId);
+    guardUUID(userId);
+
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/creator/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+        });
+
+        const basicData : EventDetails[] = await response.json();
+        return basicData;
+    } catch (err) {
+        console.error(err);
+        throw new Error('Failed to fetch event details');
+    }
+}
