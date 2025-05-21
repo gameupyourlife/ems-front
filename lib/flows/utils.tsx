@@ -20,7 +20,6 @@ import { ActionType, TriggerType } from '@/lib/backend/types';
 
 // Get appropriate icon for trigger types
 export function getTriggerIcon(type: TriggerType) {
-    console.log("=== getTriggerIcon", type);
     switch (type) {
         case TriggerType.Date || TriggerType.RelativeDate:
             return <Calendar className="h-4 w-4" />;
@@ -171,8 +170,9 @@ export function getActionTitle(type: ActionType): string {
 export function getTriggerTitle(type: TriggerType): string {
     switch (type) {
         case TriggerType.Date:
-        case TriggerType.RelativeDate:
             return 'Date & Time';
+        case TriggerType.RelativeDate:
+            return 'Relative Date & Time';
         case TriggerType.NumOfAttendees:
             return 'Attendees Count';
         case TriggerType.Status:

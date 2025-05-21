@@ -4,47 +4,114 @@ import { toast } from "sonner";
 import { ArrowLeft, SaveIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FlowForm } from "@/components/org/flows/flow-form";
-import { Flow } from "@/lib/types-old";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
+import { Flow } from "@/lib/backend/types";
+import { useSession } from "next-auth/react";
+import { createOrgFlowTemplate, createOrgFlowTemplateAction, createOrgFlowTemplateTrigger } from "@/lib/backend/org-flows";
 
 export default function CreateFlowPage() {
     const router = useRouter();
+    const { data: session } = useSession();
 
     // Initialize with a new empty flow template
     const [isCreating, setIsCreating] = useState(true);
 
     // Create a new empty flow template
     const emptyFlow: Flow = {
-        templateId: "1",
-        eventId: "event-123", // This would come from the auth context in a real app
         id: "",
         name: "",
         description: "",
-        trigger: [],
+        triggers: [],
         actions: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        createdBy: "current-user", // This would come from auth in a real app
-        updatedBy: "current-user"  // This would come from auth in a real app
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: session?.user?.id || "Unbekannt",
+        updatedBy: session?.user?.id || "Unbekannt",
+        existInDb: false,
+        isTemplate: true,
+
+        isActive: false,
+        multipleRuns: false,
+        stillPending: false,
     };
 
     // Function to handle flow creation
-    const handleCreateFlow = (flow: Flow) => {
+    const handleCreateFlow = async (flow: Flow) => {
         // In a real app, you would make an API call here
 
-        // Simulate a successful creation
-        setIsCreating(false);
+        try {
+            const createdFlow = await createOrgFlowTemplate(
+                session?.user?.organization?.id || "",
+                {
+                    createdBy: flow.createdBy,
+                    description: flow.description || "",
+                    name: flow.name,
+                    createdAt: flow.createdAt,
+                    updatedAt: flow.updatedAt,
+                    updatedBy: flow.updatedBy,
+                    organizationId: session?.user?.organization?.id || "",
+                },
+                session?.user?.jwt || "",
+            )
 
-        toast.success("Flow created", {
-            description: "Your flow has been created successfully and is now ready to use.",
-            duration: 3000,
-        });
+            // Create all triggers concurrently
+            const createdTriggers = Promise.all(
+                (flow.triggers || []).map(trigger => 
+                    createOrgFlowTemplateTrigger(
+                        session?.user?.organization?.id || "",
+                        createdFlow.id,
+                        {
+                            flowId: createdFlow.id,
+                            type: trigger.type,
+                            details: trigger.details,
+                            name: trigger.name || "No name",
+                            summary: trigger.description || "No description",
+                        },
+                        session?.user?.jwt || ""
+                    )
+                )
+            );
 
-        // Navigate to the flows list after a short delay
-        setTimeout(() => {
-            router.push('/organization/flows');
-        }, 1500);
+            // Create all actions concurrently
+            const createdActions = Promise.all(
+                (flow.actions || []).map(action =>
+                    createOrgFlowTemplateAction(
+                        session?.user?.organization?.id || "",
+                        createdFlow.id,
+                        {
+                            flowId: createdFlow.id,
+                            type: action.type,
+                            details: action.details,
+                            name: action.name || "No name",
+                            summary: action.description || "No description",
+                        },
+                        session?.user?.jwt || ""
+                    )
+                )
+            );
+
+            await Promise.all([createdTriggers, createdActions])
+
+            toast.success("Flow created", {
+                description: "Your flow has been created successfully and is now ready to use.",
+                duration: 3000,
+            });
+
+            // Navigate to the flows list after a short delay
+            setTimeout(() => {
+                router.push('/organization/flows');
+            }, 1500);
+
+        } catch (error) {
+            toast.error("Flow creation failed", {
+                description: "There was an error creating your flow. Please try again.",
+                duration: 3000,
+            });
+
+        } finally {
+            setIsCreating(false);
+        }
     };
 
     const quickActions: QuickAction[] = [
