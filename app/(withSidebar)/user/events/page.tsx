@@ -12,7 +12,7 @@ export default function EventList() {
 
   const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
-
+  const attendingEvents = events?.filter((event) => event.isAttending) || [];
 
 
 
@@ -26,7 +26,7 @@ export default function EventList() {
 
       <main className="container mx-auto py-8">
         <EventLayout
-          events={events}
+          events={attendingEvents}
           isLoading={isLoading}
           error={error}
           title={"Alle Events"}
