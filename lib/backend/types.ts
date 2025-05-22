@@ -3,6 +3,7 @@ export interface OrgMail {
     name: string;
     subject: string;
     description?: string;
+    recipients: string[];
     body: string;
     createdAt: string;
     updatedAt?: "";

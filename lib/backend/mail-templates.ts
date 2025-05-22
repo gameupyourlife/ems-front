@@ -99,10 +99,13 @@ export async function getMailTemplate(orgId: string, templateId: string, token: 
     const mail: OrgMail = {
         name: dto.name || "Unbenannt",
         subject: dto.subject || "",
-        body: dto.body || "",
+        body: dto.body || "No content",
         createdAt: dto.createdAt || "",
         description: dto.description || "",
         organizationName: dto.organizationName || "",
+
+        
+
 
         existsInDB: true,
         id: dto.id || "",
