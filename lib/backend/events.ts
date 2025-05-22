@@ -1,6 +1,6 @@
 "use client";;
 import { AgendaStep, Email, EmsFile, EventDetails, EventInfo, Organization, User } from '../types-old';
-import { components, Flow } from './types';
+import { Flow } from './types';
 import { guardUUID } from './utils';
 
 
@@ -26,8 +26,6 @@ export async function getEvents(orgId: string, token: string) {
 
 
 
-type EventBasicDetailedDto = components['schemas']['EventBasicDetailedDto'];
-
 export async function getEventDetails(orgId: string, eventId: string, token: string): Promise<EventInfo> {
 	guardUUID(eventId);
 	guardUUID(orgId);
@@ -45,26 +43,6 @@ export async function getEventDetails(orgId: string, eventId: string, token: str
 
 
 
-		return basicData;
-	} catch (err) {
-		console.error(err);
-		throw new Error('Failed to fetch event details');
-	}
-}
-
-async function getEventFlows(eventId: string, token: string): Promise<EventBasicDetailedDto> {
-	guardUUID(eventId);
-
-	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': token ? `Bearer ${token}` : '',
-			},
-		});
-
-		const basicData: EventBasicDetailedDto = await response.json();
 		return basicData;
 	} catch (err) {
 		console.error(err);
