@@ -380,7 +380,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={`/organization/events/events/${eventId}/flows/runs/${run.id}?eventId=${eventId}`}>
+                                                            <Link href={`/organization/events/${eventId}/flows/runs/${run.id}?eventId=${eventId}`}>
                                                                 View
                                                             </Link>
                                                         </Button>
