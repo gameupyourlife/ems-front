@@ -72,6 +72,7 @@ import { useEventsByCreator } from "@/lib/backend/hooks/events"
 import { useSession } from "next-auth/react"
 import { useDeleteAttendee } from "@/lib/backend/hooks/events"
 import { useQueryClient } from "@tanstack/react-query"
+import router, { useRouter } from "next/navigation"
 
 export default function EventTable() {
   // --- Zustand für Sortierung, Filter, Auswahl, Sichtbarkeit, Suche ---
@@ -381,7 +382,7 @@ export default function EventTable() {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
-
+  const router = useRouter();
   return (
     <div className="space-y-4">
       {/* Suchfeld */}
@@ -401,96 +402,89 @@ export default function EventTable() {
         </div>
         {/* Filter & Neuer Event */}
         <div className="flex flex-wrap items-center gap-2">
-  {/* Filter-Popover */}
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button variant="outline" size="sm" className="h-8">
-        <FilterIcon className="mr-2 h-4 w-4" />
-        Filter
-        {(columnFilters.length > 0 || searchInput) && (
-          <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
-            {columnFilters.length + (searchInput ? 1 : 0)}
-          </Badge>
-        )}
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-72" align="start">
-      <Command>
-        <CommandInput placeholder="Filter suchen..." />
-        <CommandList className="max-h-[300px]">
-          <CommandEmpty>Keine Filter gefunden.</CommandEmpty>
-          <CommandGroup heading="Status">
-            {["Aktiv","Abgeschlossen","Entwurf","Abgesagt"].map(status => (
-              <CommandItem
-                key={status}
-                onSelect={() => toggleStatusFilter(status)}
-                className="flex items-center gap-2"
-              >
-                <div
-                  className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-lg border border-primary/20",
-                    activeStatus === status ? "bg-primary text-white" : "opacity-50",
-                  )}
-                >
-                  {activeStatus === status && <Check className="h-4 w-4" />}
-                </div>
-                <span>{status}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="Kategorie">
-            {categories.map(cat => (
-              <CommandItem
-                key={cat}
-                onSelect={() => toggleCategoryFilter(cat)}
-                className="flex items-center gap-2"
-              >
-                <div
-                  className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-lg border border-primary/20",
-                    activeCategory === cat ? "bg-primary text-white" : "opacity-50",
-                  )}
-                >
-                  {activeCategory === cat && <Check className="h-4 w-4" />}
-                </div>
-                <span>{cat}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="Aktive Filter">
-            {activeStatus && <CommandItem onSelect={() => toggleStatusFilter(activeStatus)} className="flex items-center gap-2">
-              <Badge variant="outline" className="flex items-center gap-1">
-                Status: {activeStatus}<X className="h-3 w-3"/>
-              </Badge>
-            </CommandItem>}
-            {activeCategory && <CommandItem onSelect={() => toggleCategoryFilter(activeCategory)} className="flex items-center gap-2">
-              <Badge variant="outline" className="flex items-center gap-1">
-                Kategorie: {activeCategory}<X className="h-3 w-3"/>
-              </Badge>
-            </CommandItem>}
-            {searchInput && <CommandItem onSelect={() => { setSearchInput(""); setGlobalFilter(""); }} className="flex items-center gap-2">
-              <Badge variant="outline" className="flex items-center gap-1">
-                Suche: {searchInput.length>10?`${searchInput.slice(0,10)}...`:searchInput}<X className="h-3 w-3"/>
-              </Badge>
-            </CommandItem>}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-      <div className="mt-4 flex justify-end">
-        <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs" disabled={!columnFilters.length && !searchInput}>
-          Alle Filter zurücksetzen
-        </Button>
-      </div>
-    </PopoverContent>
-  </Popover>
-
-  {/* Button für neues Event */}
-  <Button variant="outline" size="sm" asChild>
-    <Link href="/organization/events/create">
-      <PlusIcon className="mr-2 h-4 w-4" /> Neues Event
-    </Link>
-  </Button>
-</div>
+          {/* Filter-Popover */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8">
+                <FilterIcon className="mr-2 h-4 w-4" />
+                Filter
+                {(columnFilters.length > 0 || searchInput) && (
+                  <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
+                    {columnFilters.length + (searchInput ? 1 : 0)}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72" align="start">
+              <Command>
+                <CommandInput placeholder="Filter suchen..." />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>Keine Filter gefunden.</CommandEmpty>
+                  <CommandGroup heading="Status">
+                    {["Aktiv","Abgeschlossen","Entwurf","Abgesagt"].map(status => (
+                      <CommandItem
+                        key={status}
+                        onSelect={() => toggleStatusFilter(status)}
+                        className="flex items-center gap-2"
+                      >
+                        <div
+                          className={cn(
+                            "flex h-6 w-6 items-center justify-center rounded-lg border border-primary/20",
+                            activeStatus === status ? "bg-primary text-white" : "opacity-50",
+                          )}
+                        >
+                          {activeStatus === status && <Check className="h-4 w-4" />}
+                        </div>
+                        <span>{status}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  <CommandGroup heading="Kategorie">
+                    {categories.map(cat => (
+                      <CommandItem
+                        key={cat}
+                        onSelect={() => toggleCategoryFilter(cat)}
+                        className="flex items-center gap-2"
+                      >
+                        <div
+                          className={cn(
+                            "flex h-6 w-6 items-center justify-center rounded-lg border border-primary/20",
+                            activeCategory === cat ? "bg-primary text-white" : "opacity-50",
+                          )}
+                        >
+                          {activeCategory === cat && <Check className="h-4 w-4" />}
+                        </div>
+                        <span>{cat}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  <CommandGroup heading="Aktive Filter">
+                    {activeStatus && <CommandItem onSelect={() => toggleStatusFilter(activeStatus)} className="flex items-center gap-2">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        Status: {activeStatus}<X className="h-3 w-3"/>
+                      </Badge>
+                    </CommandItem>}
+                    {activeCategory && <CommandItem onSelect={() => toggleCategoryFilter(activeCategory)} className="flex items-center gap-2">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        Kategorie: {activeCategory}<X className="h-3 w-3"/>
+                      </Badge>
+                    </CommandItem>}
+                    {searchInput && <CommandItem onSelect={() => { setSearchInput(""); setGlobalFilter(""); }} className="flex items-center gap-2">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        Suche: {searchInput.length>10?`${searchInput.slice(0,10)}...`:searchInput}<X className="h-3 w-3"/>
+                      </Badge>
+                    </CommandItem>}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+              <div className="mt-4 flex justify-end">
+                <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs" disabled={!columnFilters.length && !searchInput}>
+                  Alle Filter zurücksetzen
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Tabelle */}
@@ -498,7 +492,7 @@ export default function EventTable() {
         <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
+              <TableRow key={hg.id} >
                 {hg.headers.map((h) => (
                   <TableHead key={h.id}>
                     {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
@@ -510,7 +504,10 @@ export default function EventTable() {
           <TableBody>
             {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => router.push(`/organization/events/${row.original.id}`)}
+                  className="cursor-pointer hover:bg-muted/40 transition">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}

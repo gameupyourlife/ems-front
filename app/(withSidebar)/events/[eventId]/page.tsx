@@ -255,7 +255,7 @@ export default function EventDetailPage() {
                 `}
                 onClick={() => {
                   if (isRegistered) {
-                    unregister({ orgId, eventId: String(eventId), token })
+                    unregister({ orgId, eventId: String(eventId), userId, token })
                   } else {
                     register({ orgId, eventId: String(eventId), userId, profilePicture, token })
                   }

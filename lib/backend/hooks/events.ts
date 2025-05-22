@@ -1,9 +1,9 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
+import { deleteAttendee, deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
+import { DeleteAttendeeParams, DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
 import {
     getCompleteEventDetails
 } from '../events';
