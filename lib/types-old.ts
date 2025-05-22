@@ -1,5 +1,6 @@
 import { EmptyObject } from "react-hook-form";
 import { Flow } from "./backend/types";
+import { AgendaEntry } from "./backend/agenda";
 
 export interface EventInfo {
     id: string,
@@ -192,7 +193,7 @@ export interface EventDetails {
     organization: Organization;
     attendees: User[];
     flows: Flow[];
-    agenda: AgendaStep[];
+    agenda: AgendaEntry[];
     emails: Email[];
 }
 

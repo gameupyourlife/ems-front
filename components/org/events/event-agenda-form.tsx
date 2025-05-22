@@ -1,5 +1,4 @@
-"use client";
-
+"use client";;
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,14 +39,12 @@ import {
   Trash2
 } from "lucide-react";
 
-// Types and Schemas
-import { AgendaStep } from "@/lib/types-old";
 import { AgendaStepFormData, agendaStepSchema } from "@/lib/form-schemas";
 import { AgendaEntry } from "@/lib/backend/agenda";
 
 interface EventAgendaFormProps {
   agendaItems: AgendaEntry[];
-  onAgendaItemsChange: (items: AgendaStep[]) => void;
+  onAgendaItemsChange: (items: AgendaEntry[]) => void;
   onTabChange?: (tab: string) => void;
   eventId?: string;
   isFinalStep?: boolean;
@@ -69,6 +66,7 @@ export function EventAgendaForm({
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   
+  
   // Form definition using Zod schema
   const form = useForm<AgendaStepFormData>({
     resolver: zodResolver(agendaStepSchema),
@@ -85,7 +83,7 @@ export function EventAgendaForm({
   // Handle adding a new agenda item
   const handleAddItem = (data: AgendaStepFormData) => {
     // Create new agenda item with random ID
-    const newItem: AgendaStep = {
+    const newItem: AgendaEntry = {
       id: `${Math.random().toString(36).substr(2, 9)}`,
       title: data.title,
       description: data.description || "",

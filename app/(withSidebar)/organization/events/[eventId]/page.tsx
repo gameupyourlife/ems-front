@@ -48,10 +48,8 @@ export default function EventDetailsPage() {
   const path = usePathname();
   const eventId = params.eventId as string;
 
-
   const { data: session } = useSession();
   const { data: event, isLoading } = useEventDetails(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
-
 
   const [activeTab, setActiveTabState] = useState(searchParams.get('tab') || "overview");
 

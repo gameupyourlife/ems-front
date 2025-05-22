@@ -1,5 +1,6 @@
 "use client";;
-import { AgendaStep, Email, EmsFile, EventDetails, EventInfo, Organization, User } from '../types-old';
+import { Email, EmsFile, EventDetails, EventInfo, Organization, User } from '../types-old';
+import { AgendaEntry } from './agenda';
 import { components, Flow } from './types';
 import { guardUUID } from './utils';
 
@@ -73,141 +74,141 @@ async function getEventFlows(eventId: string, token: string): Promise<EventBasic
 }
 
 export async function getEventsByCreator(orgId: string, userId: string, token: string): Promise<EventDetails[]> {
-    guardUUID(orgId);
-    guardUUID(userId);
+	guardUUID(orgId);
+	guardUUID(userId);
 
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/creator/${userId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : '',
-            },
-        });
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/creator/${userId}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': token ? `Bearer ${token}` : '',
+			},
+		});
 
 		if (!response.ok) {
 			if (response.status === 404) return [];
 			throw new Error(`Failed to fetch events by creator: ${response.status}`);
 		}
 
-        const basicData : EventDetails[] = await response.json();
-        return basicData;
-    } catch (err) {
-        console.error(err);
-        throw new Error('Failed to fetch event details');
-    }
+		const basicData: EventDetails[] = await response.json();
+		return basicData;
+	} catch (err) {
+		console.error(err);
+		throw new Error('Failed to fetch event details');
+	}
 }
 
 export async function getEventsById(orgId: string, eventId: string, token: string): Promise<EventDetails> {
-    guardUUID(orgId);
-    guardUUID(eventId);
+	guardUUID(orgId);
+	guardUUID(eventId);
 
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : '',
-            },
-        });
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': token ? `Bearer ${token}` : '',
+			},
+		});
 
-        const data = (await response.json()) as EventDetails;
-        return data;
-    } catch (err) {
-        console.error(err);
-        throw new Error('Failed to fetch event details');
-    }
+		const data = (await response.json()) as EventDetails;
+		return data;
+	} catch (err) {
+		console.error(err);
+		throw new Error('Failed to fetch event details');
+	}
 }
 
 export async function registerAttendee(
-  orgId: string, 
-  eventId: string, 
-  userId: string, 
-  profilePicture: string, 
-  token: string
+	orgId: string,
+	eventId: string,
+	userId: string,
+	profilePicture: string,
+	token: string
 ): Promise<any> {
-  guardUUID(orgId);
-  guardUUID(eventId);
-  guardUUID(userId);
+	guardUUID(orgId);
+	guardUUID(eventId);
+	guardUUID(userId);
 
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
-      },
-      body: JSON.stringify({ userId, profilePicture }),
-    });
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': token ? `Bearer ${token}` : '',
+			},
+			body: JSON.stringify({ userId, profilePicture }),
+		});
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to register attendee');
-    }
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.message || 'Failed to register attendee');
+		}
 
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    console.error(err);
-    throw new Error('Failed to register attendee');
-  }
+		const data = await response.json();
+		return data;
+	} catch (err) {
+		console.error(err);
+		throw new Error('Failed to register attendee');
+	}
 }
 
 export async function deleteAttendee(
-  orgId: string,
-  eventId: string,
-  userId: string,
-  token: string
+	orgId: string,
+	eventId: string,
+	userId: string,
+	token: string
 ): Promise<any> {
-  guardUUID(orgId);
-  guardUUID(eventId);
-  guardUUID(userId);
+	guardUUID(orgId);
+	guardUUID(eventId);
+	guardUUID(userId);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees/${userId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token ? `Bearer ${token}` : '',
-      },
-    }
-  );
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees/${userId}`,
+		{
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: token ? `Bearer ${token}` : '',
+			},
+		}
+	);
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to delete attendee');
-  }
+	if (!res.ok) {
+		const error = await res.json();
+		throw new Error(error.message || 'Failed to delete attendee');
+	}
 
-  return res.json();
+	return res.json();
 }
 
 export async function deleteEvent(
-  orgId: string,
-  eventId: string,
-  token: string
+	orgId: string,
+	eventId: string,
+	token: string
 ): Promise<any> {
-  guardUUID(orgId);
-  guardUUID(eventId);
+	guardUUID(orgId);
+	guardUUID(eventId);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token ? `Bearer ${token}` : '',
-      },
-    }
-  );
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`,
+		{
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: token ? `Bearer ${token}` : '',
+			},
+		}
+	);
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to delete event');
-  }
+	if (!res.ok) {
+		const error = await res.json();
+		throw new Error(error.message || 'Failed to delete event');
+	}
 
-  return res.json();
-    
+	return res.json();
+
 }
 
 /**
@@ -277,7 +278,7 @@ export async function getEventOrganization(orgId: string, token: string): Promis
 		}
 
 		const orgData = await response.json();
-		
+
 		// Transform the API response to match the Organization interface
 		const organization: Organization = {
 			id: orgData.id,
@@ -327,12 +328,12 @@ export async function getEventAttendees(orgId: string, eventId: string, token: s
 		}
 
 		const attendeesData = await response.json();
-		
+
 		// Transform EventAttendeeDto[] to User[]
 		const attendees: User[] = attendeesData.map((attendee: any) => ({
 			id: attendee.userId,
 			name: attendee.userName || '',
-			email: attendee.userEmail || '', 
+			email: attendee.userEmail || '',
 			createdAt: '',
 			updatedAt: '',
 			profilePicture: attendee.profilePicture || '',
@@ -371,7 +372,7 @@ export async function getEventFlowsList(orgId: string, eventId: string, token: s
 		}
 
 		const flowsData = await response.json();
-		
+
 		// Transform FlowResponseDto[] to Flow[]
 		const flows: Flow[] = flowsData.map((flowDto: any) => ({
 			id: flowDto.id,
@@ -426,9 +427,9 @@ export async function getEventFiles(orgId: string, eventId: string, token: strin
 		}
 
 		const filesData = await response.json();
-		
+
 		// Transform FileDto[] to EmsFile[]
-		const files:  [] = filesData.map((fileDto: any) => ({
+		const files: [] = filesData.map((fileDto: any) => ({
 			id: fileDto.id || '',
 			name: fileDto.originalName || '',
 			type: fileDto.contentType || '',
@@ -453,7 +454,7 @@ export async function getEventFiles(orgId: string, eventId: string, token: strin
  * @param token Auth token
  * @returns List of agenda steps
  */
-export async function getEventAgenda(orgId: string, eventId: string, token: string): Promise<AgendaStep[]> {
+export async function getEventAgenda(orgId: string, eventId: string, token: string): Promise<AgendaEntry[]> {
 	guardUUID(orgId);
 	guardUUID(eventId);
 
@@ -472,15 +473,18 @@ export async function getEventAgenda(orgId: string, eventId: string, token: stri
 		}
 
 		const agendaData = await response.json();
-		
+
 		// Transform AgendaEntryDto[] to AgendaStep[]
-		const agenda: AgendaStep[] = agendaData.map((entryDto: any) => ({
-			id: entryDto.id || '',
-			title: entryDto.title || '',
-			description: entryDto.description || '',
-			startTime: new Date(entryDto.start),
-			endTime: new Date(entryDto.end),
-		}));
+		const agenda: AgendaEntry[] = agendaData.map((entryDto: any) => {
+			const entry: AgendaEntry = {
+				id: entryDto.id || '',
+				title: entryDto.title || '',
+				description: entryDto.description || '',
+				start: new Date(entryDto.start),
+				end: new Date(entryDto.end),
+			}
+			return entry;
+		});
 
 		return agenda;
 	} catch (err) {
@@ -515,7 +519,7 @@ export async function getEventEmails(orgId: string, eventId: string, token: stri
 		}
 
 		const emailsData = await response.json();
-		
+
 		// Transform EmailDto[] to Email[]
 		const emails: Email[] = emailsData.map((emailDto: any) => ({
 			id: emailDto.mailId || '',

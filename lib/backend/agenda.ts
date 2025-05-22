@@ -41,7 +41,7 @@ export async function getAgendaEntries(orgId: string, eventId: string, token: st
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/events/${eventId}/agenda`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/agenda`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -84,7 +84,7 @@ export async function createAgendaEntry(
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/events/${eventId}/agenda`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/agenda`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -119,7 +119,7 @@ export async function updateAgendaEntry(
     guardUUID(eventId);
     guardUUID(agendaId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/events/${eventId}/agenda/${agendaId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/agenda/${agendaId}`, {
         method: "PUT",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -152,7 +152,7 @@ export async function deleteAgendaEntry(
     guardUUID(eventId);
     guardUUID(agendaId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/events/${eventId}/agenda/${agendaId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/agenda/${agendaId}`, {
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${token}`,

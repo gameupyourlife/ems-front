@@ -82,12 +82,12 @@ export type FlowFormData = z.infer<typeof flowSchema>;
 export const agendaStepSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
-  startTime: dateSchema,
-  endTime: dateSchema,
+  start: dateSchema,
+  end: dateSchema,
 }).refine(
   (data) => {
-    const start = new Date(data.startTime);
-    const end = new Date(data.endTime);
+    const start = new Date(data.start);
+    const end = new Date(data.end);
     return end > start;
   },
   {
