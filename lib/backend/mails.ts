@@ -18,7 +18,7 @@ export interface MailDto {
     scheduledFor?: string;
     createdAt: string;
     updatedAt?: string;
-    createdBy: string;
+    createdBy?: string;
     updatedBy?: string;
     eventId: string;
 }

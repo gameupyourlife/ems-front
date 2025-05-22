@@ -6,9 +6,9 @@ export interface OrgMail {
     recipients: string[];
     body: string;
     createdAt: string;
-    updatedAt?: "";
-    createdBy?: "";
-    updatedBy?: "";    
+    updatedAt?: string;
+    createdBy?: string;
+    updatedBy?: string;
     isUserCreated: boolean;
     organizationName?: string;
 
