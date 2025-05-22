@@ -99,7 +99,7 @@ export default function FlowsOverview() {
                   <CardContent>
                     <div className="space-y-4">
                       {orderedTriggerTypes.map(([type, count], i) => (
-                        <div key={type + "cccc"} className="flex items-center justify-between">
+                        <div key={`${type}-${i}`} className="flex items-center justify-between">
                           <div className="flex items-center">
                             <div className="mr-2 h-8 w-8 rounded-md border bg-background flex items-center justify-center">
                               {getTriggerIcon(type as unknown as TriggerType)}
