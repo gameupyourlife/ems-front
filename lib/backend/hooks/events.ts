@@ -71,7 +71,6 @@ export function useRegisterAttendee(
     mutationFn: ({ orgId, eventId, userId, profilePicture, token }: RegisterAttendeeParams) =>
       registerAttendee(orgId, eventId, userId, profilePicture, token),
     onSuccess: (data, variables) => {
-      // Invalidate and refetch the event query to update the UI
       queryClient.invalidateQueries({
         queryKey: ["eventsById", variables.orgId, variables.eventId],
       })
@@ -85,9 +84,9 @@ export function useDeleteAttendee(
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ orgId, eventId, token }: DeleteEvent) =>
-      deleteEvent(orgId, eventId, token),
-    onSuccess: (_data, vars) => {
+   mutationFn: ({ orgId, eventId, userId, token }: DeleteAttendeeParams) =>
+      deleteAttendee(orgId, eventId, userId, token),
+    onSuccess: (_data: any, vars: { orgId: any; eventId: any; }) => {
       queryClient.invalidateQueries({
         queryKey: ['eventsById', vars.orgId, vars.eventId],
       })
