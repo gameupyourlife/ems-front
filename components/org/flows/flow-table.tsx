@@ -57,12 +57,11 @@ import {
     CommandList,
     CommandSeparator
 } from "@/components/ui/command";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ActionType, Flow, TriggerType } from "@/lib/backend/types";
+import { ActionType, FlowTemplateResponseDto, TriggerType } from "@/lib/backend/types";
 import { getActionIcon, getActionTitle, getTriggerIcon, getTriggerTitle } from "@/lib/flows/utils";
 
 interface FlowTableProps {
-    flows: Flow[];
+    flows: FlowTemplateResponseDto[];
 }
 
 export default function FlowTable({ flows }: FlowTableProps) {
@@ -86,7 +85,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
     ));
 
     // Define the columns for the table
-    const columns: ColumnDef<Flow>[] = [
+    const columns: ColumnDef<FlowTemplateResponseDto>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -142,29 +141,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 return (
                     <div className="flex flex-wrap gap-1.5">
                         {triggers?.map((trigger) => (
-                            <TooltipProvider key={trigger.id}>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
-                                            {getTriggerIcon(trigger.type)}
-                                            <span className="capitalize">{getTriggerTitle(trigger.type)}</span>
-                                        </Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        {trigger.details ?
-                                            <div className="text-xs">
-                                                {Object.entries(trigger.details).map(([key, value]) => (
-                                                    <div key={key}>
-                                                        <span className="font-semibold capitalize">{key}:</span> {String(value)}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            :
-                                            <span className="text-xs">No additional details</span>
-                                        }
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <Badge key={trigger.id} variant="outline" className="flex items-center gap-1 px-2 py-0.5">
+                                {getTriggerIcon(trigger.type)}
+                                <span className="capitalize">{getTriggerTitle(trigger.type)}</span>
+                            </Badge>
                         ))}
                     </div>
                 );
@@ -184,29 +164,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 return (
                     <div className="flex flex-wrap gap-1.5">
                         {actions?.map((action) => (
-                            <TooltipProvider key={action.id}>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5">
-                                            {getActionIcon(action.type)}
-                                            <span className="capitalize">{getActionTitle(action.type)}</span>
-                                        </Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        {action.details ?
-                                            <div className="text-xs">
-                                                {Object.entries(action.details).map(([key, value]) => (
-                                                    <div key={key}>
-                                                        <span className="font-semibold capitalize">{key}:</span> {String(value)}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            :
-                                            <span className="text-xs">No additional details</span>
-                                        }
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <Badge key={action.id} variant="outline" className="flex items-center gap-1 px-2 py-0.5">
+                                {getActionIcon(action.type)}
+                                <span className="capitalize">{getActionTitle(action.type)}</span>
+                            </Badge>
                         ))}
                     </div>
                 );
@@ -254,7 +215,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
             sortingFn: "datetime",
         },
         {
-            id: "actions",
+            id: "actions-col",
             header: "Options",
             cell: ({ row }) => {
                 const flow = row.original;
@@ -428,9 +389,9 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                 <CommandList>
                                     <CommandEmpty>No filters found.</CommandEmpty>
                                     <CommandGroup heading="Trigger Types">
-                                        {triggerTypes.map((type) => (
+                                        {triggerTypes.map((type, i) => (
                                             <CommandItem
-                                                key={type}
+                                                key={"trigger" + type + i}
                                                 onSelect={() => toggleTriggerTypeFilter(type)}
                                                 className="flex items-center justify-between"
                                             >
@@ -451,9 +412,9 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                     </CommandGroup>
                                     <CommandSeparator />
                                     <CommandGroup heading="Action Types">
-                                        {actionTypes.map((type) => (
+                                        {actionTypes.map((type, i) => (
                                             <CommandItem
-                                                key={type}
+                                                key={"action" + type + i}
                                                 onSelect={() => toggleActionTypeFilter(type)}
                                                 className="flex items-center justify-between"
                                             >
@@ -551,10 +512,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                         {table
                                             .getAllColumns()
                                             .filter(column => column.getCanHide())
-                                            .map(column => {
+                                            .map((column, i) => {
                                                 return (
                                                     <CommandItem
-                                                        key={column.id}
+                                                        key={column.id + i}
                                                         onSelect={() => column.toggleVisibility(!column.getIsVisible())}
                                                         className="flex items-center justify-between"
                                                     >
