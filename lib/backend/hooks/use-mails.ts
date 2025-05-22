@@ -9,7 +9,7 @@ import { getMails, getMail, getMailRuns, getMailRun } from '../mails';
  */
 export const useMails = (orgId: string, eventId: string, token: string) => {
     return useQuery({
-        queryKey: ['mails', orgId, eventId, token],
+        queryKey: ['mail', 'mails', orgId, eventId, token],
         queryFn: () => getMails(orgId, eventId, token),
         enabled: !!orgId && !!eventId && !!token,
     });
