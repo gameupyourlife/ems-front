@@ -12,8 +12,11 @@ export default function EventList() {
 
   const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
-  const attendingEvents = events?.filter((event) => event.isAttending) || [];
-
+  const attendingEvents = events
+    ? [...events]
+        .filter((event) => event.isAttending)
+        .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    : [];
 
 
   return (
