@@ -25,6 +25,7 @@ import Link from "next/link";
 import { createOrgFlowTemplateAction, createOrgFlowTemplateTrigger, deleteOrgFlowTemplate, updateOrgFlowTemplate, updateOrgFlowTemplateAction, updateOrgFlowTemplateTrigger } from "@/lib/backend/org-flows";
 import { useQueryClient } from "@tanstack/react-query";
 import { createAction, createTrigger, deleteFlow, updateAction, updateFlow, updateTrigger } from "@/lib/backend/event-flows";
+import { useEventFlow } from "@/lib/backend/hooks/event-flows";
 
 export default function FlowDetailsPage() {
     const params = useParams();
@@ -34,9 +35,10 @@ export default function FlowDetailsPage() {
 
     // Get the flow ID from the URL parameters
     const flowId = Array.isArray(params.flowId) ? params.flowId[0] : params.flowId as string;
+    const eventId = Array.isArray(params.eventId) ? params.eventId[0] : params.eventId as string;
 
     // Find the flow in the mock data
-    const { data: flow, isLoading, error } = useOrgFlowTemplate(session?.user?.organization?.id || "", flowId, session?.user?.jwt || "");
+    const { data: flow, isLoading, error } = eventId ? useEventFlow(session?.user?.organization?.id || "", eventId, flowId, session?.user?.jwt || "") : useOrgFlowTemplate(session?.user?.organization?.id || "", flowId, session?.user?.jwt || "");
 
     // State for editable flow data and editing mode
     const [isEditing, setIsEditing] = useState(false);
@@ -281,6 +283,8 @@ export default function FlowDetailsPage() {
                     flow.id,
                     session?.user?.jwt || "")
 
+                queryClient.invalidateQueries({ queryKey: [flow.id] })
+
                 toast.success("Flow erfolgreich gelöscht")
                 router.push(`/organization/flows`);
 
@@ -299,8 +303,10 @@ export default function FlowDetailsPage() {
                     flow.id || "",
                     session?.user?.jwt || "")
 
+                queryClient.invalidateQueries({ queryKey: [flow.eventId] })
+
                 toast.success("Flow erfolgreich gelöscht")
-                router.push(`/organization/flows`);
+                router.push(`/organization/events/${flow.eventId}?tab=flows`);
 
             } catch (error) {
                 console.error("Error deleting flow:", error);

@@ -109,9 +109,12 @@ export async function getFlow(orgId: string, eventId: string, flowId: string, to
         updatedBy: flowTemplate.updatedBy || '',
 
 
-        isTemplate: true,
+        eventId: eventId,
+        isTemplate: false,
         existInDb: true,
     }
+
+    console.log("Flow: ", flow);
     return flow;
 }
 
@@ -185,6 +188,8 @@ export async function createAction(
     actionData: ActionCreateDto,
     token: string
 ): Promise<ActionDto> {
+    actionData.details = JSON.stringify(actionData.details);
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions`, {
         method: 'POST',
         headers: {
@@ -225,6 +230,13 @@ export async function updateAction(
     actionData: ActionUpdateDto,
     token: string
 ): Promise<ActionDto> {
+    guardUUID(actionId);
+    guardUUID(flowId);
+    guardUUID(eventId);
+    guardUUID(orgId);
+    
+    actionData.details = JSON.stringify(actionData.details);
+    
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/actions/${actionId}`, {
         method: 'PUT',
         headers: {
@@ -294,6 +306,8 @@ export async function createTrigger(
     triggerData: TriggerCreateDto,
     token: string
 ): Promise<TriggerDto> {
+    triggerData.details = JSON.stringify(triggerData.details);
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers`, {
         method: 'POST',
         headers: {
@@ -334,6 +348,13 @@ export async function updateTrigger(
     triggerData: TriggerUpdateDto,
     token: string
 ): Promise<TriggerDto> {
+    guardUUID(triggerId);
+    guardUUID(flowId);
+    guardUUID(eventId);
+    guardUUID(orgId);
+
+    triggerData.details = JSON.stringify(triggerData.details);
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/flows/${flowId}/triggers/${triggerId}`, {
         method: 'PUT',
         headers: {

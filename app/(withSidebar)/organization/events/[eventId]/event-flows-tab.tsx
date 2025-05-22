@@ -7,13 +7,14 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { EventDetails } from "@/lib/types-old";
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { getActionDescription, getActionIcon, getTriggerDescription, getTriggerIcon } from "@/lib/flows/utils";
 import { useEventFlows } from "@/lib/backend/hooks/event-flows";
 import { useSession } from "next-auth/react";
 import { useOrgFlowTemplates } from "@/lib/backend/hooks/org-flows";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { FlowTemplateResponseDto } from "@/lib/backend/types";
 
 // Interface for flow runs (executions)
 interface FlowRun {
@@ -110,9 +111,9 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
     // const [flowRuns, setFlowRuns] = useState<FlowRun[]>(mockFlowRuns);
     const [createFlowDialogOpen, setCreateFlowDialogOpen] = useState(false);
     const router = useRouter();
-    
+
     const { data: session } = useSession();
-    const { data: flows } = useEventFlows(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
+    const { data: flows, isLoading, isError } = useEventFlows(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
     const { data: flowTemplates } = useOrgFlowTemplates(session?.user?.organization.id || "", session?.user?.jwt || "");
 
     console.log("Flows:", flows);
@@ -120,13 +121,13 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
 
     // Function to handle creation from template
     const handleCreateFromTemplate = (templateId: string) => {
-        router.push(`/organization/flows/create?eventId=${eventId}&templateId=${templateId}`);
+        router.push(`/organization/events/${eventId}/flows/create?eventId=${eventId}&templateId=${templateId}`);
         setCreateFlowDialogOpen(false);
     };
 
     // Function to create from scratch
     const handleCreateFromScratch = () => {
-        router.push(`/organization/flows/create?eventId=${eventId}`);
+        router.push(`/organization/events/${eventId}/flows/create?eventId=${eventId}`);
         setCreateFlowDialogOpen(false);
     };
 
@@ -148,37 +149,38 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
             <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">
                     <FunctionSquare className="h-5 w-5 text-primary" />
-                    Event Automation
+                    Event-Automatisierung
                 </CardTitle>
                 <CardDescription>
-                    Automation flows for this event
+                    Flows für diese Veranstaltung
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="mb-4">
+                    {/* <TabsList className="mb-4">
                         <TabsTrigger value="instances" className="flex items-center gap-2">
                             <FunctionSquare className="h-4 w-4" />
                             Flows
                         </TabsTrigger>
-                        {/* <TabsTrigger value="runs" className="flex items-center gap-2">
+                        <TabsTrigger value="runs" className="flex items-center gap-2">
                           <History className="h-4 w-4" />
                           Flow Runs
-                      </TabsTrigger> */}
-                    </TabsList>
+                      </TabsTrigger>
+                    </TabsList> */}
 
                     <TabsContent value="instances" className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-medium">Flows ({flows?.length || 0})</h3>
-                                <p className="text-sm text-muted-foreground">Automations that run based on event triggers</p>
+                                <p className="text-sm text-muted-foreground">Automatisierungen, die auf Event-Auslösern basieren</p>
                             </div>
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={`/organization/flows/create?eventId=${eventId}`}>
-                                    <FunctionSquare className="h-4 w-4 mr-2" />
-                                    Create New Flow
-                                </Link>
-                            </Button>
+                            <CreateNewFlowButton
+                                createFlowDialogOpen={createFlowDialogOpen}
+                                setCreateFlowDialogOpen={setCreateFlowDialogOpen}
+                                handleCreateFromScratch={handleCreateFromScratch}
+                                flowTemplates={flowTemplates}
+                                handleCreateFromTemplate={handleCreateFromTemplate}
+                            />
                         </div>
 
                         <Separator className="my-2" />
@@ -202,15 +204,15 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Badge variant="outline" className="bg-background">
-                                                    {flow.triggers?.length} {flow.triggers?.length === 1 ? 'Trigger' : 'Triggers'}
+                                                    {flow.triggers?.length} {flow.triggers?.length === 1 ? 'Auslöser' : 'Auslöser'}
                                                 </Badge>
                                                 <Badge variant="outline" className="bg-background">
-                                                    {flow.actions?.length} {flow.actions?.length === 1 ? 'Action' : 'Actions'}
+                                                    {flow.actions?.length} {flow.actions?.length === 1 ? 'Aktion' : 'Aktionen'}
                                                 </Badge>
                                                 <Button variant="ghost" size="sm" asChild className="ml-2">
-                                                    <Link href={`/organization/flows/${flow.id}`}>
+                                                    <Link href={`/organization/events/${eventId}/flows/${flow.id}?eventId=${eventId}`}>
                                                         <Edit className="h-4 w-4 mr-2" />
-                                                        Edit
+                                                        Bearbeiten
                                                     </Link>
                                                 </Button>
                                             </div>
@@ -222,7 +224,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                 <div className="space-y-3">
                                                     <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                                                         <Zap className="h-4 w-4" />
-                                                        WHEN THESE TRIGGERS OCCUR
+                                                        WENN DIESE AUSLÖSER AUFTRETEN
                                                     </h5>
 
                                                     <div className="space-y-3">
@@ -249,7 +251,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                 <div className="space-y-3">
                                                     <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                                                         <FunctionSquare className="h-4 w-4" />
-                                                        THEN PERFORM THESE ACTIONS
+                                                        DANN FÜHRE DIESE AKTIONEN AUS
                                                     </h5>
 
                                                     <div className="space-y-3">
@@ -277,88 +279,44 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                 ))}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-8 text-center border rounded-md bg-muted/50">
-                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                                    <FunctionSquare className="h-6 w-6 text-muted-foreground" />
+
+                            isLoading ? (
+                                <div className="flex items-center justify-center py-8 text-center">
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4 animate-spin">
+                                        <FunctionSquare className="h-6 w-6 text-muted-foreground" />
+                                    </div>
                                 </div>
-                                <h3 className="text-lg font-medium">No flows added yet</h3>
-                                <p className="text-sm text-muted-foreground max-w-sm mt-1">
-                                    Create automation flows to send emails, change event status, and more
-                                </p>
-                                <Dialog open={createFlowDialogOpen} onOpenChange={setCreateFlowDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline" className="mt-4">
-                                            <FunctionSquare className="h-4 w-4 mr-2" />
-                                            Create First Flow
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md">
-                                        <DialogHeader>
-                                            <DialogTitle>Create New Flow</DialogTitle>
-                                            <DialogDescription>
-                                                Choose how you want to create your new automation flow
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid grid-cols-1 gap-4 py-4">
-                                            <Button 
-                                                onClick={handleCreateFromScratch}
-                                                variant="outline" 
-                                                className="flex items-start justify-start gap-3 h-auto p-4 text-left"
-                                            >
-                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                                    <Plus className="h-5 w-5 text-primary" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-medium">Create from scratch</h3>
-                                                    <p className="text-sm text-muted-foreground mt-1">
-                                                        Start with a blank flow and build it yourself
-                                                    </p>
-                                                </div>
-                                            </Button>
-                                            
-                                            {flowTemplates && flowTemplates.length > 0 ? (
-                                                <>
-                                                    <Separator />
-                                                    <div className="text-sm font-medium">Or use a template:</div>
-                                                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                                                        {flowTemplates.map((template) => (
-                                                            <Button
-                                                                key={template.id}
-                                                                onClick={() => handleCreateFromTemplate(template.id)}
-                                                                variant="outline"
-                                                                className="flex items-start justify-start gap-3 h-auto p-4 text-left w-full"
-                                                            >
-                                                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                                                    <Copy className="h-5 w-5 text-blue-600" />
-                                                                </div>
-                                                                <div>
-                                                                    <h3 className="font-medium">{template.name}</h3>
-                                                                    <p className="text-sm text-muted-foreground mt-1">
-                                                                        {template.description || "No description provided"}
-                                                                    </p>
-                                                                    <div className="flex flex-wrap gap-2 mt-2">
-                                                                        {(template.triggers?.length || 0) > 0 && (
-                                                                            <Badge variant="outline" className="bg-background text-xs">
-                                                                                {template.triggers?.length} {template.triggers?.length === 1 ? 'Trigger' : 'Triggers'}
-                                                                            </Badge>
-                                                                        )}
-                                                                        {(template.actions?.length || 0) > 0 && (
-                                                                            <Badge variant="outline" className="bg-background text-xs">
-                                                                                {template.actions?.length} {template.actions?.length === 1 ? 'Action' : 'Actions'}
-                                                                            </Badge>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </Button>
-                                                        ))}
-                                                    </div>
-                                                </>
-                                            ) : null}
+                            ) : (
+
+                                isError ? (
+                                    <div className="flex items-center justify-center py-8 text-center">
+                                        <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                                            <FunctionSquare className="h-6 w-6 text-red-600" />
                                         </div>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
-                        )}
+                                        <h3 className="text-lg font-medium">Fehler beim Laden der Flows</h3>
+                                        <p className="text-sm text-red-600 max-w-sm mt-1">
+                                            Bitte versuche es später erneut
+                                        </p>
+                                    </div>
+                                ) :
+
+                                    <div className="flex flex-col items-center justify-center py-8 text-center border rounded-md bg-muted/50">
+                                        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                                            <FunctionSquare className="h-6 w-6 text-muted-foreground" />
+                                        </div>
+                                        <h3 className="text-lg font-medium">Noch keine Flows hinzugefügt</h3>
+                                        <p className="text-sm text-muted-foreground max-w-sm mt-1">
+                                            Erstelle Automatisierungs-Flows, um E-Mails zu versenden, den Event-Status zu ändern und mehr
+                                        </p>
+                                        <CreateNewFlowButton
+                                            createFlowDialogOpen={createFlowDialogOpen}
+                                            setCreateFlowDialogOpen={setCreateFlowDialogOpen}
+                                            handleCreateFromScratch={handleCreateFromScratch}
+                                            flowTemplates={flowTemplates}
+                                            handleCreateFromTemplate={handleCreateFromTemplate}
+                                        />
+                                    </div>
+                            ))}
                     </TabsContent>
 
                     {/* <TabsContent value="runs">
@@ -422,7 +380,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={`/organization/events/${eventId}/flows/runs/${run.id}`}>
+                                                            <Link href={`/organization/events/events/${eventId}/flows/runs/${run.id}?eventId=${eventId}`}>
                                                                 View
                                                             </Link>
                                                         </Button>
@@ -450,4 +408,83 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
             </CardContent>
         </Card>
     );
+}
+
+function CreateNewFlowButton({ createFlowDialogOpen, setCreateFlowDialogOpen, handleCreateFromScratch, flowTemplates, handleCreateFromTemplate }: { createFlowDialogOpen: boolean, setCreateFlowDialogOpen: (open: boolean) => void, handleCreateFromScratch: () => void, flowTemplates: FlowTemplateResponseDto[] | undefined, handleCreateFromTemplate: (templateId: string) => void }) {
+
+    return (
+
+        <Dialog open={createFlowDialogOpen} onOpenChange={setCreateFlowDialogOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="mt-4">
+                    <FunctionSquare className="h-4 w-4 mr-2" />
+                    Flow hinzufügen
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+                <DialogHeader>
+                    <DialogTitle>Neuen Flow erstellen</DialogTitle>
+                    <DialogDescription>
+                        Wähle aus, wie du deinen neuen Automatisierungsflow erstellen möchtest
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 gap-4 py-4">
+                    <Button
+                        onClick={handleCreateFromScratch}
+                        variant="outline"
+                        className="flex items-start justify-start gap-3 h-auto p-4 text-left"
+                    >
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Plus className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <h3 className="font-medium">Von Grund auf neu erstellen</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                                Beginne mit einem leeren Flow und baue ihn selbst auf
+                            </p>
+                        </div>
+                    </Button>
+
+                    {flowTemplates && flowTemplates.length > 0 ? (
+                        <>
+                            <Separator />
+                            <div className="text-sm font-medium">Oder verwende eine Vorlage:</div>
+                            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                                {flowTemplates.map((template) => (
+                                    <Button
+                                        key={template.id}
+                                        onClick={() => handleCreateFromTemplate(template.id)}
+                                        variant="outline"
+                                        className="flex items-start justify-start gap-3 h-auto p-4 text-left w-full"
+                                    >
+                                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                            <Copy className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium">{template.name}</h3>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                {template.description || "Keine Beschreibung vorhanden"}
+                                            </p>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {(template.triggers?.length || 0) > 0 && (
+                                                    <Badge variant="outline" className="bg-background text-xs">
+                                                        {template.triggers?.length} {template.triggers?.length === 1 ? 'Auslöser' : 'Auslöser'}
+                                                    </Badge>
+                                                )}
+                                                {(template.actions?.length || 0) > 0 && (
+                                                    <Badge variant="outline" className="bg-background text-xs">
+                                                        {template.actions?.length} {template.actions?.length === 1 ? 'Aktion' : 'Aktionen'}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Button>
+                                ))}
+                            </div>
+                        </>
+                    ) : null}
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
 }

@@ -4,7 +4,7 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
 import {
     deleteEvent,
-    getEventDetails,
+    getCompleteEventDetails,
     getEvents,
     getEventsByCreator,
     getEventsById,
@@ -32,13 +32,14 @@ export function useEvents(
 
 
 export function useEventDetails(
+    orgId: string,
     eventId: string,
     token: string,
     options?: Omit<UseQueryOptions<EventDetails, Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
-        queryKey: ['eventDetails', eventId, token],
-        queryFn: () => getEventDetails(eventId, token),
+        queryKey: ['eventDetails', orgId, eventId, token],
+        queryFn: () => getCompleteEventDetails(orgId, eventId, token),
         ...options,
     });
 }

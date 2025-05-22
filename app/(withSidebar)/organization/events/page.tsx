@@ -17,6 +17,14 @@ export default function OrganizationEventsPage() {
 
   const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="animate-pulse">Lade Events …</div>
+      </div>
+    )
+  }
+
   if (!events) {
     return (
       <div className="container mx-auto py-20 text-center">
@@ -28,7 +36,6 @@ export default function OrganizationEventsPage() {
     )
   }
 
-  console.log("Events: ", events)
 
   const now = new Date()
   const upcoming = events
@@ -38,13 +45,6 @@ export default function OrganizationEventsPage() {
     .filter(e => e.start < now)
     .sort((a, b) => b.start.getTime() - a.start.getTime())
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-20 text-center">
-        <div className="animate-pulse">Lade Events …</div>
-      </div>
-    )
-  }
 
   if (error) {
     return (

@@ -10,6 +10,7 @@ import { Flow } from "@/lib/backend/types";
 import { useSession } from "next-auth/react";
 import { createOrgFlowTemplate, createOrgFlowTemplateAction, createOrgFlowTemplateTrigger, getOrgFlowTemplate } from "@/lib/backend/org-flows";
 import LoadingSpinner from "@/components/loading-spinner";
+import { createAction, createFlow, createTrigger } from "@/lib/backend/event-flows";
 
 export default function CreateFlowPage() {
     const router = useRouter();
@@ -59,6 +60,8 @@ export default function CreateFlowPage() {
                         createdBy: session?.user?.id || "Unbekannt",
                         updatedBy: session?.user?.id || "Unbekannt",
                         existInDb: false,
+                        eventId: eventId || "",
+                        isTemplate: false,
                     };
                     setFlow(newFlow);
                     setIsLoading(false);
@@ -82,71 +85,148 @@ export default function CreateFlowPage() {
         setIsCreating(true);
 
         try {
-            const createdFlow = await createOrgFlowTemplate(
-                session?.user?.organization?.id || "",
-                {
-                    createdBy: flow.createdBy,
-                    description: flow.description || "",
-                    name: flow.name,
-                    createdAt: flow.createdAt,
-                    updatedAt: flow.updatedAt,
-                    updatedBy: flow.updatedBy,
-                    organizationId: session?.user?.organization?.id || "",
-                },
-                session?.user?.jwt || "",
-            )
 
-            // Create all triggers concurrently
-            const createdTriggers = Promise.all(
-                (flow.triggers || []).map(trigger => 
-                    createOrgFlowTemplateTrigger(
-                        session?.user?.organization?.id || "",
-                        createdFlow.id,
-                        {
-                            flowId: createdFlow.id,
-                            type: trigger.type,
-                            details: trigger.details,
-                            name: trigger.name || "No name",
-                            summary: trigger.description || "No description",
-                        },
-                        session?.user?.jwt || ""
-                    )
+            if (flow.isTemplate) {
+
+                const createdFlow = await createOrgFlowTemplate(
+                    session?.user?.organization?.id || "",
+                    {
+                        createdBy: flow.createdBy,
+                        description: flow.description || "",
+                        name: flow.name,
+                        createdAt: flow.createdAt,
+                        updatedAt: flow.updatedAt,
+                        updatedBy: flow.updatedBy,
+                        organizationId: session?.user?.organization?.id || "",
+                    },
+                    session?.user?.jwt || "",
                 )
-            );
 
-            // Create all actions concurrently
-            const createdActions = Promise.all(
-                (flow.actions || []).map(action =>
-                    createOrgFlowTemplateAction(
-                        session?.user?.organization?.id || "",
-                        createdFlow.id,
-                        {
-                            flowId: createdFlow.id,
-                            type: action.type,
-                            details: action.details,
-                            name: action.name || "No name",
-                            summary: action.description || "No description",
-                        },
-                        session?.user?.jwt || ""
+                // Create all triggers concurrently
+                const createdTriggers = Promise.all(
+                    (flow.triggers || []).map(trigger =>
+                        createOrgFlowTemplateTrigger(
+                            session?.user?.organization?.id || "",
+                            createdFlow.id,
+                            {
+                                flowId: createdFlow.id,
+                                type: trigger.type,
+                                details: trigger.details,
+                                name: trigger.name || "No name",
+                                summary: trigger.description || "No description",
+                            },
+                            session?.user?.jwt || ""
+                        )
                     )
+                );
+
+                // Create all actions concurrently
+                const createdActions = Promise.all(
+                    (flow.actions || []).map(action =>
+                        createOrgFlowTemplateAction(
+                            session?.user?.organization?.id || "",
+                            createdFlow.id,
+                            {
+                                flowId: createdFlow.id,
+                                type: action.type,
+                                details: action.details,
+                                name: action.name || "No name",
+                                summary: action.description || "No description",
+                            },
+                            session?.user?.jwt || ""
+                        )
+                    )
+                );
+
+                await Promise.all([createdTriggers, createdActions])
+
+                toast.success("Flow created", {
+                    description: "Your flow has been created successfully and is now ready to use.",
+                    duration: 3000,
+                });
+
+                // Redirect to appropriate location
+                setTimeout(() => {
+                    if (eventId) {
+                        router.push(`/organization/events/${eventId}`);
+                    } else {
+                        router.push('/organization/flows');
+                    }
+                }, 1500);
+            }
+            else {
+
+                const createdFlow = await createFlow(
+                    session?.user?.organization?.id || "",
+                    eventId || "",
+                    {
+                        createdBy: flow.createdBy,
+                        description: flow.description || "",
+                        name: flow.name,
+                        multipleRuns: flow.multipleRuns || false,
+                        stillPending: flow.stillPending || false,
+                        // createdAt: flow.createdAt,
+                        // updatedAt: flow.updatedAt,
+                        // updatedBy: flow.updatedBy,
+                        // organizationId: session?.user?.organization?.id || "",
+                    },
+                    session?.user?.jwt || "",
                 )
-            );
 
-            await Promise.all([createdTriggers, createdActions])
+                // Create all triggers concurrently
+                const createdTriggers = Promise.all(
+                    (flow.triggers || []).map(trigger =>
+                        createTrigger(
+                            session?.user?.organization?.id || "",
+                            eventId || "",
+                            createdFlow.id,
+                            {
+                                flowId: createdFlow.id,
+                                type: trigger.type,
+                                details: trigger.details,
+                                name: trigger.name || "No name",
+                                summary: trigger.description || "No description",
+                            },
+                            session?.user?.jwt || ""
+                        )
+                    )
+                );
 
-            toast.success("Flow created", {
-                description: "Your flow has been created successfully and is now ready to use.",
-                duration: 3000,
-            });
+                // Create all actions concurrently
+                const createdActions = Promise.all(
+                    (flow.actions || []).map(action =>
+                        createAction(
+                            session?.user?.organization?.id || "",
+                            eventId || "",
+                            createdFlow.id,
+                            {
+                                flowId: createdFlow.id,
+                                type: action.type,
+                                details: action.details,
+                                name: action.name || "No name",
+                                summary: action.description || "No description",
+                            },
+                            session?.user?.jwt || ""
+                        )
+                    )
+                );
 
-            // Redirect to appropriate location
-            setTimeout(() => {
-                if (eventId) {
-                    router.push(`/organization/events/${eventId}`);
-                } else {
-                    router.push('/organization/flows');
-                }
-            }, 1500);
+                await Promise.all([createdTriggers, createdActions])
+
+                toast.success("Flow created", {
+                    description: "Your flow has been created successfully and is now ready to use.",
+                    duration: 3000,
+                });
+
+                // Redirect to appropriate location
+                setTimeout(() => {
+                    if (eventId) {
+                        router.push(`/organization/events/${eventId}`);
+                    } else {
+                        router.push('/organization/flows');
+                    }
+                }, 1500);
+            }
 
         } catch (error) {
             toast.error("Flow creation failed", {
@@ -168,7 +248,7 @@ export default function CreateFlowPage() {
         },
         {
             label: "Save Flow",
-            onClick: () => {}, // Handled by form
+            onClick: () => { }, // Handled by form
             icon: <SaveIcon className="h-4 w-4" />,
         },
     ];
@@ -178,7 +258,7 @@ export default function CreateFlowPage() {
             <>
                 <SiteHeader actions={quickActions} />
                 <div className="flex flex-1 flex-col items-center justify-center space-y-6 p-4 md:p-6">
-                    <LoadingSpinner  />
+                    <LoadingSpinner />
                     <p className="text-muted-foreground">Loading template...</p>
                 </div>
             </>

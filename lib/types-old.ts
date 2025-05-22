@@ -1,4 +1,5 @@
 import { EmptyObject } from "react-hook-form";
+import { Flow } from "./backend/types";
 
 export interface EventInfo {
     id: string,
@@ -184,19 +185,6 @@ export interface Action {
     details: ActionDetails;
 }
 
-export interface Flow {
-    id: string,
-    name: string,
-    description: string,
-    trigger: Condition[],
-    actions: Action[],
-    createdAt: Date,
-    updatedAt: Date,
-    updatedBy: string,
-    createdBy: string,
-    templateId: string,
-    eventId: string,
-}
 
 export interface EventDetails {
     start: Date;
@@ -204,7 +192,6 @@ export interface EventDetails {
     organization: Organization;
     attendees: User[];
     flows: Flow[];
-    files: EmsFile[];
     agenda: AgendaStep[];
     emails: Email[];
 }
