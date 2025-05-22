@@ -11,41 +11,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle
 } from "@/components/ui/sheet";
 
 // Icons
 import {
-    ArrowLeftIcon,
-    Clock,
-    ListTodo,
-    Plus,
-    Save,
-    Trash2
+  ArrowLeftIcon,
+  Clock,
+  ListTodo,
+  Plus,
+  Save,
+  Trash2
 } from "lucide-react";
 
 // Types and Schemas
 import { AgendaStep } from "@/lib/types-old";
 import { AgendaStepFormData, agendaStepSchema } from "@/lib/form-schemas";
+import { AgendaEntry } from "@/lib/backend/agenda";
 
 interface EventAgendaFormProps {
-  agendaItems: AgendaStep[];
+  agendaItems: AgendaEntry[];
   onAgendaItemsChange: (items: AgendaStep[]) => void;
   onTabChange?: (tab: string) => void;
   eventId?: string;
@@ -74,8 +75,8 @@ export function EventAgendaForm({
     defaultValues: {
       title: "",
       description: "",
-      startTime: new Date().toISOString(),
-      endTime: addMinutes(new Date(), 60).toISOString()
+      start: new Date().toISOString(),
+      end: addMinutes(new Date(), 60).toISOString()
     }
   });
   
@@ -88,8 +89,8 @@ export function EventAgendaForm({
       id: `${Math.random().toString(36).substr(2, 9)}`,
       title: data.title,
       description: data.description || "",
-      startTime: new Date(data.startTime),
-      endTime: new Date(data.endTime)
+      start: new Date(data.start),
+      end: new Date(data.end)
     };
     
     onAgendaItemsChange([...agendaItems, newItem]);
@@ -107,8 +108,8 @@ export function EventAgendaForm({
       id: editingId,
       title: data.title,
       description: data.description || "",
-      startTime: new Date(data.startTime),
-      endTime: new Date(data.endTime)
+      start: new Date(data.start),
+      end: new Date(data.end)
     };
     
     onAgendaItemsChange(updatedItems);
@@ -126,8 +127,8 @@ export function EventAgendaForm({
     
     setValue("title", item.title || "");
     setValue("description", item.description || "");
-    setValue("startTime", item.startTime ? item.startTime.toISOString() : new Date().toISOString());
-    setValue("endTime", item.endTime ? item.endTime.toISOString() : addMinutes(new Date(), 60).toISOString());
+    setValue("start", item.start ? item.start.toISOString() : new Date().toISOString());
+    setValue("end", item.end ? item.end.toISOString() : addMinutes(new Date(), 60).toISOString());
     
     setIsEditSheetOpen(true);
   };
@@ -149,8 +150,8 @@ export function EventAgendaForm({
     reset({
       title: "",
       description: "",
-      startTime: new Date().toISOString(),
-      endTime: addMinutes(new Date(), 60).toISOString()
+      start: new Date().toISOString(),
+      end: addMinutes(new Date(), 60).toISOString()
     });
     setIsAddSheetOpen(true);
   };
@@ -212,13 +213,13 @@ export function EventAgendaForm({
               {/* Agenda items - sorted by start time */}
               {agendaItems
                 .sort((a, b) => {
-                  if (!a.startTime || !b.startTime) return 0;
-                  return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+                  if (!a.start || !b.start) return 0;
+                  return new Date(a.start).getTime() - new Date(b.start).getTime();
                 })
                 .map((item, index) => {
-                  if (!item.startTime || !item.endTime) return null;
+                  if (!item.start || !item.end) return null;
                   
-                  const duration = calculateDuration(new Date(item.startTime), new Date(item.endTime));
+                  const duration = calculateDuration(new Date(item.start), new Date(item.end));
                   return (
                     <div 
                       key={item.id || index}
@@ -230,10 +231,10 @@ export function EventAgendaForm({
                         {/* Time column */}
                         <div className="w-28 shrink-0 bg-muted/30 flex flex-col items-center justify-center px-3 py-4 border-r">
                           <div className="text-xl font-semibold">
-                            {format(new Date(item.startTime), "h:mm")}
+                            {format(new Date(item.start), "h:mm")}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(item.startTime), "a")}
+                            {format(new Date(item.start), "a")}
                           </div>
                         </div>
                         
@@ -254,7 +255,7 @@ export function EventAgendaForm({
                                 <span>{duration} minutes</span>
                                 <span className="mx-1">•</span>
                                 <span>
-                                  {format(new Date(item.startTime), "h:mm a")} - {format(new Date(item.endTime), "h:mm a")}
+                                  {format(new Date(item.start), "h:mm a")} - {format(new Date(item.end), "h:mm a")}
                                 </span>
                               </div>
                             </div>
@@ -356,28 +357,28 @@ export function EventAgendaForm({
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startTime">Start Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="start">Start Time <span className="text-red-500">*</span></Label>
                 <Input
-                  id="startTime"
+                  id="start"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("startTime", { required: "Start time is required" })}
+                  {...register("start", { required: "Start time is required" })}
                 />
-                {errors.startTime && (
-                  <p className="text-sm text-red-500">{errors.startTime.message}</p>
+                {errors.start && (
+                  <p className="text-sm text-red-500">{errors.start.message}</p>
                 )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="endTime">End Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="end">End Time <span className="text-red-500">*</span></Label>
                 <Input
-                  id="endTime"
+                  id="end"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("endTime", { required: "End time is required" })}
+                  {...register("end", { required: "End time is required" })}
                 />
-                {errors.endTime && (
-                  <p className="text-sm text-red-500">{errors.endTime.message}</p>
+                {errors.end && (
+                  <p className="text-sm text-red-500">{errors.end.message}</p>
                 )}
               </div>
             </div>
@@ -428,28 +429,28 @@ export function EventAgendaForm({
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-startTime">Start Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="edit-start">Start Time <span className="text-red-500">*</span></Label>
                 <Input
-                  id="edit-startTime"
+                  id="edit-start"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("startTime", { required: "Start time is required" })}
+                  {...register("start", { required: "Start time is required" })}
                 />
-                {errors.startTime && (
-                  <p className="text-sm text-red-500">{errors.startTime.message}</p>
+                {errors.start && (
+                  <p className="text-sm text-red-500">{errors.start.message}</p>
                 )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="edit-endTime">End Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="edit-end">End Time <span className="text-red-500">*</span></Label>
                 <Input
-                  id="edit-endTime"
+                  id="edit-end"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("endTime", { required: "End time is required" })}
+                  {...register("end", { required: "End time is required" })}
                 />
-                {errors.endTime && (
-                  <p className="text-sm text-red-500">{errors.endTime.message}</p>
+                {errors.end && (
+                  <p className="text-sm text-red-500">{errors.end.message}</p>
                 )}
               </div>
             </div>
