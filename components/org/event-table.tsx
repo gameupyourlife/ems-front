@@ -115,6 +115,7 @@ export default function EventTable() {
         image: e.image ?? "",
         createdBy: e.createdBy ?? "",
         updatedBy: e.updatedBy ?? "",
+        isAttending: e.isAttending ?? false,
       })),
     [rawEvents],
   )

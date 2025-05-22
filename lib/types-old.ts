@@ -19,6 +19,7 @@ export interface EventInfo {
     createdBy: string,
     updatedBy: string,
     creatorName: string,
+    isAttending: boolean,
 }
 
 export interface Organization {

@@ -4,7 +4,6 @@ import EventLayout from "@/components/user/event-layout";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 
-
 export default function EventList() {
   const { data: session } = useSession();
   const token = session?.user?.jwt;
@@ -23,13 +22,18 @@ export default function EventList() {
     );
   }
 
+  // Events nach Startdatum aufsteigend sortieren
+  const sortedEvents = events
+    ? [...events].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    : [];
+
   return (
     <>
       <SiteHeader actions={[]} />
       
       <main className="container mx-auto py-8">
         <EventLayout
-          events={events}
+          events={sortedEvents}
           title={"Alle Events"}
           initialView="grid"
           searchable

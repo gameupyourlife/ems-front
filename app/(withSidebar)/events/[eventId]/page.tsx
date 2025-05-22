@@ -1,4 +1,6 @@
 "use client"
+
+import React from "react"
 import { useParams, useRouter } from "next/navigation"
 import type { EventInfo } from "@/lib/types-old"
 import { Button } from "@/components/ui/button"
@@ -11,8 +13,8 @@ import { Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { useEventsById } from "@/lib/backend/hooks/events"
-import { useRegisterAttendee } from "@/lib/backend/hooks/events"
+import { useEventsById, useRegisterAttendee, useDeleteAttendee } from "@/lib/backend/hooks/events"
+import { useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { SiteHeader } from "@/components/site-header"
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb"
@@ -25,28 +27,43 @@ export default function EventDetailPage() {
   const orgId = session?.user?.organization?.id || ""
   const userId = session?.user?.id || ""
   const profilePicture = session?.user?.profilePicture || ""
+  const queryClient = useQueryClient()
 
   const {
     data: eventData,
     isLoading,
-    error,
+    error: fetchError,
   } = useEventsById(orgId, String(eventId), token)
 
-  // Hook for registration
+  // Registrierung-Hook
   const {
     mutate: register,
     isPending: isRegistering,
     error: registerError,
   } = useRegisterAttendee({
     onSuccess: () => {
-      // Optionally show a toast or similar here
+      queryClient.invalidateQueries({ queryKey: ["eventsById", orgId, eventId, token] })
     },
   })
 
-  // Extract single event if hook returns array
+  // Abmelde-Hook
+  const {
+    mutate: unregister,
+    isPending: isUnregistering,
+    error: unregisterError,
+  } = useDeleteAttendee({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["eventsById", orgId, eventId, token] })
+    },
+  })
+
+  function isEventInfo(obj: any): obj is EventInfo {
+    return obj && typeof obj === "object" && "id" in obj && "title" in obj && "location" in obj
+  }
+
   const event: EventInfo | null = Array.isArray(eventData)
-    ? eventData[0] ?? null
-    : (eventData as unknown as EventInfo) || null
+    ? (isEventInfo(eventData[0]) ? eventData[0] : null)
+    : (isEventInfo(eventData) ? eventData : null)
 
   if (isLoading) {
     return (
@@ -62,11 +79,11 @@ export default function EventDetailPage() {
     )
   }
 
-  if (error || !event) {
+  if (fetchError || !event) {
     return (
       <div className="container mx-auto py-20 text-center">
         <div className="text-red-500 mb-4 font-medium">
-          {error?.message || "Event nicht gefunden"}
+          {fetchError?.message || "Event nicht gefunden"}
         </div>
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
@@ -98,6 +115,8 @@ export default function EventDetailPage() {
         return <Badge className="bg-white text-black">Unbekannt</Badge>
     }
   }
+
+  const isRegistered = event.isAttending
 
   return (
     <>
@@ -216,30 +235,44 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
-                {registerError && <p className="text-red-500">Fehler: {registerError.message}</p>}
-                <Button
-                  className="w-full"
-                  onClick={() =>
+        <div className="space-y-6">
+          {/* Teilnehmen-/Abmelden-Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
+              {(registerError || unregisterError) && (
+                <p className="text-red-500 mb-2">
+                  Fehler: {registerError?.message || unregisterError?.message}
+                </p>
+              )}
+              <Button
+                className={`
+                  w-full flex justify-center items-center
+                  ${isRegistered
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-primary hover:bg-primary-dark text-primary-foreground"
+                  }
+                `}
+                onClick={() => {
+                  if (isRegistered) {
+                    unregister({ orgId, eventId: String(eventId), token })
+                  } else {
                     register({ orgId, eventId: String(eventId), userId, profilePicture, token })
                   }
-                  disabled={isRegistering}
-                >
-                  {isRegistering ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
-                      Anmelden…
-                    </>
-                  ) : (
-                    "Anmelden"
-                  )}
-                </Button>
-
-              </CardContent>
-            </Card>
+                }}
+                disabled={isRegistering || isUnregistering}
+              >
+                {(isRegistering || isUnregistering) ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isRegistered ? "Abmelden…" : "Anmelden…"}
+                  </>
+                ) : (
+                  isRegistered ? "Abmelden" : "Anmelden"
+                )}
+              </Button>
+            </CardContent>
+          </Card>
 
             <Card>
               <CardContent className="pt-6">
