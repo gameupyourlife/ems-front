@@ -10,15 +10,14 @@ import {
   Edit,
   FunctionSquare,
   ListTodo,
-  Mail,
   MapPin,
   MoreHorizontal,
-  Share,
   Tag,
   Trash2,
   Users,
   MailsIcon,
   UsersIcon,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -38,6 +37,8 @@ import EventAttendeesTab from "./event-attendees-tab";
 import { useSession } from "next-auth/react";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useEventDetails } from "@/lib/backend/hooks/events";
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { SiteHeader } from "@/components/site-header";
 
 
 export default function EventDetailsPage() {
@@ -97,151 +98,175 @@ export default function EventDetailsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-      {/* Header with back button */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className="h-8 w-8 mr-1">
-              <Link href="/organization/events">
-                <ArrowLeftIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-            <h1 className="text-2xl font-bold truncate">{event?.metadata?.title}</h1>
-            {getStatusBadge(String(event?.metadata?.status))}
-          </div>
-          <p className="text-muted-foreground ml-10">
-            {event?.metadata?.organization} • {format(new Date(event?.metadata?.start), "MMMM dd, yyyy")}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
+    <>
+      <SiteHeader actions={[{
+        label: "Zurück",
+        icon: <ArrowLeft className=" h-4 w-4" />,
+        onClick: () => router.back(),
+        variant: "outline"
+      },
+      {
+        children: (
+          <Button variant="default" asChild >
             <Link href={`/organization/events/${eventId}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Event
             </Link>
           </Button>
+        )
+      },
+      {
+        children: (<DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="h-9 w-9">
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {/* <DropdownMenuItem onClick={() => toast.success("Event sharing link copied to clipboard")}>
+              <Share className="mr-2 h-4 w-4" />
+              Share Event
+            </DropdownMenuItem> */}
+            {/* <DropdownMenuItem asChild>
+              <Link href={`/organization/events/${eventId}/invite`}>
+                <Mail className="mr-2 h-4 w-4" />
+                Invite attendee
+              </Link>
+            </DropdownMenuItem> */}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleDeleteEvent} className="text-red-600 focus:text-red-600">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Event
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>)
+      }
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="h-9 w-9">
-                <MoreHorizontal className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => toast.success("Event sharing link copied to clipboard")}>
-                <Share className="mr-2 h-4 w-4" />
-                Share Event
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/organization/events/${eventId}/invite`}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Invite attendeeCount
+      ]} >
+        <BreadcrumbItem>
+          <BreadcrumbPage>
+            {event.metadata.title}
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+      </SiteHeader>
+      <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
+        {/* Header with back button */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" asChild className="h-8 w-8 mr-1">
+                <Link href="/organization/events">
+                  <ArrowLeftIcon className="h-4 w-4" />
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleDeleteEvent} className="text-red-600 focus:text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Event
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+              </Button>
+              <h1 className="text-2xl font-bold truncate">{event?.metadata?.title}</h1>
+              {getStatusBadge(String(event?.metadata?.status))}
+            </div>
+            <p className="text-muted-foreground ml-10">
+              {event?.metadata?.organization} • {format(new Date(event?.metadata?.start), "MMMM dd, yyyy")}
+            </p>
+          </div>
 
-      {/* Event Hero Section */}
-      <div className="relative rounded-lg overflow-hidden h-40 md:h-60">
-        <img
-          src={event?.metadata?.image || "https://via.placeholder.com/1200x400"}
-          alt={event?.metadata?.title}
-          className="object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
-          <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
-            <div className="flex flex-wrap gap-2 mb-2">
-              <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
-                <Tag className="mr-1 h-3 w-3" />
-                {event?.metadata?.category}
-              </Badge>
-              <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
-                <Users className="mr-1 h-3 w-3" />
-                {event?.metadata?.attendeeCount} / {event?.metadata?.capacity} attendeeCount
-              </Badge>
-              <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
-                <MapPin className="mr-1 h-3 w-3" />
-                {event?.metadata?.location}
-              </Badge>
+          <div className="flex items-center gap-2">
+
+
+
+          </div>
+        </div>
+
+        {/* Event Hero Section */}
+        <div className="relative rounded-lg overflow-hidden h-40 md:h-60">
+          <img
+            src={event?.metadata?.image || "https://via.placeholder.com/1200x400"}
+            alt={event?.metadata?.title}
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
+            <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+              <div className="flex flex-wrap gap-2 mb-2">
+                <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
+                  <Tag className="mr-1 h-3 w-3" />
+                  {event?.metadata?.category}
+                </Badge>
+                <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
+                  <Users className="mr-1 h-3 w-3" />
+                  {event?.metadata?.attendeeCount} / {event?.metadata?.capacity} attendeeCount
+                </Badge>
+                <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
+                  <MapPin className="mr-1 h-3 w-3" />
+                  {event?.metadata?.location}
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
+
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="flex w-full mx-auto bg-muted">
+            <TabsTrigger
+              value="overview"
+              className="flex items-center gap-2 data-[state=active]:bg-background"
+            >
+              <CalendarIcon className="h-4 w-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="flows"
+              className="flex items-center gap-2 data-[state=active]:bg-background"
+            >
+              <FunctionSquare className="h-4 w-4" />
+              <span>Flows</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="agenda"
+              className="flex items-center gap-2 data-[state=active]:bg-background"
+            >
+              <ListTodo className="h-4 w-4" />
+              <span>Agenda</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="emails"
+              className="flex items-center gap-2 data-[state=active]:bg-background"
+            >
+              <MailsIcon className="h-4 w-4" />
+              <span>Mails</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="attendeeCount"
+              className="flex items-center gap-2 data-[state=active]:bg-background"
+            >
+              <UsersIcon className="h-4 w-4" />
+              <span>Teilnehmer</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <EventOverviewTab eventDetails={event} />
+          </TabsContent>
+
+          {/* Flows Tab - IMPROVED VISUALIZATION */}
+          <TabsContent value="flows" className="space-y-6">
+            <EventFlowsTab eventDetails={event} />
+          </TabsContent>
+
+          {/* Agenda Tab - IMPROVED TIMELINE */}
+          <TabsContent value="agenda" className="space-y-6">
+            <EventAgendaTab eventDetails={event} />
+          </TabsContent>
+
+          {/* Attendees Tab */}
+          <TabsContent value="attendees" className="space-y-6">
+            <EventAttendeesTab eventDetails={event} />
+          </TabsContent>
+
+          {/* emails Tab */}
+          <TabsContent value="emails" className="space-y-6">
+            <EventEmailsTab eventDetails={event} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="flex w-full mx-auto bg-muted">
-          <TabsTrigger
-            value="overview"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <CalendarIcon className="h-4 w-4" />
-            <span>Overview</span>
-          </TabsTrigger>
-
-          <TabsTrigger
-            value="flows"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <FunctionSquare className="h-4 w-4" />
-            <span>Flows</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="agenda"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <ListTodo className="h-4 w-4" />
-            <span>Agenda</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="emails"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <MailsIcon className="h-4 w-4" />
-            <span>Mails</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="attendeeCount"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <UsersIcon className="h-4 w-4" />
-            <span>Teilnehmer</span>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <EventOverviewTab eventDetails={event} />
-        </TabsContent>
-
-        {/* Flows Tab - IMPROVED VISUALIZATION */}
-        <TabsContent value="flows" className="space-y-6">
-          <EventFlowsTab eventDetails={event} />
-        </TabsContent>
-
-        {/* Agenda Tab - IMPROVED TIMELINE */}
-        <TabsContent value="agenda" className="space-y-6">
-          <EventAgendaTab eventDetails={event} />
-        </TabsContent>
-
-        {/* Attendees Tab */}
-        <TabsContent value="attendees" className="space-y-6">
-          <EventAttendeesTab eventDetails={event} />
-        </TabsContent>
-
-        {/* emails Tab */}
-        <TabsContent value="emails" className="space-y-6">
-          <EventEmailsTab eventDetails={event} />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </>
   );
 }

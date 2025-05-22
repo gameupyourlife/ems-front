@@ -66,32 +66,6 @@ export function useEventsById(
     });
 }
 
-export function useEventsByCreator(
-    orgId: string,
-    userId: string,
-    token: string,
-    options?: Omit<UseQueryOptions<EventDetails[], Error>, 'queryKey' | 'queryFn'>
-) {
-    return useQuery({
-        queryKey: ['eventsByCreator', orgId, userId, token],
-        queryFn: () => getEventsByCreator(orgId, userId, token),
-        ...options,
-    });
-}
-
-export function useEventsById(
-    orgId: string,
-    eventId: string,
-    token: string,
-    options?: Omit<UseQueryOptions<EventDetails, Error>, 'queryKey' | 'queryFn'>
-) {
-    return useQuery({
-        queryKey: ['eventsById', orgId, eventId, token],
-        queryFn: () => getEventsById(orgId, eventId, token),
-        ...options,
-    });
-}
-
 export function useRegisterAttendee(
   options?: Omit<UseMutationOptions<any, Error, RegisterAttendeeParams>, "mutationFn">,
 ) {

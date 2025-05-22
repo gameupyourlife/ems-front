@@ -8,6 +8,7 @@ import Link from "next/link";
 import EventTable from "@/components/org/event-table";
 import { useSession } from "next-auth/react";
 import { useEventsByCreator } from "@/lib/backend/hooks/events";
+import { SiteHeader } from "@/components/site-header";
 
 export default function OrganizationEventsPage() {
   const router = useRouter()
@@ -59,50 +60,49 @@ export default function OrganizationEventsPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6 overflow-hidden">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Events Management</h1>
-          <p className="text-muted-foreground">Hier findest du alle Events, die du erstellt hast.</p>
+    <>
+      <SiteHeader actions={[{
+        children: (
+          <Button size="sm" asChild>
+            <Link href={`/organization/events/create`}>
+              <PlusIcon className="mr-2 h-4 w-4" /> Event erstellen
+            </Link>
+          </Button>
+        )
+      }]} />
+      <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6 overflow-hidden">
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">All Events</CardTitle>
+              <CardDescription>Total number of events</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{events.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Upcoming</CardTitle>
+              <CardDescription>In the future</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{upcoming.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl">Past</CardTitle>
+              <CardDescription>Completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{past.length}</div>
+            </CardContent>
+          </Card>
         </div>
-        <Button size="sm" asChild>
-          <Link href={`/organization/${orgId}/events/create`}>
-            <PlusIcon className="mr-2 h-4 w-4" /> Create Event
-          </Link>
-        </Button>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">All Events</CardTitle>
-            <CardDescription>Total number of events</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{events.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Upcoming</CardTitle>
-            <CardDescription>In the future</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{upcoming.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Past</CardTitle>
-            <CardDescription>Completed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{past.length}</div>
-          </CardContent>
-        </Card>
+        <EventTable />
       </div>
-
-      <EventTable />
-    </div>
+    </>
   )
 }

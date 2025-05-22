@@ -42,11 +42,12 @@ import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
 // Types and Data
-import { AgendaStep, EmsFile, Flow } from "@/lib/types-old";
+import { AgendaStep } from "@/lib/types-old";
 import { mockedEventDetails, mockFlows } from "@/lib/data";
 
 // Form schema
 import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";
+import { Flow } from "@/lib/backend/types";
 
 
 export default function EditEventPage() {
@@ -64,7 +65,6 @@ export default function EditEventPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [agendaItems, setAgendaItems] = useState<AgendaStep[]>(eventDetails.agenda);
-  const [selectedFiles, setSelectedFiles] = useState<EmsFile[]>(eventDetails.files);
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>(eventDetails.flows);
   const [selectedStatus, setSelectedStatus] = useState(String(event.status));
   
@@ -94,7 +94,6 @@ export default function EditEventPage() {
       // In a real app, you would call an API to update the event
 
       console.log("Agenda items:", agendaItems);
-      console.log("Selected files:", selectedFiles);
       console.log("Selected flows:", selectedFlows);
       
       // Simulate API call
@@ -220,7 +219,7 @@ export default function EditEventPage() {
             {/* ToDo: Fix the issues here with the form */}
             <EventBasicInfoForm 
               form={form}
-               
+              onTabChange={setActiveTab}
             />
           </TabsContent>
           

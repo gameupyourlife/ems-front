@@ -1,29 +1,30 @@
-"use client";
-
+"use client";;
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import Link from "next/link";
 import { toast } from "sonner";
 
 // UI Components & Icons
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeftIcon, FunctionSquare, Info, ListTodo, Save } from "lucide-react";
+import { ArrowLeft, FunctionSquare, Info, ListTodo, Save } from "lucide-react";
 
 // Custom Forms & Types
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 import { mockFlows } from "@/lib/data";
-import type { Flow, AgendaStep } from "@/lib/types-old";
+import type { AgendaStep } from "@/lib/types-old";
 import {
   eventBasicInfoSchema as eventFormSchema,
   EventBasicInfoFormData as EventFormData,
 } from "@/lib/form-schemas";
 import { createEvent, NewEventPayload } from "@/lib/api/postEvents";
+import { Flow } from "@/lib/backend/types";
+import { SiteHeader } from "@/components/site-header";
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -120,24 +121,26 @@ export default function CreateEventPage() {
 
   // ─── 6️⃣ JSX ───────────────────────────────────────────────────
   return (
-    <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild className="h-8 w-8">
-            <Link href="/organization/events">
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-bold">Create New Event</h1>
-        </div>
-        <div className="flex gap-2">
+
+    <>
+      <SiteHeader actions={[{
+        label: "Zurück",
+        icon: <ArrowLeft className=" h-4 w-4" />,
+        onClick: () => router.back(),
+        variant: "outline"
+      },
+      {
+        children: (
           <Button
             variant="outline"
             onClick={() => router.push("/organization/events")}
           >
             Cancel
           </Button>
+        )
+      },
+      {
+        children: (
           <Button
             disabled={isSubmitting || !form.formState.isValid}
             onClick={onSubmit}
@@ -154,58 +157,68 @@ export default function CreateEventPage() {
               </span>
             )}
           </Button>
-        </div>
+        )
+      }
+
+      ]} >
+        <BreadcrumbItem>
+          <BreadcrumbPage>
+            Erstellen
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+      </SiteHeader>
+
+      <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as any)}
+          className="space-y-6"
+          defaultValue="basic"
+        >
+          <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
+            <TabsTrigger value="basic" className="flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Basic
+            </TabsTrigger>
+            <TabsTrigger value="flows" className="flex items-center gap-2">
+              <FunctionSquare className="h-4 w-4" />
+              Flows
+            </TabsTrigger>
+            <TabsTrigger value="agenda" className="flex items-center gap-2">
+              <ListTodo className="h-4 w-4" />
+              Agenda
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="basic">
+            <EventBasicInfoForm
+              form={form}
+              onTabChange={() => setActiveTab("flows")}
+              submitLabel="Next: Flows"
+            />
+          </TabsContent>
+          <TabsContent value="flows">
+            <EventFlowsForm
+              selectedFlows={selectedFlows}
+              availableFlows={mockFlows}
+              onFlowsChange={setSelectedFlows}
+              onTabChange={() => setActiveTab("agenda")}
+              submitLabel="Next: Agenda"
+            />
+          </TabsContent>
+          <TabsContent value="agenda">
+            <EventAgendaForm
+              agendaItems={agendaItems}
+              onAgendaItemsChange={setAgendaItems}
+              onTabChange={() => setActiveTab("basic")}
+              isFinalStep
+              submitLabel="Create Event"
+              isSubmitting={isSubmitting}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as any)}
-        className="space-y-6"
-        defaultValue="basic"
-      >
-        <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
-          <TabsTrigger value="basic" className="flex items-center gap-2">
-            <Info className="h-4 w-4" />
-            Basic
-          </TabsTrigger>
-          <TabsTrigger value="flows" className="flex items-center gap-2">
-            <FunctionSquare className="h-4 w-4" />
-            Flows
-          </TabsTrigger>
-          <TabsTrigger value="agenda" className="flex items-center gap-2">
-            <ListTodo className="h-4 w-4" />
-            Agenda
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="basic">
-          <EventBasicInfoForm
-            form={form}
-            onTabChange={() => setActiveTab("flows")}
-            submitLabel="Next: Flows"
-          />
-        </TabsContent>
-        <TabsContent value="flows">
-          <EventFlowsForm
-            selectedFlows={selectedFlows}
-            availableFlows={mockFlows}
-            onFlowsChange={setSelectedFlows}
-            onTabChange={() => setActiveTab("agenda")}
-            submitLabel="Next: Agenda"
-          />
-        </TabsContent>
-        <TabsContent value="agenda">
-          <EventAgendaForm
-            agendaItems={agendaItems}
-            onAgendaItemsChange={setAgendaItems}
-            onTabChange={() => setActiveTab("basic")}
-            isFinalStep
-            submitLabel="Create Event"
-            isSubmitting={isSubmitting}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </>
   );
 }

@@ -14,6 +14,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useEventsById } from "@/lib/backend/hooks/events"
 import { useRegisterAttendee } from "@/lib/backend/hooks/events"
 import { useSession } from "next-auth/react"
+import { SiteHeader } from "@/components/site-header"
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
@@ -98,169 +100,180 @@ export default function EventDetailPage() {
   }
 
   return (
-    <main className="container mx-auto py-8 px-4 md:px-6">
-      <div className="mb-6">
-        <Button variant="outline" onClick={() => router.back()} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück zur Übersicht
-        </Button>
+    <>
+      <SiteHeader actions={[{
+        label: "Zurück",
+        icon: <ArrowLeft className=" h-4 w-4" />,
+        onClick: () => router.back(),
+        variant: "outline"
+      }]} >
+        <BreadcrumbItem>
+          <BreadcrumbPage>
+            {event.title}
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+      </SiteHeader>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold">{event.title}</h1>
-          <div className="flex flex-wrap gap-2">
-            {getStatusBadge(event.status)}
-            <Badge className="bg-primary text-primary-foreground font-bold" variant="outline">
-              {event.category}
-            </Badge>
+      <main className="container mx-auto py-8 px-4 md:px-6">
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold">{event.title}</h1>
+            <div className="flex flex-wrap gap-2">
+              {getStatusBadge(event.status)}
+              <Badge className="bg-primary text-primary-foreground font-bold" variant="outline">
+                {event.category}
+              </Badge>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-8">
-          <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden bg-muted">
-            {event.image ? (
-              <Image
-                src={event.image || "/placeholder.svg"}
-                alt={event.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Kein Bild verfügbar
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Beschreibung</h2>
-            <div className="prose max-w-none">
-              {event.description ? (
-                <p>{event.description}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-8">
+            <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden bg-muted">
+              {event.image ? (
+                <Image
+                  src={event.image || "/placeholder.svg"}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
               ) : (
-                <p className="text-muted-foreground">Keine Beschreibung verfügbar</p>
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Kein Bild verfügbar
+                </div>
               )}
             </div>
-          </div>
 
-          <Separator />
-
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <h3 className="font-medium">Datum</h3>
-                      <p>{formatDate(event.start)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <h3 className="font-medium">Uhrzeit</h3>
-                      <p>
-                        {formatTime(event.start)} - {formatTime(event.end)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <h3 className="font-medium">Ort</h3>
-                      <p>{event.location || "Kein Ort angegeben"}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <h3 className="font-medium">Teilnehmer</h3>
-                      <p>
-                        {event.attendeeCount} / {event.capacity}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
-              {registerError && <p className="text-red-500">Fehler: {registerError.message}</p>}
-              <Button
-                className="w-full"
-                onClick={() =>
-                  register({ orgId, eventId: String(eventId), userId, profilePicture, token })
-                }
-                disabled={isRegistering}
-              >
-                {isRegistering ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
-                    Anmelden…
-                  </>
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Beschreibung</h2>
+              <div className="prose max-w-none">
+                {event.description ? (
+                  <p>{event.description}</p>
                 ) : (
-                  "Anmelden"
-                )}
-              </Button>
-
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-4">Ersteller</h3>
-              <p className="text-muted-foreground">
-                {event.creatorName || "Keine Informationen zum Veranstalter"}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-4">Weitere Informationen</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Erstellt am:</span>
-                  <span>{format(new Date(event.createdAt), "dd.MM.yyyy")}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Aktualisiert am:</span>
-                  <span>{format(new Date(event.updatedAt), "dd.MM.yyyy")}</span>
-                </div>
-                {event.organization && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Organisation:</span>
-                    <span>{event.organization}</span>
-                  </div>
+                  <p className="text-muted-foreground">Keine Beschreibung verfügbar</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Datum</h3>
+                        <p>{formatDate(event.start)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Uhrzeit</h3>
+                        <p>
+                          {formatTime(event.start)} - {formatTime(event.end)}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Ort</h3>
+                        <p>{event.location || "Kein Ort angegeben"}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Teilnehmer</h3>
+                        <p>
+                          {event.attendeeCount} / {event.capacity}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
+                {registerError && <p className="text-red-500">Fehler: {registerError.message}</p>}
+                <Button
+                  className="w-full"
+                  onClick={() =>
+                    register({ orgId, eventId: String(eventId), userId, profilePicture, token })
+                  }
+                  disabled={isRegistering}
+                >
+                  {isRegistering ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
+                      Anmelden…
+                    </>
+                  ) : (
+                    "Anmelden"
+                  )}
+                </Button>
+
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">Ersteller</h3>
+                <p className="text-muted-foreground">
+                  {event.creatorName || "Keine Informationen zum Veranstalter"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">Weitere Informationen</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Erstellt am:</span>
+                    <span>{format(new Date(event.createdAt), "dd.MM.yyyy")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Aktualisiert am:</span>
+                    <span>{format(new Date(event.updatedAt), "dd.MM.yyyy")}</span>
+                  </div>
+                  {event.organization && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Organisation:</span>
+                      <span>{event.organization}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }

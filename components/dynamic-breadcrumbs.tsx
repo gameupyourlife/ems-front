@@ -24,6 +24,12 @@ export default function DynamicBreadcrumbs({ customEndBreadcrumb, idName }: { cu
         <Breadcrumb>
             <BreadcrumbList>
 
+                {breadcrumbs.length === 0 && customEndBreadcrumb &&
+                    <React.Fragment >
+                        {customEndBreadcrumb}
+                    </React.Fragment>
+                }
+
                 {breadcrumbs.map((breadcrumb, index) => (
                     index === breadcrumbs.length - 1 ? (
                         customEndBreadcrumb ? (

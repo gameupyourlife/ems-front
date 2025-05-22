@@ -1,4 +1,5 @@
 "use client";;
+import { SiteHeader } from "@/components/site-header";
 import EventLayout from "@/components/user/event-layout";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
@@ -23,15 +24,19 @@ export default function EventList() {
   }
 
   return (
-    <main className="container mx-auto py-8">
-      <EventLayout
-        events={events}
-        title={"Alle Events"}
-        initialView="grid"
-        searchable
-        onSearch={(q) => console.log("Suchanfrage:", q)}
-        onFilterChange={(f) => console.log("Filter:", f)}
-      />
-    </main>
+    <>
+      <SiteHeader actions={[]} />
+      
+      <main className="container mx-auto py-8">
+        <EventLayout
+          events={events}
+          title={"Alle Events"}
+          initialView="grid"
+          searchable
+          onSearch={(q) => console.log("Suchanfrage:", q)}
+          onFilterChange={(f) => console.log("Filter:", f)}
+        />
+      </main>
+    </>
   );
 }

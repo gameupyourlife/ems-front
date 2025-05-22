@@ -1,5 +1,5 @@
 "use client";;
-import { AgendaStep, Email, EventDetails, EventInfo, Organization, User } from '../types-old';
+import { AgendaStep, Email, EmsFile, EventDetails, EventInfo, Organization, User } from '../types-old';
 import { components, Flow } from './types';
 import { guardUUID } from './utils';
 
@@ -73,27 +73,6 @@ async function getEventFlows(eventId: string, token: string): Promise<EventBasic
 }
 
 export async function getEventsByCreator(orgId: string, userId: string, token: string): Promise<EventDetails[]> {
-	guardUUID(orgId);
-	guardUUID(userId);
-
-	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/creator/${userId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': token ? `Bearer ${token}` : '',
-			},
-		});
-
-		const basicData: EventDetails[] = await response.json();
-		return basicData;
-	} catch (err) {
-		console.error(err);
-		throw new Error('Failed to fetch event details');
-	}
-}
-
-export async function getEventsByCreator(orgId: string, userId: string, token: string): Promise<EventDetails[]> {
     guardUUID(orgId);
     guardUUID(userId);
 
@@ -105,6 +84,11 @@ export async function getEventsByCreator(orgId: string, userId: string, token: s
                 'Authorization': token ? `Bearer ${token}` : '',
             },
         });
+
+		if (!response.ok) {
+			if (response.status === 404) return [];
+			throw new Error(`Failed to fetch events by creator: ${response.status}`);
+		}
 
         const basicData : EventDetails[] = await response.json();
         return basicData;
