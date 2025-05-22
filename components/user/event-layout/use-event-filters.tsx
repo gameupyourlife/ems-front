@@ -38,7 +38,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     dateRange: { start: null, end: null },
     location: "",
   })
-
+  const uniqueCategories = Array.from(new Set(events.map((e) => e.category).filter(Boolean)));
   const [locationInput, setLocationInput] = useState(initialFilters?.location || "")
   const [singleDateInput, setSingleDateInput] = useState(
     initialFilters?.singleDate ? format(initialFilters.singleDate, "dd.MM.yyyy") : "",
@@ -65,9 +65,9 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
       const normalizedQuery = searchQuery.trim().toLowerCase()
       filtered = filtered.filter(
         (event) =>
-          event.title.toLowerCase().includes(normalizedQuery) ||
-          event.description.toLowerCase().includes(normalizedQuery) ||
-          event.organization.toLowerCase().includes(normalizedQuery),
+          (event.title?.toLowerCase() || "").includes(normalizedQuery) ||
+          (event.description?.toLowerCase() || "").includes(normalizedQuery) ||
+          (event.organization?.toLowerCase() || "").includes(normalizedQuery),
       )
     }
 
@@ -91,10 +91,22 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
       })
     } else if (selectedFilters.dateType === "range") {
       if (selectedFilters.dateRange.start) {
-        filtered = filtered.filter((event) => new Date(event.start) >= selectedFilters.dateRange.start!)
+        const startDate = new Date(selectedFilters.dateRange.start)
+        // Set time to beginning of day
+        startDate.setHours(0, 0, 0, 0)
+        filtered = filtered.filter((event) => {
+          const eventEndDate = new Date(event.end || event.start)
+          return eventEndDate >= startDate
+        })
       }
       if (selectedFilters.dateRange.end) {
-        filtered = filtered.filter((event) => new Date(event.end) <= selectedFilters.dateRange.end!)
+        const endDate = new Date(selectedFilters.dateRange.end)
+        // Set time to end of day
+        endDate.setHours(23, 59, 59, 999)
+        filtered = filtered.filter((event) => {
+          const eventStartDate = new Date(event.start)
+          return eventStartDate <= endDate
+        })
       }
     }
 
@@ -314,6 +326,6 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     clearAllFilters,
     handleApplyFilters,
     applyFilters,
+    
   }
 }
-

@@ -1,17 +1,17 @@
-"use client";
-import type React from "react";
+"use client"
+import type React from "react"
 
-import { useState, useEffect } from "react";
-import { Grid, List, Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import EventCard from "@/components/event-card";
-import type { EventInfo } from "@/lib/types";
-import FilterDropdown from "./filter-dropdown";
-import ActiveFilters from "./active-filters";
-import { useEventFilters } from "./use-event-filters";
-import LoadingSpinner from "@/components/loading-spinner";
+import { useState, useEffect } from "react"
+import { Grid, List, Search, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import EventCard from "@/components/event-card"
+import type { EventInfo } from "@/lib/types"
+import ActiveFilters from "./active-filters"
+import { useEventFilters } from "./use-event-filters"
+import LoadingSpinner from "@/components/loading-spinner"
+import FilterDropdown from "./filter-dropdown"
 
 interface EventLayoutProps {
   events: EventInfo[] | undefined
@@ -164,6 +164,33 @@ export default function EventLayout({
             validateDateRange={validateDateRange}
             handleApplyFilters={handleApplyFilters}
             clearAllFilters={clearAllFilters}
+            availableCategories={
+              filteredEvents.length > 0
+                ? Array.from(
+                    new Set(
+                      filteredEvents.flatMap((event) =>
+                        typeof event.category === "string"
+                          ? [event.category.toLowerCase()]
+                          : Array.isArray(event.category)
+                            ? (event.category as string[]).map((c) => c.toLowerCase())
+                            : [],
+                      ),
+                    ),
+                  )
+                : events
+                  ? Array.from(
+                      new Set(
+                        events.flatMap((event) =>
+                          typeof event.category === "string"
+                            ? [event.category.toLowerCase()]
+                            : Array.isArray(event.category)
+                              ? (event.category as string[]).map((c) => c.toLowerCase())
+                              : [],
+                        ),
+                      ),
+                    )
+                  : []
+            }
           />
 
           <ToggleGroup
@@ -195,13 +222,13 @@ export default function EventLayout({
           selectedFilters.dateRange.start ||
           selectedFilters.dateRange.end ||
           selectedFilters.location) && (
-            <div className="flex items-center">
-              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm text-muted-foreground">
-                Alle Filter löschen
-                <X className="ml-1 h-3 w-3" />
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center">
+            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-sm text-muted-foreground">
+              Alle Filter löschen
+              <X className="ml-1 h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Anzeige der aktiven Filter */}
@@ -221,35 +248,33 @@ export default function EventLayout({
 
       {/* Event Raster-/Listenansicht */}
       <div
-        className={`${currentView === "grid"
-          ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          : "flex flex-col gap-4"
-          } mt-4`}
+        className={`${
+          currentView === "grid"
+            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            : "flex flex-col gap-4"
+        } mt-4`}
       >
-
         {filteredEvents.length > 0 ? (
-          filteredEvents.map((event, idx) => <EventCard key={idx} event={event} />)/* <EventCard key={event.id} event={event} /> */
+          filteredEvents.map((event, idx) => (
+            <EventCard key={idx} event={event} />
+          )) /* <EventCard key={event.id} event={event} /> */
+        ) : isLoading ? (
+          <div className="col-span-full flex justify-center items-center py-8">
+            <LoadingSpinner />
+          </div>
+        ) : error ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-red-500">Fehler beim Laden der Events: {error.message}</p>
+          </div>
         ) : (
-
-          isLoading ? (
-            <div className="col-span-full flex justify-center items-center py-8">
-              <LoadingSpinner />
-            </div>
-          ) : error ? (
-            <div className="col-span-full text-center py-8">
-              <p className="text-red-500">Fehler beim Laden der Events: {error.message}</p>
-            </div>
-          ) :
-
-            <div className="col-span-full text-center py-8">
-              <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
-              <Button variant="link" onClick={clearAllFilters} className="mt-2">
-                Alle Filter zurücksetzen
-              </Button>
-            </div>
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
+            <Button variant="link" onClick={clearAllFilters} className="mt-2">
+              Alle Filter zurücksetzen
+            </Button>
+          </div>
         )}
       </div>
     </div>
   )
 }
-

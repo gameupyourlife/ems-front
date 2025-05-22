@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 
-// UI Components
+// UI-Komponenten
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +16,19 @@ import type { EventBasicInfoFormData } from "@/lib/form-schemas"
 import { DateTimePicker24h } from "@/components/ui/date-time-picker"
 import { Controller, type UseFormReturn } from "react-hook-form"
 
-const CATEGORIES = ["Conference", "Workshop", "Seminar", "Networking", "Webinar", "Training", "Team Building", "Other"]
+// Kategorien für das Event
+const CATEGORIES = [
+  "Konferenz",
+  "Workshop",
+  "Seminar",
+  "Networking",
+  "Webinar",
+  "Training",
+  "Teambuilding",
+  "Sonstiges"
+]
+
+// Optionen für das Titelbild
 const IMAGE_OPTIONS: { label: string; value: string }[] = [
   { label: "Technik", value: "https://www.trendsderzukunft.de/wp-content/uploads/2021/04/Computerchip-620x414.jpg" },
   {
@@ -56,12 +68,13 @@ interface EventBasicInfoFormProps {
   onTabChange?: (tab: string) => void
 }
 
+// Formular für grundlegende Event-Informationen
 export function EventBasicInfoForm({
   eventId,
   form,
   isFinalStep = false,
   isSubmitting = false,
-  submitLabel = "Next Step",
+  submitLabel = "Nächster Schritt",
   onSubmit,
   onTabChange,
 }: EventBasicInfoFormProps) {
@@ -76,9 +89,9 @@ export function EventBasicInfoForm({
   const values = getValues()
 
   if (isFinalStep && !onSubmit) {
-    throw new Error("onSubmit function is required for the final step.")
+    throw new Error("Die onSubmit-Funktion ist für den letzten Schritt erforderlich.")
   } else if (!isFinalStep && !onTabChange) {
-    throw new Error("onTabChange function is required for non-final steps.")
+    throw new Error("Die onTabChange-Funktion ist für nicht-letzte Schritte erforderlich.")
   }
 
   return (
@@ -86,11 +99,10 @@ export function EventBasicInfoForm({
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <Info className="h-5 w-5 text-primary" />
-          Event Details
+          Event-Details
         </CardTitle>
         <CardDescription>
-          Trage hier die grundlegenden Informationen zu deinem Event ein. Diese Informationen sind wichtig, um dein
-          Event zu erstellen und zu verwalten.
+          Trage hier die grundlegenden Informationen zu deinem Event ein. Diese Informationen sind wichtig, um dein Event zu erstellen und zu verwalten.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -98,11 +110,11 @@ export function EventBasicInfoForm({
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">
-                Event Title <span className="text-red-500">*</span>
+                Event-Titel <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="title"
-                placeholder="Enter a descriptive title for your event"
+                placeholder="Gib einen aussagekräftigen Titel für dein Event ein"
                 {...register("title")}
                 className="focus-within:ring-1 focus-within:ring-primary"
               />
@@ -111,11 +123,11 @@ export function EventBasicInfoForm({
 
             <div className="space-y-2">
               <Label htmlFor="description">
-                Description <span className="text-red-500">*</span>
+                Beschreibung <span className="text-red-500">*</span>
               </Label>
               <Textarea
                 id="description"
-                placeholder="Provide details about your event"
+                placeholder="Beschreibe dein Event"
                 className="min-h-[120px] focus-within:ring-1 focus-within:ring-primary"
                 {...register("description")}
               />
@@ -125,32 +137,68 @@ export function EventBasicInfoForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">
-                  Category <span className="text-red-500">*</span>
+                  Kategorie <span className="text-red-500">*</span>
                 </Label>
-                <Select defaultValue={values.category} onValueChange={(value) => form.setValue("category", value)}>
-                  <SelectTrigger id="category" className="focus-within:ring-1 focus-within:ring-primary">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && <p className="text-sm text-red-500">{errors.category.message}</p>}
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => {
+                    const isCustom = !CATEGORIES.includes(field.value || "")
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Select
+                              value={isCustom ? "" : field.value || ""}
+                              onValueChange={(value) => {
+                                field.onChange(value)
+                                setValue("category", value)
+                              }}
+                            >
+                              <SelectTrigger id="category" className="focus-within:ring-1 focus-within:ring-primary">
+                                <SelectValue placeholder="Kategorie auswählen" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CATEGORIES.map((cat) => (
+                                  <SelectItem key={cat} value={cat}>
+                                    {cat}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Input
+                              placeholder="Oder eigene Kategorie eingeben"
+                              value={field.value || ""}
+                              onChange={(e) => {
+                                const input = e.target.value
+                                field.onChange(input)
+                                setValue("category", input)
+                              }}
+                              className="focus-within:ring-1 focus-within:ring-primary"
+                            />
+                          </div>
+                        </div>
+                        {errors.category && <p className="text-sm text-red-500">{errors.category.message as string}</p>}
+                        <p className="text-xs text-muted-foreground">
+                          Wähle eine bestehende Kategorie oder gib deine eigene Kategorie ein.
+                        </p>
+                      </>
+                    )
+                  }}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="capacity">
-                  Capacity <span className="text-red-500">*</span>
+                  Kapazität <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="capacity"
                   type="number"
                   min={1}
-                  placeholder="Maximum number of attendees"
+                  placeholder="Maximale Teilnehmerzahl"
                   {...register("capacity", { valueAsNumber: true })}
                   className="focus-within:ring-1 focus-within:ring-primary"
                 />
@@ -160,11 +208,11 @@ export function EventBasicInfoForm({
 
             <div className="space-y-2">
               <Label htmlFor="location">
-                Location <span className="text-red-500">*</span>
+                Ort <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="location"
-                placeholder="Enter the event location"
+                placeholder="Gib den Veranstaltungsort ein"
                 {...register("location")}
                 className="focus-within:ring-1 focus-within:ring-primary"
               />
@@ -174,7 +222,7 @@ export function EventBasicInfoForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">
-                  Start Date & Time <span className="text-red-500">*</span>
+                  Startdatum & Uhrzeit <span className="text-red-500">*</span>
                 </Label>
                 <DateTimePicker24h
                   initialDate={new Date(values?.start || new Date())}
@@ -185,7 +233,7 @@ export function EventBasicInfoForm({
 
               <div className="space-y-2">
                 <Label htmlFor="end">
-                  End Date & Time <span className="text-red-500">*</span>
+                  Enddatum & Uhrzeit <span className="text-red-500">*</span>
                 </Label>
                 <DateTimePicker24h
                   initialDate={new Date(values?.end || new Date())}
@@ -195,10 +243,10 @@ export function EventBasicInfoForm({
               </div>
             </div>
 
-            {/* Cover Image Auswahl */}
+            {/* Auswahl des Titelbilds */}
             <div className="space-y-2">
               <Label htmlFor="image">
-                Cover Image <span className="text-red-500">*</span>
+                Titelbild <span className="text-red-500">*</span>
               </Label>
               <Controller
                 name="image"
@@ -215,7 +263,7 @@ export function EventBasicInfoForm({
                           }}
                         >
                           <SelectTrigger id="image" className="focus-within:ring-1 focus-within:ring-primary">
-                            <SelectValue placeholder="Select a cover image" />
+                            <SelectValue placeholder="Titelbild auswählen" />
                           </SelectTrigger>
                           <SelectContent>
                             {IMAGE_OPTIONS.map((opt) => (
@@ -228,7 +276,7 @@ export function EventBasicInfoForm({
                       </div>
                       <div>
                         <Input
-                          placeholder="Or enter custom image URL"
+                          placeholder="Oder eigene Bild-URL eingeben"
                           value={field.value || ""}
                           onChange={(e) => {
                             field.onChange(e.target.value)
@@ -241,7 +289,7 @@ export function EventBasicInfoForm({
                     {field.value && (
                       <img
                         src={field.value || "/placeholder.svg"}
-                        alt="Cover Preview"
+                        alt="Vorschau Titelbild"
                         className="mt-2 max-h-40 object-cover rounded"
                       />
                     )}
@@ -250,7 +298,7 @@ export function EventBasicInfoForm({
               />
               {errors.image && <p className="text-sm text-red-500">{errors.image.message as string}</p>}
               <p className="text-xs text-muted-foreground">
-                Wähle eines der vorgegebenen Bilder als Cover für dein Event oder gib eine eigene Bild-URL ein.
+                Wähle eines der vorgegebenen Bilder als Titelbild für dein Event oder gib eine eigene Bild-URL ein.
               </p>
             </div>
           </div>
@@ -261,14 +309,14 @@ export function EventBasicInfoForm({
           <Button variant="outline" type="button" asChild>
             <Link href={`/organization/events/${eventId}`}>
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              Cancel
+              Abbrechen
             </Link>
           </Button>
         ) : (
           <Button variant="outline" type="button" asChild>
             <Link href="/organization/events">
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              Cancel
+              Abbrechen
             </Link>
           </Button>
         )}
@@ -278,12 +326,12 @@ export function EventBasicInfoForm({
             {isSubmitting ? (
               <div className="flex items-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                Speichern...
               </div>
             ) : (
               <div className="flex items-center">
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                Änderungen speichern
               </div>
             )}
           </Button>
