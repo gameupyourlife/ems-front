@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "./form-schemas";
 import { getUser, logInUser } from "./backend/auth";
 import { ZodError } from "zod";
-import { Organization } from "./types";
+import { Organization } from "./types-old";
 import { getOrgsOfUser } from "./backend/org";
 
 declare module "next-auth" {

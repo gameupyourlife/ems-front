@@ -1,4 +1,4 @@
-import { Organization, OrgUser } from "../types";
+import { Organization, OrgUser } from "../types-old";
 import { guardUUID } from "./utils";
 
 export async function getMembers(orgId: string, token: string): Promise<OrgUser[]> {

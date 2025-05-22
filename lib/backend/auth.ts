@@ -80,6 +80,7 @@ export async function getUser(userId: string, token: string): Promise<User | nul
         throw new Error("API URL is not defined");
     }
 
+
     if (!token) {
         throw new Error("No token found");
     }

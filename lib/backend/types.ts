@@ -3,6 +3,284 @@
  * Do not make direct changes to the file.
  */
 
+// EventFlow Types
+export interface FlowCreateDto {
+    name: string;
+    description?: string | null;
+    stillPending?: boolean;
+    multipleRuns?: boolean;
+    createdBy: string;
+}
+
+export interface FlowUpdateDto {
+    name: string;
+    description?: string | null;
+    updatedBy: string;
+    stillPending?: boolean;
+    multipleRuns?: boolean;
+}
+
+export interface FlowOverviewDto {
+    id: string;
+    name: string;
+    description?: string | null;
+    updatedBy?: string | null;
+    updatedAt?: string | null;
+    triggers?: TriggerOverviewDto[] | null;
+    actions?: ActionOverviewDto[] | null;
+}
+
+export interface Flow {
+    id: string;
+    name: string;
+    description?: string | null;
+    isActive: boolean;
+    stillPending: boolean;
+    multipleRuns: boolean;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy?: string | null;
+    triggers?: Trigger[] | null;
+    actions?: Action[] | null;
+    isTemplate: boolean;
+    existInDb: boolean;
+    eventId?: string | null;
+}
+
+export interface Trigger {
+    id: string;
+    type: TriggerType;
+    details: any;
+    createdAt: string;
+    flowId?: string | null;
+    flowTemplateId?: string | null;
+    name?: string | null;
+    description?: string | null;
+    existInDb: boolean;
+}
+
+export interface Action {
+    id: string;
+    type: ActionType;
+    details: any;
+    createdAt: string;
+    flowId?: string | null;
+    flowTemplateId?: string | null;
+    name?: string | null;
+    description?: string | null;
+    existInDb: boolean;
+}
+
+export interface FlowDto {
+    id: string;
+    name: string;
+    description?: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    createdBy: string;
+    updatedBy?: string | null;
+    triggers?: TriggerDto[] | null;
+    actions?: ActionDto[] | null;
+}
+
+export interface FlowTemplateDto {
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    organizationId: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy?: string | null;
+    triggers?: TriggerDto[] | null;
+    actions?: ActionDto[] | null;
+}
+
+export enum ActionType {
+    SendEmail,
+    ChangeStatus,
+    ShareFile,
+    ChangeImage,
+    ChangeTitle,
+    ChangeDescription
+}
+
+export interface ActionCreateDto {
+    type: ActionType;
+    details: string;
+    flowId?: string | null;
+    flowTemplateId?: string | null;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface ActionDto {
+    id: string;
+    type: ActionType;
+    details: any;
+    createdAt: string;
+    flowId?: string | null;
+    flowTemplateId?: string | null;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface ActionUpdateDto {
+    id: string;
+    type: ActionType;
+    details: string;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface ActionOverviewDto {
+    id: string;
+    name?: string | null;
+    type: ActionType;
+    summary?: string | null;
+}
+
+export enum TriggerType {
+    Date,
+    RelativeDate,
+    NumOfAttendees,
+    Status,
+    Registration
+}
+
+export interface TriggerCreateDto {
+    type: TriggerType;
+    details?: string | null;
+    flowId?: string | null;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface TriggerDto {
+    id: string;
+    type: TriggerType;
+    details: any;
+    createdAt: string;
+    flowId?: string | null;
+    flowTemplateId?: string | null;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface TriggerUpdateDto {
+    id: string;
+    type: TriggerType;
+    details?: string | null;
+    name?: string | null;
+    summary?: string | null;
+}
+
+export interface TriggerOverviewDto {
+    id: string;
+    name?: string | null;
+    type: TriggerType;
+    summary?: string | null;
+}
+
+// FlowTemplate Types
+export interface FlowTemplateCreateDto {
+    name: string;
+    description: string;
+    organizationId?: string;
+    createdBy: string;
+    createdAt?: string;
+    updatedAt?: string;
+    updatedBy?: string | null;
+}
+
+export interface FlowTemplateUpdateDto {
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    organizationId: string;
+    updatedBy?: string | null;
+}
+
+export interface FlowTemplateResponseDto {
+    id: string;
+    name?: string | null;
+    description?: string | null;
+    organizationId: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy?: string | null;
+    triggers?: TriggerOverviewDto[] | null;
+    actions?: ActionOverviewDto[] | null;
+}
+
+
+
+
+export interface EventCreateDto {
+    title: string;
+    organizationId: string;
+    description?: string | null;
+    location?: string | null;
+    capacity?: number;
+    image?: string | null;
+    status?: string;
+    start?: string;
+    end?: string | null;
+    category?: string;
+    createdBy: string;
+    updatedBy: string;
+}
+
+export interface EventUpdateDto {
+    id: string;
+    title?: string | null;
+    description?: string | null;
+    location?: string | null;
+    capacity?: number;
+    status?: string;
+    image?: string | null;
+    start?: string;
+    end?: string | null;
+    category?: string;
+    updatedBy: string;
+}
+
+export interface EventInfoDto {
+    id: string;
+    title?: string | null;
+    organizationId: string;
+    location?: string | null;
+    description?: string | null;
+    category?: string | null;
+    attendeeCount: number;
+    capacity: number;
+    image?: string | null;
+    status: string;
+    start: string;
+    end?: string | null;
+    createdAt: string;
+    updatedAt?: string | null;
+    createdBy: string;
+    creatorName?: string | null;
+    updatedBy: string;
+}
+
+export interface EventOverviewDto {
+    id: string;
+    title?: string | null;
+    category?: string | null;
+    start: string;
+    location?: string | null;
+    image?: string | null;
+    attendeeCount: number;
+    capacity: number;
+    status: string;
+    description?: string | null;
+}
+
 export interface paths {
     "/api/Actions/{id}": {
         parameters: {
@@ -766,7 +1044,7 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    category: components["schemas"]["EventCategory"];
+                    category: components["schemas"]["string"];
                 };
                 cookie?: never;
             };
@@ -857,9 +1135,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["EventStatusDto"];
-                    "text/json": components["schemas"]["EventStatusDto"];
-                    "application/*+json": components["schemas"]["EventStatusDto"];
+                    "application/json": components["schemas"]["stringDto"];
+                    "text/json": components["schemas"]["stringDto"];
+                    "application/*+json": components["schemas"]["stringDto"];
                 };
             };
             responses: {
@@ -1600,7 +1878,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["OrganizationDto"][];
                         "application/json": components["schemas"]["OrganizationDto"][];
-                        "text/json": components["schemas"]["OrganizationDto"][];
+                        "text-json": components["schemas"]["OrganizationDto"][];
                     };
                 };
             };
@@ -1639,7 +1917,7 @@ export interface paths {
                     content: {
                         "text/plain": number;
                         "application/json": number;
-                        "text/json": number;
+                        "text-json": number;
                     };
                 };
             };
@@ -1678,7 +1956,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDetailedDto"];
                         "application/json": components["schemas"]["TriggerDetailedDto"];
-                        "text/json": components["schemas"]["TriggerDetailedDto"];
+                        "text-json": components["schemas"]["TriggerDetailedDto"];
                     };
                 };
             };
@@ -1695,7 +1973,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["TriggerUpdateDto"];
-                    "text/json": components["schemas"]["TriggerUpdateDto"];
+                    "text-json": components["schemas"]["TriggerUpdateDto"];
                     "application/*+json": components["schemas"]["TriggerUpdateDto"];
                 };
             };
@@ -1761,7 +2039,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDto"][];
                         "application/json": components["schemas"]["TriggerDto"][];
-                        "text/json": components["schemas"]["TriggerDto"][];
+                        "text-json": components["schemas"]["TriggerDto"][];
                     };
                 };
             };
@@ -1800,7 +2078,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDto"][];
                         "application/json": components["schemas"]["TriggerDto"][];
-                        "text/json": components["schemas"]["TriggerDto"][];
+                        "text-json": components["schemas"]["TriggerDto"][];
                     };
                 };
             };
@@ -1832,7 +2110,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["TriggerCreateDto"];
-                    "text/json": components["schemas"]["TriggerCreateDto"];
+                    "text-json": components["schemas"]["TriggerCreateDto"];
                     "application/*+json": components["schemas"]["TriggerCreateDto"];
                 };
             };
@@ -1845,7 +2123,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["TriggerDetailedDto"];
                         "application/json": components["schemas"]["TriggerDetailedDto"];
-                        "text/json": components["schemas"]["TriggerDetailedDto"];
+                        "text-json": components["schemas"]["TriggerDetailedDto"];
                     };
                 };
             };
@@ -1880,7 +2158,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
@@ -1896,7 +2174,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["UserCreateDto"];
-                    "text/json": components["schemas"]["UserCreateDto"];
+                    "text-json": components["schemas"]["UserCreateDto"];
                     "application/*+json": components["schemas"]["UserCreateDto"];
                 };
             };
@@ -1909,7 +2187,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -1946,7 +2224,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -1963,7 +2241,7 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["UserUpdateDto"];
-                    "text/json": components["schemas"]["UserUpdateDto"];
+                    "text-json": components["schemas"]["UserUpdateDto"];
                     "application/*+json": components["schemas"]["UserUpdateDto"];
                 };
             };
@@ -2029,7 +2307,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"];
                         "application/json": components["schemas"]["UserResponseDto"];
-                        "text/json": components["schemas"]["UserResponseDto"];
+                        "text-json": components["schemas"]["UserResponseDto"];
                     };
                 };
             };
@@ -2068,7 +2346,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["OrganizationDto"][];
                         "application/json": components["schemas"]["OrganizationDto"][];
-                        "text/json": components["schemas"]["OrganizationDto"][];
+                        "text-json": components["schemas"]["OrganizationDto"][];
                     };
                 };
             };
@@ -2107,7 +2385,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserRole"];
                         "application/json": components["schemas"]["UserRole"];
-                        "text/json": components["schemas"]["UserRole"];
+                        "text-json": components["schemas"]["UserRole"];
                     };
                 };
             };
@@ -2146,7 +2424,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["EventResponseDto"][];
                         "application/json": components["schemas"]["EventResponseDto"][];
-                        "text/json": components["schemas"]["EventResponseDto"][];
+                        "text-json": components["schemas"]["EventResponseDto"][];
                     };
                 };
             };
@@ -2185,7 +2463,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
@@ -2224,7 +2502,7 @@ export interface paths {
                     content: {
                         "text/plain": components["schemas"]["UserResponseDto"][];
                         "application/json": components["schemas"]["UserResponseDto"][];
-                        "text/json": components["schemas"]["UserResponseDto"][];
+                        "text-json": components["schemas"]["UserResponseDto"][];
                     };
                 };
             };
@@ -2347,8 +2625,8 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             image?: string | null;
-            category?: components["schemas"]["EventCategory"];
-            status?: components["schemas"]["EventStatus"];
+            category?: components["schemas"]["string"];
+            status?: components["schemas"]["string"];
             /** Format: date-time */
             start?: string | null;
             /** Format: date-time */
@@ -2375,8 +2653,8 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             image?: string | null;
-            category?: components["schemas"]["EventCategory"];
-            status?: components["schemas"]["EventStatus"];
+            category?: components["schemas"]["string"];
+            status?: components["schemas"]["string"];
             /** Format: date-time */
             start?: string | null;
             /** Format: date-time */
@@ -2390,7 +2668,7 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
-        EventCategory: 0 | 1 | 2 | 3 | 4;
+        string: 0 | 1 | 2 | 3 | 4;
         EventCreateDto: {
             title: string;
             /** Format: uuid */
@@ -2404,8 +2682,8 @@ export interface components {
             /** Format: uuid */
             updatedBy: string;
             image?: string | null;
-            category?: components["schemas"]["EventCategory"];
-            status?: components["schemas"]["EventStatus"];
+            category?: components["schemas"]["string"];
+            status?: components["schemas"]["string"];
             /** Format: date-time */
             start?: string | null;
             /** Format: date-time */
@@ -2422,8 +2700,8 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             image?: string | null;
-            category?: components["schemas"]["EventCategory"];
-            status?: components["schemas"]["EventStatus"];
+            category?: components["schemas"]["string"];
+            status?: components["schemas"]["string"];
             /** Format: date-time */
             start?: string | null;
             /** Format: date-time */
@@ -2439,9 +2717,9 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
-        EventStatus: 0 | 1 | 2 | 3 | 4;
-        EventStatusDto: {
-            status: components["schemas"]["EventStatus"];
+        string: 0 | 1 | 2 | 3 | 4;
+        stringDto: {
+            status: components["schemas"]["string"];
             /** Format: uuid */
             updatedBy: string;
         };
@@ -2456,8 +2734,8 @@ export interface components {
             /** Format: uuid */
             updatedBy: string;
             image?: string | null;
-            category?: components["schemas"]["EventCategory"];
-            status?: components["schemas"]["EventStatus"];
+            category?: components["schemas"]["string"];
+            status?: components["schemas"]["string"];
             /** Format: date-time */
             start?: string | null;
             /** Format: date-time */

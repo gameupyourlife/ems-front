@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { format } from "date-fns"
-import type { EventInfo } from "@/lib/types"
+import type { EventInfo } from "@/lib/types-old"
 
 interface UseEventFiltersProps {
   events: EventInfo[]

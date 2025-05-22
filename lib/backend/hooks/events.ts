@@ -1,9 +1,12 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { DeleteAttendeeParams, DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types';
-import { deleteAttendee, deleteEvent, getEventDetails, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
+import { deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
+import {
+    getCompleteEventDetails
+} from '../events';
 
 /**
  * TanStack Query hook for fetching events for an organization
@@ -25,13 +28,40 @@ export function useEvents(
 
 
 export function useEventDetails(
+    orgId: string,
     eventId: string,
     token: string,
     options?: Omit<UseQueryOptions<EventDetails, Error>, 'queryKey' | 'queryFn'>
 ) {
     return useQuery({
-        queryKey: ['eventDetails', eventId, token],
-        queryFn: () => getEventDetails(eventId, token),
+        queryKey: ['eventDetails', orgId, eventId, token],
+        queryFn: () => getCompleteEventDetails(orgId, eventId, token),
+        ...options,
+    });
+}
+
+export function useEventsByCreator(
+    orgId: string,
+    userId: string,
+    token: string,
+    options?: Omit<UseQueryOptions<EventDetails[], Error>, 'queryKey' | 'queryFn'>
+) {
+    return useQuery({
+        queryKey: ['eventsByCreator', orgId, userId, token],
+        queryFn: () => getEventsByCreator(orgId, userId, token),
+        ...options,
+    });
+}
+
+export function useEventsById(
+    orgId: string,
+    eventId: string,
+    token: string,
+    options?: Omit<UseQueryOptions<EventDetails, Error>, 'queryKey' | 'queryFn'>
+) {
+    return useQuery({
+        queryKey: ['eventsById', orgId, eventId, token],
+        queryFn: () => getEventsById(orgId, eventId, token),
         ...options,
     });
 }

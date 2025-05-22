@@ -42,8 +42,8 @@ import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
 // Types and Data
-import { AgendaStep, EmsFile, Flow } from "@/lib/types";
-import { mockedEventDetails, mockFiles, mockFlows } from "@/lib/data";
+import { AgendaStep, EmsFile, Flow } from "@/lib/types-old";
+import { mockedEventDetails, mockFlows } from "@/lib/data";
 
 // Form schema
 import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";

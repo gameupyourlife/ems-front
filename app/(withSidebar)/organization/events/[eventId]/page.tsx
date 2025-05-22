@@ -1,6 +1,6 @@
 "use client";;
 import { useState } from "react";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { notFound, useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,6 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { mockedEventDetails } from "@/lib/data";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,8 +33,11 @@ import {
 import EventOverviewTab from "./event-overview-tab";
 import EventFlowsTab from "./event-flows-tab";
 import EventAgendaTab from "./event-agenda-tab";
-import EventAttendeesTab from "./event-attendees-tab";
 import EventEmailsTab from "./event-emails-tab";
+import EventAttendeesTab from "./event-attendees-tab";
+import { useSession } from "next-auth/react";
+import LoadingSpinner from "@/components/loading-spinner";
+import { useEventDetails } from "@/lib/backend/hooks/events";
 
 
 export default function EventDetailsPage() {
@@ -43,14 +45,28 @@ export default function EventDetailsPage() {
   const searchParams = useSearchParams()
   const params = useParams();
   const path = usePathname();
-  const eventId = params.eventId;
+  const eventId = params.eventId as string;
 
 
-  // In a real app, you would fetch the event details by ID
-  const eventDetails = mockedEventDetails;
-  const event = eventDetails.metadata;
+  const { data: session } = useSession();
+  const { data: event, isLoading } = useEventDetails(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
+
 
   const [activeTab, setActiveTabState] = useState(searchParams.get('tab') || "overview");
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-4">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!event) {
+    return notFound()
+  }
+
+  console.log(event);
 
   const setActiveTab = (tab: string) => {
     setActiveTabState(tab);
@@ -62,12 +78,9 @@ export default function EventDetailsPage() {
   // Handle event deletion
   const handleDeleteEvent = () => {
     // In a real app, you would call an API to delete the event
-    toast.success(`Event "${event.title}" deleted successfully`);
+    toast.success(`Event "${event?.metadata?.title}" deleted successfully`);
     router.push("/organization/events");
   };
-
-  // Calculate attendance percentage
-  const attendancePercentage = Math.round((event.attendees / event.capacity) * 100);
 
   // Function to get appropriate status badge
   const getStatusBadge = (status: string) => {
@@ -94,11 +107,11 @@ export default function EventDetailsPage() {
                 <ArrowLeftIcon className="h-4 w-4" />
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold truncate">{event.title}</h1>
-            {getStatusBadge(String(event.status))}
+            <h1 className="text-2xl font-bold truncate">{event?.metadata?.title}</h1>
+            {getStatusBadge(String(event?.metadata?.status))}
           </div>
           <p className="text-muted-foreground ml-10">
-            {event.organization} • {format(new Date(event.start), "MMMM dd, yyyy")}
+            {event?.metadata?.organization} • {format(new Date(event?.metadata?.start), "MMMM dd, yyyy")}
           </p>
         </div>
 
@@ -124,7 +137,7 @@ export default function EventDetailsPage() {
               <DropdownMenuItem asChild>
                 <Link href={`/organization/events/${eventId}/invite`}>
                   <Mail className="mr-2 h-4 w-4" />
-                  Invite Attendees
+                  Invite attendeeCount
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -140,8 +153,8 @@ export default function EventDetailsPage() {
       {/* Event Hero Section */}
       <div className="relative rounded-lg overflow-hidden h-40 md:h-60">
         <img
-          src={event.image || "https://via.placeholder.com/1200x400"}
-          alt={event.title}
+          src={event?.metadata?.image || "https://via.placeholder.com/1200x400"}
+          alt={event?.metadata?.title}
           className="object-cover w-full h-full"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
@@ -149,15 +162,15 @@ export default function EventDetailsPage() {
             <div className="flex flex-wrap gap-2 mb-2">
               <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                 <Tag className="mr-1 h-3 w-3" />
-                {event.category}
+                {event?.metadata?.category}
               </Badge>
               <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                 <Users className="mr-1 h-3 w-3" />
-                {event.attendees} / {event.capacity} attendees
+                {event?.metadata?.attendeeCount} / {event?.metadata?.capacity} attendeeCount
               </Badge>
               <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                 <MapPin className="mr-1 h-3 w-3" />
-                {event.location}
+                {event?.metadata?.location}
               </Badge>
             </div>
           </div>
@@ -173,7 +186,7 @@ export default function EventDetailsPage() {
             <CalendarIcon className="h-4 w-4" />
             <span>Overview</span>
           </TabsTrigger>
-          
+
           <TabsTrigger
             value="flows"
             className="flex items-center gap-2 data-[state=active]:bg-background"
@@ -196,7 +209,7 @@ export default function EventDetailsPage() {
             <span>Mails</span>
           </TabsTrigger>
           <TabsTrigger
-            value="attendees"
+            value="attendeeCount"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <UsersIcon className="h-4 w-4" />
@@ -206,27 +219,27 @@ export default function EventDetailsPage() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
-          <EventOverviewTab eventDetails={eventDetails} />
+          <EventOverviewTab eventDetails={event} />
         </TabsContent>
 
         {/* Flows Tab - IMPROVED VISUALIZATION */}
         <TabsContent value="flows" className="space-y-6">
-          <EventFlowsTab eventDetails={eventDetails} />
+          <EventFlowsTab eventDetails={event} />
         </TabsContent>
 
         {/* Agenda Tab - IMPROVED TIMELINE */}
         <TabsContent value="agenda" className="space-y-6">
-          <EventAgendaTab eventDetails={eventDetails} />
+          <EventAgendaTab eventDetails={event} />
         </TabsContent>
 
         {/* Attendees Tab */}
         <TabsContent value="attendees" className="space-y-6">
-          <EventAttendeesTab eventDetails={eventDetails} />
+          <EventAttendeesTab eventDetails={event} />
         </TabsContent>
 
         {/* emails Tab */}
         <TabsContent value="emails" className="space-y-6">
-          <EventEmailsTab eventDetails={eventDetails} />
+          <EventEmailsTab eventDetails={event} />
         </TabsContent>
       </Tabs>
     </div>

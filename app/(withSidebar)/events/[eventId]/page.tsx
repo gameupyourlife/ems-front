@@ -1,19 +1,19 @@
 "use client"
-import React from "react"
 import { useParams, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import type { EventInfo } from "@/lib/types-old"
+import { Button } from "@/components/ui/button"
+import { Calendar, Clock, MapPin, Users, ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
-import { Calendar, Clock, MapPin, Users, ArrowLeft, Share2, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import type { EventInfo } from "@/lib/types"
 import { useEventsById } from "@/lib/backend/hooks/events"
 import { useRegisterAttendee } from "@/lib/backend/hooks/events"
+import { useSession } from "next-auth/react"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()

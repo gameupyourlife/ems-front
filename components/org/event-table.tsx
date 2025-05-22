@@ -55,7 +55,7 @@ import {
   type RowSelectionState,
   type VisibilityState,
 } from "@tanstack/react-table"
-import type { EventInfo } from "@/lib/types"
+import type { EventInfo } from "@/lib/types-old"
 import { format, formatDistanceToNow } from "date-fns"
 import { de } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"

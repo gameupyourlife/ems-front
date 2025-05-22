@@ -1,37 +1,53 @@
-import { Bell, Calendar, Check, FileText, ImageIcon, Mail, Pencil, Tag, Users, Zap } from "lucide-react";
+import {
+    Calendar,
+    Check,
+    FileText,
+    ImageIcon,
+    Mail,
+    Pencil,
+    Tag,
+    Users,
+    Zap,
+    Activity,
+} from "lucide-react";
+import { ActionType, TriggerType } from '@/lib/backend/types';
+
+
+
+
+
+
 
 // Get appropriate icon for trigger types
-export function getTriggerIcon(type: string) {
+export function getTriggerIcon(type: TriggerType) {
     switch (type) {
-        case 'date':
-            return <Calendar className="h-5 w-5" />;
-        case 'numOfAttendees':
-            return <Users className="h-5 w-5" />;
-        case 'status':
-            return <Tag className="h-5 w-5" />;
-        case 'registration':
-            return <Check className="h-5 w-5" />;
+        case TriggerType.Date || TriggerType.RelativeDate:
+            return <Calendar className="h-4 w-4" />;
+        case TriggerType.NumOfAttendees:
+            return <Users className="h-4 w-4" />;
+        case TriggerType.Status:
+            return <Tag className="h-4 w-4" />;
+        case TriggerType.Registration:
+            return <Check className="h-4 w-4" />;
         default:
-            return <Zap className="h-5 w-5" />;
+            return <Activity className="h-4 w-4" />;
     }
 }
 
 // Get appropriate icon for action types
-export function getActionIcon(type: string) {
+export function getActionIcon(type: ActionType) {
     switch (type) {
-        case 'email':
+        case ActionType.SendEmail:
             return <Mail className="h-5 w-5" />;
-        case 'notification':
-            return <Bell className="h-5 w-5" />;
-        case 'statusChange':
+        case ActionType.ChangeStatus:
             return <Tag className="h-5 w-5" />;
-        case 'fileShare':
+        case ActionType.ShareFile:
             return <FileText className="h-5 w-5" />;
-        case 'imageChange':
+        case ActionType.ChangeImage:
             return <ImageIcon className="h-5 w-5" />;
-        case 'titleChange':
+        case ActionType.ChangeTitle:
             return <Pencil className="h-5 w-5" />;
-        case 'descriptionChange':
+        case ActionType.ChangeDescription:
             return <FileText className="h-5 w-5" />;
         default:
             return <Zap className="h-5 w-5" />;
@@ -39,9 +55,9 @@ export function getActionIcon(type: string) {
 }
 
 // Get human-readable text for trigger details
-export function getTriggerDescription(type: string, details: any) {
+export function getTriggerDescription(type: TriggerType, details: any) {
     switch (type) {
-        case 'date':
+        case TriggerType.Date || TriggerType.RelativeDate:
             if (details?.operator && details?.value) {
                 return `${details.operator === 'on' ? 'Exactly on' : details.operator === 'before' ? 'Before' : 'After'} ${details.value}`;
             } else if (details?.reference && details?.direction && details?.amount && details?.unit) {
@@ -49,17 +65,17 @@ export function getTriggerDescription(type: string, details: any) {
             }
             return 'Date trigger';
 
-        case 'numOfAttendees':
+        case TriggerType.NumOfAttendees:
             if (details?.operator && details?.value !== undefined) {
                 const opText = details.operator === 'equals' ? 'equals' : details.operator === 'lessThan' ? 'less than' : 'greater than';
                 return `When attendance ${opText} ${details.value}${details.valueType === 'percentage' ? '%' : ''}`;
             }
             return 'Attendance trigger';
 
-        case 'status':
+        case TriggerType.Status:
             return details?.status ? `When status changes to ${details.status}` : 'Status change trigger';
 
-        case 'registration':
+        case TriggerType.Registration:
             return 'When a new user registers';
 
         default:
@@ -68,27 +84,24 @@ export function getTriggerDescription(type: string, details: any) {
 }
 
 // Get human-readable text for action details
-export function getActionDescription(type: string, details: any) {
+export function getActionDescription(type: ActionType, details: any) {
     switch (type) {
-        case 'email':
+        case ActionType.SendEmail:
             return `Send email with subject "${details?.subject || 'No subject'}"`;
 
-        case 'notification':
-            return `Send notification: "${details?.message || 'No message'}"`;
-
-        case 'statusChange':
+        case ActionType.ChangeStatus:
             return `Change event status to ${details?.newStatus || 'unknown'}`;
 
-        case 'fileShare':
+        case ActionType.ShareFile:
             return `Share file ${details?.fileId ? `(ID: ${details.fileId})` : ''} with ${details?.status || 'unknown'} access`;
 
-        case 'imageChange':
+        case ActionType.ChangeImage:
             return 'Update event image';
 
-        case 'titleChange':
+        case ActionType.ChangeTitle:
             return `Change event title to "${details?.newTitle || 'unknown'}"`;
 
-        case 'descriptionChange':
+        case ActionType.ChangeDescription:
             return 'Update event description';
 
         default:
@@ -109,59 +122,96 @@ export function formatDetailsLabel(key: string): string {
     return key
         .replace(/([A-Z])/g, ' $1')
         .replace(/^./, str => str.toUpperCase());
-};
+}
 
 
 
 // Format the details value to a more readable form
-export function formatDetailsValue (key: string, value: any): string  {
+export function formatDetailsValue(key: string, value: any): string {
     if (value === null || value === undefined) return 'Not specified';
-    
+
     // Format different types of values
     if (key === 'recipients' && typeof value === 'string' && value.includes('trigger.')) {
-      return 'Registered User';
+        return 'Registered User';
     }
     if (key === 'recipients' && value === 'all.users') {
-      return 'All Users';
+        return 'All Users';
     }
     if (Array.isArray(value)) {
-      return value.join(', ');
+        return value.join(', ');
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+        return value ? 'Yes' : 'No';
     }
-    
+
     return String(value);
-  };
+}
 
-// Helper function to get a human-readable title for trigger and action types
-export function getItemTitle  (type: string): string  {
+export function getActionTitle(type: ActionType): string {
     switch (type) {
-      // Triggers
-      case 'date': return 'Date & Time';
-      case 'numOfAttendees': return 'Attendees Count';
-      case 'status': return 'Status Change';
-      case 'registration': return 'New Registration';
-      
-      // Actions
-      case 'email': return 'Send Email';
-      case 'notification': return 'Send Notification';
-      case 'statusChange': return 'Change Status';
-      case 'fileShare': return 'Share File';
-      case 'imageChange': return 'Update Image';
-      case 'titleChange': return 'Change Title';
-      case 'descriptionChange': return 'Change Description';
-      
-      default: return type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        case ActionType.SendEmail:
+            return 'Send Email';
+        case ActionType.ChangeStatus:
+            return 'Change Status';
+        case ActionType.ShareFile:
+            return 'Share File';
+        case ActionType.ChangeImage:
+            return 'Change Image';
+        case ActionType.ChangeTitle:
+            return 'Change Title';
+        case ActionType.ChangeDescription:
+            return 'Change Description';
+        default:
+            //@ts-ignore
+            return type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
     }
-  };
+}
 
-// Get a summary of the trigger or action details
-export function getItemSummary(type: string, details: any): string {
+export function getTriggerTitle(type: TriggerType): string {
+    switch (type) {
+        case TriggerType.Date:
+            return 'Date & Time';
+        case TriggerType.RelativeDate:
+            return 'Relative Date & Time';
+        case TriggerType.NumOfAttendees:
+            return 'Attendees Count';
+        case TriggerType.Status:
+            return 'Status Change';
+        case TriggerType.Registration:
+            return 'New Registration';
+        default:
+            //@ts-ignore
+            return type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    }
+}
+
+export function getActionSummary(type: ActionType, details: any): string {
+    if (!details) return '';
+    switch (type) {
+        case ActionType.SendEmail:
+            return details.subject ? `"${details.subject.slice(0, 30)}${details.subject.length > 30 ? '...' : ''}"` : '';
+
+        case ActionType.ChangeStatus:
+            return details.newStatus ? `Change to ${details.newStatus}` : '';
+
+        case ActionType.ShareFile:
+            return details.status ? `Make file ${details.status}` : '';
+
+        case ActionType.ChangeImage:
+        case ActionType.ChangeTitle:
+        case ActionType.ChangeDescription:
+            return 'Update event content';
+
+        default:
+            return '';
+    }
+}
+
+export function getTriggerSummary(type: TriggerType, details: any): string {
     if (!details) return '';
 
     switch (type) {
-        case 'date':
+        case TriggerType.Date || TriggerType.RelativeDate:
             if (details.operator && details.value) {
                 return `${details.operator === 'on' ? 'Exactly on' : details.operator === 'before' ? 'Before' : 'After'} ${details.value}`;
             }
@@ -170,37 +220,20 @@ export function getItemSummary(type: string, details: any): string {
             }
             return '';
 
-        case 'numOfAttendees':
+        case TriggerType.NumOfAttendees:
             if (details.operator && details.value !== undefined) {
-                const opText = details.operator === 'equals' ? 'equals' : details.operator === 'less' ? 'less than' : 'greater than';
-                return `When attendance ${opText} ${details.value}`;
+                const opText = details.operator === 'equals' ? 'equals' : details.operator === 'lessThan' ? 'less than' : 'greater than';
+                return `When attendance ${opText} ${details.value}${details.valueType === 'percentage' ? '%' : ''}`;
             }
             return '';
 
-        case 'status':
+        case TriggerType.Status:
             return details.status ? `When status changes to ${details.status}` : '';
 
-        case 'registration':
+        case TriggerType.Registration:
             return 'When a new user registers';
-
-        case 'email':
-            return details.subject ? `"${details.subject.slice(0, 30)}${details.subject.length > 30 ? '...' : ''}"` : '';
-
-        case 'notification':
-            return details.message ? `"${details.message.slice(0, 30)}${details.message.length > 30 ? '...' : ''}"` : '';
-
-        case 'statusChange':
-            return details.newStatus ? `Change to ${details.newStatus}` : '';
-
-        case 'fileShare':
-            return details.status ? `Make file ${details.status}` : '';
-
-        case 'imageChange':
-        case 'titleChange':
-        case 'descriptionChange':
-            return 'Update event content';
 
         default:
             return '';
     }
-};
+}

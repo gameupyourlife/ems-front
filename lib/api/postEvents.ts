@@ -1,4 +1,4 @@
-import { type EventInfo } from "@/lib/types";
+import { type EventInfo } from "@/lib/types-old";
 import { z } from "zod";
 
 // Basis-URL für alle Requests

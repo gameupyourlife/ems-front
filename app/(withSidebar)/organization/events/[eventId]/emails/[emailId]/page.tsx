@@ -3,39 +3,39 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Email } from "@/lib/types";
+import { Email } from "@/lib/types-old";
 import { format } from "date-fns";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import {
-    ChevronLeft,
-    Clock,
-    Edit, Send,
-    Trash,
-    Copy,
-    User,
-    CalendarIcon,
-    CheckCircle,
-    AlertCircle
+  ChevronLeft,
+  Clock,
+  Edit, Send,
+  Trash,
+  Copy,
+  User,
+  CalendarIcon,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 
 // Mock data for emails

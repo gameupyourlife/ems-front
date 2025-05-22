@@ -8,14 +8,14 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { EventDetails } from "@/lib/types";
+import { EventDetails } from "@/lib/types-old";
 
 export default function EventOverviewTab({ eventDetails }: { eventDetails: EventDetails }) {
 
     const event = eventDetails.metadata;
     const eventId = event.id;
 
-    const attendancePercentage = Math.round((event.attendees / event.capacity) * 100);
+    const attendancePercentage = Math.round((event.attendeeCount / event.capacity) * 100);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -67,7 +67,7 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                             <h3 className="text-sm font-medium">Attendance</h3>
                             <div className="flex items-center text-sm text-muted-foreground">
                                 <Users className="mr-2 h-4 w-4" />
-                                <span>{event.attendees} / {event.capacity} attendees</span>
+                                <span>{event.attendeeCount} / {event.capacity} attendees</span>
                             </div>
 
                             <div className="pt-1">
@@ -107,7 +107,7 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                 <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                            <div className="text-2xl font-bold">{event.attendees}</div>
+                            <div className="text-2xl font-bold">{event.attendeeCount}</div>
                             <p className="text-sm text-muted-foreground">of {event.capacity} capacity</p>
                         </div>
                         <div className="h-16 w-16 rounded-full border-4 border-primary flex items-center justify-center bg-background relative">

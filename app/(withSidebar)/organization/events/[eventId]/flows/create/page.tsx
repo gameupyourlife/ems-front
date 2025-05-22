@@ -38,7 +38,7 @@ export default function CreateFlowPage() {
             createdBy: session?.user?.id || "Unbekannt",
             updatedBy: session?.user?.id || "Unbekannt",
             existInDb: false,
-            isTemplate: true,
+            isTemplate: false,
 
             isActive: false,
             multipleRuns: false,

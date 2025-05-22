@@ -1,4 +1,4 @@
-import { Email } from "@/lib/types";
+import { Email } from "@/lib/types-old";
 
 // Mock emails for testing and development
 export const mockEmails: Email[] = [

@@ -1,5 +1,4 @@
-import type { EventInfo } from "@/lib/types";
-import { z } from "zod";
+import type { EventInfo } from "@/lib/types-old";
 
 const BASE =
   process.env.NEXT_PUBLIC_API_URL

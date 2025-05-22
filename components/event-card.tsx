@@ -2,7 +2,7 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { EventInfo } from "@/lib/types";
+import { EventInfo } from "@/lib/types-old";
 import Link from "next/link";
 
 export default function EventCard({ event }: { event: EventInfo }) {

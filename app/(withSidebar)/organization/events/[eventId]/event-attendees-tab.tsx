@@ -79,7 +79,7 @@ import {
     Download,
 } from "lucide-react";
 
-import { EventDetails, User } from "@/lib/types";
+import { EventDetails, User } from "@/lib/types-old";
 import { Textarea } from "@/components/ui/textarea";
 
 // Attendee status types

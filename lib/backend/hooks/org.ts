@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { getMembers } from "../org";
-import { OrgUser } from "@/lib/types";
+import { OrgUser } from "@/lib/types-old";
 
 /**
  * TanStack Query hook for fetching organization members

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { EventEmailForm } from "@/components/org/events/event-email-form";
-import { Email, User, EventInfo } from "@/lib/types";
+import { Email, User, EventInfo } from "@/lib/types-old";
 import { mockEmails } from "@/lib/mock/email-data";
 import { mockEvents } from "@/lib/data";
 
