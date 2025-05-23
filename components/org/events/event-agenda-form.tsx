@@ -80,9 +80,9 @@ export function EventAgendaForm({
   
   const { register, handleSubmit, reset, setValue, formState: { errors } } = form;
   
-  // Handle adding a new agenda item
+  // Hinzufügen eines neuen Agenda-Eintrags
   const handleAddItem = (data: AgendaStepFormData) => {
-    // Create new agenda item with random ID
+    // Erstelle neuen Agenda-Eintrag mit zufälliger ID
     const newItem: AgendaEntry = {
       id: `${Math.random().toString(36).substr(2, 9)}`,
       title: data.title,
@@ -96,7 +96,7 @@ export function EventAgendaForm({
     setIsAddSheetOpen(false);
   };
   
-  // Handle updating an existing agenda item
+  // Aktualisieren eines bestehenden Agenda-Eintrags
   const handleUpdateItem = (data: AgendaStepFormData) => {
     if (editingItemIndex === null || editingId === null) return;
     
@@ -117,7 +117,7 @@ export function EventAgendaForm({
     setEditingId(null);
   };
   
-  // Handle editing an agenda item
+  // Bearbeiten eines Agenda-Eintrags vorbereiten
   const handleEditItem = (index: number) => {
     const item = agendaItems[index];
     setEditingItemIndex(index);
@@ -159,18 +159,18 @@ export function EventAgendaForm({
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <ListTodo className="h-5 w-5 text-primary" />
-          Event Agenda
+          Event-Agenda
         </CardTitle>
         <CardDescription>
-          Create a timeline of activities for your event
+          Erstelle einen Zeitplan für die Aktivitäten deiner Veranstaltung
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium">Agenda Timeline</h3>
+            <h3 className="text-lg font-medium">Agenda-Zeitstrahl</h3>
             <p className="text-sm text-muted-foreground">
-              Add and arrange activities for your event
+              Füge Aktivitäten hinzu und ordne sie für deine Veranstaltung an
             </p>
           </div>
           <Button 
@@ -179,7 +179,7 @@ export function EventAgendaForm({
             onClick={handleOpenAddSheet}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Item
+            Eintrag hinzufügen
           </Button>
         </div>
         
@@ -190,25 +190,25 @@ export function EventAgendaForm({
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <ListTodo className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium">No agenda items yet</h3>
+            <h3 className="text-lg font-medium">Noch keine Agenda-Einträge</h3>
             <p className="text-sm text-muted-foreground max-w-sm mt-1">
-              Add items to create a timeline of activities for your event
+              Füge Einträge hinzu, um einen Zeitplan für deine Veranstaltung zu erstellen
             </p>
             <Button variant="outline" className="mt-4" onClick={handleOpenAddSheet}>
               <Plus className="h-4 w-4 mr-2" />
-              Add First Item
+              Ersten Eintrag hinzufügen
             </Button>
           </div>
         ) : (
           <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-6">
-              {/* Time header */}
+              {/* Zeit-Header */}
               <div className="flex items-center justify-between px-4">
-                <p className="text-sm font-medium text-muted-foreground">Start Time</p>
-                <p className="text-sm font-medium text-muted-foreground">Duration</p>
+                <p className="text-sm font-medium text-muted-foreground">Startzeit</p>
+                <p className="text-sm font-medium text-muted-foreground">Dauer</p>
               </div>
               
-              {/* Agenda items - sorted by start time */}
+              {/* Agenda-Einträge – sortiert nach Startzeit */}
               {agendaItems
                 .sort((a, b) => {
                   if (!a.start || !b.start) return 0;
@@ -226,17 +226,17 @@ export function EventAgendaForm({
                       <div className="absolute top-0 left-0 h-full w-1 bg-primary"></div>
                       
                       <div className="flex items-stretch">
-                        {/* Time column */}
+                        {/* Zeit-Spalte */}
                         <div className="w-28 shrink-0 bg-muted/30 flex flex-col items-center justify-center px-3 py-4 border-r">
                           <div className="text-xl font-semibold">
-                            {format(new Date(item.start), "h:mm")}
+                            {format(new Date(item.start), "H:mm")}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {format(new Date(item.start), "a")}
                           </div>
                         </div>
                         
-                        {/* Content column */}
+                        {/* Inhalt-Spalte */}
                         <div className="flex-1 p-4">
                           <div className="flex justify-between items-start">
                             <div>
@@ -250,10 +250,10 @@ export function EventAgendaForm({
                               
                               <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
                                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span>{duration} minutes</span>
+                                <span>{duration} Minuten</span>
                                 <span className="mx-1">•</span>
                                 <span>
-                                  {format(new Date(item.start), "h:mm a")} - {format(new Date(item.end), "h:mm a")}
+                                  {format(new Date(item.start), "H:mm")} - {format(new Date(item.end), "H:mm")}
                                 </span>
                               </div>
                             </div>
@@ -289,18 +289,18 @@ export function EventAgendaForm({
       <CardFooter className="flex justify-between border-t p-6">
         <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("flows")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Previous: Flows
+          Zurück: Abläufe
         </Button>
         {isFinalStep ? (
           <Button
             type="button"
-            onClick={form.handleSubmit(() => { console.log("Final step") })}
+            onClick={form.handleSubmit(() => { console.log("Letzter Schritt") })}
             disabled={isSubmitting || !form.formState.isValid}
           >
             {isSubmitting ? (
               <div className="flex items-center">
                 <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                Saving...
+                Speichern...
               </div>
             ) : (
               <div className="flex items-center">
@@ -319,23 +319,23 @@ export function EventAgendaForm({
         )}
       </CardFooter>
       
-      {/* Add Agenda Item Sheet */}
+      {/* Sheet zum Hinzufügen eines Agenda-Eintrags */}
       <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Add Agenda Item</SheetTitle>
+            <SheetTitle>Agenda-Eintrag hinzufügen</SheetTitle>
             <SheetDescription>
-              Add a new item to your event agenda. Each item represents a part of your event schedule.
+              Füge einen neuen Eintrag zur Agenda deiner Veranstaltung hinzu. Jeder Eintrag steht für einen Programmpunkt.
             </SheetDescription>
           </SheetHeader>
           
           <form onSubmit={handleSubmit(handleAddItem)} className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+              <Label htmlFor="title">Titel <span className="text-red-500">*</span></Label>
               <Input
                 id="title"
-                placeholder="e.g., Welcome & Introduction"
-                {...register("title", { required: "Title is required" })}
+                placeholder="z.B. Begrüßung & Einführung"
+                {...register("title", { required: "Titel ist erforderlich" })}
                 className="focus-within:ring-1 focus-within:ring-primary"
               />
               {errors.title && (
@@ -344,10 +344,10 @@ export function EventAgendaForm({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Beschreibung</Label>
               <Textarea
                 id="description"
-                placeholder="Brief description of this agenda item"
+                placeholder="Kurze Beschreibung dieses Agenda-Punktes"
                 className="min-h-[100px] focus-within:ring-1 focus-within:ring-primary"
                 {...register("description")}
               />
@@ -355,12 +355,12 @@ export function EventAgendaForm({
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="start">Start Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="start">Startzeit <span className="text-red-500">*</span></Label>
                 <Input
                   id="start"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("start", { required: "Start time is required" })}
+                  {...register("start", { required: "Startzeit ist erforderlich" })}
                 />
                 {errors.start && (
                   <p className="text-sm text-red-500">{errors.start.message}</p>
@@ -368,12 +368,12 @@ export function EventAgendaForm({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="end">End Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="end">Endzeit <span className="text-red-500">*</span></Label>
                 <Input
                   id="end"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("end", { required: "End time is required" })}
+                  {...register("end", { required: "Endzeit ist erforderlich" })}
                 />
                 {errors.end && (
                   <p className="text-sm text-red-500">{errors.end.message}</p>
@@ -383,31 +383,31 @@ export function EventAgendaForm({
             
             <SheetFooter className="pt-4">
               <SheetClose asChild>
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline">Abbrechen</Button>
               </SheetClose>
-              <Button type="submit">Add to Agenda</Button>
+              <Button type="submit">Zur Agenda hinzufügen</Button>
             </SheetFooter>
           </form>
         </SheetContent>
       </Sheet>
       
-      {/* Edit Agenda Item Sheet */}
+      {/* Sheet zum Bearbeiten eines Agenda-Eintrags */}
       <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Edit Agenda Item</SheetTitle>
+            <SheetTitle>Agenda-Eintrag bearbeiten</SheetTitle>
             <SheetDescription>
-              Update the details of this agenda item.
+              Bearbeite die Details dieses Agenda-Eintrags.
             </SheetDescription>
           </SheetHeader>
           
           <form onSubmit={handleSubmit(handleUpdateItem)} className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label htmlFor="edit-title">Title <span className="text-red-500">*</span></Label>
+              <Label htmlFor="edit-title">Titel <span className="text-red-500">*</span></Label>
               <Input
                 id="edit-title"
-                placeholder="e.g., Welcome & Introduction"
-                {...register("title", { required: "Title is required" })}
+                placeholder="z.B. Begrüßung & Einführung"
+                {...register("title", { required: "Titel ist erforderlich" })}
                 className="focus-within:ring-1 focus-within:ring-primary"
               />
               {errors.title && (
@@ -416,10 +416,10 @@ export function EventAgendaForm({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
+              <Label htmlFor="edit-description">Beschreibung</Label>
               <Textarea
                 id="edit-description"
-                placeholder="Brief description of this agenda item"
+                placeholder="Kurze Beschreibung dieses Agenda-Punktes"
                 className="min-h-[100px] focus-within:ring-1 focus-within:ring-primary"
                 {...register("description")}
               />
@@ -427,12 +427,12 @@ export function EventAgendaForm({
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-start">Start Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="edit-start">Startzeit <span className="text-red-500">*</span></Label>
                 <Input
                   id="edit-start"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("start", { required: "Start time is required" })}
+                  {...register("start", { required: "Startzeit ist erforderlich" })}
                 />
                 {errors.start && (
                   <p className="text-sm text-red-500">{errors.start.message}</p>
@@ -440,12 +440,12 @@ export function EventAgendaForm({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="edit-end">End Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="edit-end">Endzeit <span className="text-red-500">*</span></Label>
                 <Input
                   id="edit-end"
                   type="datetime-local"
                   className="focus-within:ring-1 focus-within:ring-primary"
-                  {...register("end", { required: "End time is required" })}
+                  {...register("end", { required: "Endzeit ist erforderlich" })}
                 />
                 {errors.end && (
                   <p className="text-sm text-red-500">{errors.end.message}</p>
@@ -455,9 +455,9 @@ export function EventAgendaForm({
             
             <SheetFooter className="pt-4">
               <SheetClose asChild>
-                <Button type="button" variant="outline">Cancel</Button>
+                <Button type="button" variant="outline">Abbrechen</Button>
               </SheetClose>
-              <Button type="submit">Update Item</Button>
+              <Button type="submit">Eintrag aktualisieren</Button>
             </SheetFooter>
           </form>
         </SheetContent>

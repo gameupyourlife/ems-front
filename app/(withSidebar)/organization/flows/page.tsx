@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -21,27 +21,7 @@ export default function FlowsOverview() {
 
   const flows = data || [];
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="container mx-auto py-20 text-center">
-  //       <div className="animate-pulse">Loading flows...</div>
-  //     </div>
-  //   );
-  // }
-
-  if (!flows) {
-    return (
-      <div className="container mx-auto py-20 text-center">
-        <div className="text-muted-foreground mb-4">No flows found.</div>
-        <Button variant="outline" onClick={() => router.refresh()}>
-          Reload
-        </Button>
-      </div>
-    );
-  }
-
-
-  // Count flows by trigger type
+  // Flows nach Trigger-Typ zählen
   const triggerTypeCounts = flows.reduce((acc, flow) => {
     flow.triggers?.forEach(trigger => {
       acc[trigger.type] = (acc[trigger.type] || 0) + 1;
@@ -49,12 +29,12 @@ export default function FlowsOverview() {
     return acc;
   }, {} as Record<TriggerType, number>);
 
-  // Get the trigger types ordered by count (descending)
+  // Trigger-Typen nach Häufigkeit sortieren (absteigend)
   const orderedTriggerTypes = Object.entries(triggerTypeCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 4); // Show top 4 trigger types
+    .slice(0, 4); // Zeige die 4 häufigsten Trigger-Typen
 
-  // Count flows by action type  
+  // Flows nach Action-Typ zählen
   const actionTypeCounts = flows.reduce((acc, flow) => {
     flow.actions?.forEach(action => {
       acc[action.type] = (acc[action.type] || 0) + 1;
@@ -62,23 +42,34 @@ export default function FlowsOverview() {
     return acc;
   }, {} as Record<string, number>);
 
-  // Get the action types ordered by count (descending)
+  // Action-Typen nach Häufigkeit sortieren (absteigend)
   const orderedActionTypes = Object.entries(actionTypeCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 4); // Show top 4 action types
+    .slice(0, 4); // Zeige die 4 häufigsten Action-Typen
 
   const quickActions: QuickAction[] = [
     {
       children: (
         <Button asChild>
           <Link href="/organization/flows/create">
-            <Plus className="mr-2 h-4 w-4" /> Create Flow
+            <Plus className="mr-2 h-4 w-4" /> Flow erstellen
           </Link>
         </Button>
       )
     }
   ];
 
+  // Falls keine Flows vorhanden sind
+  if (!flows) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="text-muted-foreground mb-4">Keine Flows gefunden.</div>
+        <Button variant="outline" onClick={() => router.refresh()}>
+          Neu laden
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -87,14 +78,14 @@ export default function FlowsOverview() {
       <div className="flex-1 space-y-6 p-6 pt-0">
         <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
           <AccordionItem value="item-1" >
-            <AccordionTrigger className="pl-1">Stats zu Triggern und Aktionen</AccordionTrigger>
+            <AccordionTrigger className="pl-1">Statistiken zu Triggern und Aktionen</AccordionTrigger>
             <AccordionContent>
               <div className="flex gap-4 flex-wrap">
-                {/* Popular Triggers */}
+                {/* Beliebte Trigger */}
                 <Card className="grow">
                   <CardHeader>
-                    <CardTitle>Popular Triggers</CardTitle>
-                    <CardDescription>Most common flow triggers in your organization</CardDescription>
+                    <CardTitle>Beliebte Trigger</CardTitle>
+                    <CardDescription>Die häufigsten Flow-Trigger in deiner Organisation</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -106,21 +97,21 @@ export default function FlowsOverview() {
                             </div>
                             <div>
                               <p className="text-sm font-medium capitalize">{getTriggerTitle(Number(type))}</p>
-                              <p className="text-xs text-muted-foreground">Trigger type</p>
+                              <p className="text-xs text-muted-foreground">Trigger-Typ</p>
                             </div>
                           </div>
-                          <Badge variant="secondary">{count} flows</Badge>
+                          <Badge variant="secondary">{count} Flows</Badge>
                         </div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Popular Actions */}
+                {/* Beliebte Aktionen */}
                 <Card className="grow">
                   <CardHeader>
-                    <CardTitle>Popular Actions</CardTitle>
-                    <CardDescription>Most common flow actions in your organization</CardDescription>
+                    <CardTitle>Beliebte Aktionen</CardTitle>
+                    <CardDescription>Die häufigsten Flow-Aktionen in deiner Organisation</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -132,24 +123,21 @@ export default function FlowsOverview() {
                             </div>
                             <div>
                               <p className="text-sm font-medium capitalize">{getActionTitle(Number(type))}</p>
-                              <p className="text-xs text-muted-foreground">Action type</p>
+                              <p className="text-xs text-muted-foreground">Aktionstyp</p>
                             </div>
                           </div>
-                          <Badge variant="secondary">{count} flows</Badge>
+                          <Badge variant="secondary">{count} Flows</Badge>
                         </div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
-
-
               </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        {/* Flows List */}
+        {/* Flow-Liste */}
         <FlowTable flows={flows} />
-
       </div>
     </>
   );

@@ -46,12 +46,13 @@ interface FlowFormProps {
     isCreating?: boolean;
 }
 
+// Hauptformular-Komponente für Flows
 export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFormProps) {
     const [editedFlow, setEditedFlow] = useState<Flow>(flow);
     const { data: session } = useSession();
     const queryClient = useQueryClient();
 
-    // State for dialog control
+    // State für Dialog-Steuerung
     const [isAddTriggerOpen, setIsAddTriggerOpen] = useState(false);
     const [isAddActionOpen, setIsAddActionOpen] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -62,9 +63,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         itemType: 'trigger' | 'action' | null
     }>({ open: false, itemId: null, itemType: null });
 
-    // Function to handle adding a new trigger
+    // Handler zum Hinzufügen eines neuen Triggers oder Bearbeiten eines bestehenden
     const handleAddTrigger = (triggerType: TriggerType, details: any) => {
-        // Edit existing trigger if in edit mode
         if (editItemId && editItemType === 'trigger') {
             setEditedFlow(prev => ({
                 ...prev,
@@ -78,8 +78,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
             setEditItemId(null);
             setEditItemType(null);
         } else {
-
-            // Add new trigger
+            // Neuen Trigger hinzufügen
             const newTrigger: Trigger = {
                 id: `trigger-${Date.now()}`,
                 type: triggerType,
@@ -87,8 +86,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 createdAt: new Date().toString(),
                 flowId: editedFlow.id,
                 existInDb: false,
-                description: 'No description',
-                name: 'No name',
+                description: 'Keine Beschreibung',
+                name: 'Kein Name',
             };
 
             setEditedFlow(prev => ({
@@ -98,9 +97,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         }
     };
 
-    // Function to handle adding a new action
+    // Handler zum Hinzufügen einer neuen Action oder Bearbeiten einer bestehenden
     const handleAddAction = (actionType: ActionType, details: any) => {
-        // Edit existing action if in edit mode
         if (editItemId && editItemType === 'action') {
             setEditedFlow(prev => ({
                 ...prev,
@@ -113,7 +111,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
             setEditItemId(null);
             setEditItemType(null);
         } else {
-            // Add new action
+            // Neue Action hinzufügen
             const newAction: Action = {
                 id: `action-${Date.now()}`,
                 type: actionType as ActionType,
@@ -132,18 +130,17 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         }
     };
 
-    // Function to handle editing an existing item (trigger or action)
+    // Handler zum Bearbeiten eines bestehenden Elements (Trigger oder Action)
     const handleEditItem = (id: string, type: 'trigger' | 'action') => {
         setEditItemId(id);
         setEditItemType(type);
 
-        // Find the existing item data
+        // Öffnet den passenden Dialog zum Bearbeiten
         const existingItem = type === 'trigger'
             ? editedFlow.triggers?.find(item => item.id === id)
             : editedFlow.actions?.find(item => item.id === id);
 
         if (existingItem) {
-            // For triggers, we need to set up some initial states based on the trigger type
             if (type === 'trigger') {
                 setIsAddTriggerOpen(true);
             } else {
@@ -152,7 +149,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         }
     };
 
-    // Function to handle deleting an item
+    // Handler zum Löschen eines Elements (öffnet Bestätigungsdialog)
     const handleDeleteItem = (id: string, type: 'trigger' | 'action') => {
         setDeleteDialog({
             open: true,
@@ -161,7 +158,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         });
     };
 
-    // Function to confirm deletion
+    // Handler zur Bestätigung des Löschens
     const confirmDelete = async () => {
         const { itemId, itemType } = deleteDialog;
 
@@ -187,7 +184,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
 
                             toast.success("Trigger erfolgreich gelöscht");
                         } catch (error) {
-                            console.error("Error deleting trigger:", error);
+                            console.error("Fehler beim Löschen des Triggers:", error);
                         }
                     } else {
                         try {
@@ -207,7 +204,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
 
                             toast.success("Trigger erfolgreich gelöscht");
                         } catch (error) {
-                            console.error("Error deleting trigger:", error);
+                            console.error("Fehler beim Löschen des Triggers:", error);
                         }
                     }
                 }
@@ -223,7 +220,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
         setDeleteDialog({ open: false, itemId: null, itemType: null });
     };
 
-    // Function to handle saving changes
+    // Handler zum Speichern der Änderungen
     const handleSave = () => {
         onSave(editedFlow);
     };
@@ -231,41 +228,41 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
     return (
         <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-                {/* Flow Information */}
+                {/* Flow-Informationen */}
                 <Card>
                     <CardHeader className="pb-3">
-                        <CardTitle>Flow Information</CardTitle>
-                        <CardDescription>Basic details about this automation flow</CardDescription>
+                        <CardTitle>Flow-Informationen</CardTitle>
+                        <CardDescription>Grundlegende Details zu diesem Automatisierungs-Flow</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Flow Name</Label>
+                                <Label htmlFor="name">Flow-Name</Label>
                                 <Input
                                     id="name"
                                     value={editedFlow.name || ''}
                                     onChange={(e) => setEditedFlow({ ...editedFlow, name: e.target.value })}
                                     disabled={!isEditing}
-                                    placeholder="Enter flow name"
+                                    placeholder="Flow-Namen eingeben"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Beschreibung</Label>
                                 <Textarea
                                     id="description"
                                     value={editedFlow.description || ''}
                                     onChange={(e) => setEditedFlow({ ...editedFlow, description: e.target.value })}
                                     className="min-h-[100px]"
                                     disabled={!isEditing}
-                                    placeholder="Describe what this flow does"
+                                    placeholder="Beschreibe, was dieser Flow macht"
                                 />
                             </div>
 
                             {editedFlow.eventId && <div className="space-y-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Multiple Runs</Label>
-                                    <p className="text-sm text-muted-foreground">Allow this flow to run multiple times for the same event</p>
+                                    <Label htmlFor="description">Mehrfache Ausführung</Label>
+                                    <p className="text-sm text-muted-foreground">Erlaube, dass dieser Flow mehrfach für dasselbe Event ausgeführt werden kann</p>
 
                                     <Switch
                                         id="multipleRuns"
@@ -281,10 +278,10 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                     id="event"
                                     value={editedFlow.eventId || ''}
                                     disabled
-                                    placeholder="Event ID"
+                                    placeholder="Event-ID"
                                 />
                                 <Link href={`/organization/events/${editedFlow.eventId}`} className="text-sm text-muted-foreground">
-                                    This flow is associated with the event: {editedFlow.eventId}
+                                    Dieser Flow ist mit dem Event verknüpft: {editedFlow.eventId}
                                 </Link>
                             </div>}
 
@@ -293,7 +290,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     </CardContent>
                 </Card>
 
-                {/* Triggers */}
+                {/* Trigger */}
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="flex items-center justify-between">
@@ -367,7 +364,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                                     <div className="mt-3 pt-3 border-t text-xs space-y-1.5 text-muted-foreground">
                                                         {Object.entries(trigger.details)
                                                             .filter(([key]) => key !== 'selectedTriggerId')
-                                                            .slice(0, 3) // Show only first 3 properties
+                                                            .slice(0, 3) // Zeige nur die ersten 3 Eigenschaften
                                                             .map(([key, value]) => (
                                                                 <div key={key} className="flex items-center">
                                                                     <span className="font-medium min-w-24">{formatDetailsLabel(key)}:</span>
@@ -388,7 +385,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                             ) : (
                                 <div className="flex h-[100px] items-center justify-center text-center text-muted-foreground">
                                     <div>
-                                        <p>Kein Trigger bis jetzt</p>
+                                        <p>Bis jetzt kein Trigger</p>
                                         <p className="text-sm">Füge eine Bedingung hinzu, um zu bestimmen, wann dieser Flow ausgeführt werden soll</p>
                                     </div>
                                 </div>
@@ -414,18 +411,18 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     )}
                 </Card>
 
-                {/* Actions */}
+                {/* Aktionen */}
                 <Card className="md:col-span-2">
                     <CardHeader className="pb-3">
                         <CardTitle className="flex items-center justify-between">
-                            <span>Actions</span>
+                            <span>Aktionen</span>
                             {(editedFlow.actions?.length || 0) > 0 && (
                                 <Badge variant="outline" className="ml-2">
                                     {editedFlow.actions?.length || 0}
                                 </Badge>
                             )}
                         </CardTitle>
-                        <CardDescription>Actions performed when this flow is triggered</CardDescription>
+                        <CardDescription>Aktionen, die ausgeführt werden, wenn dieser Flow ausgelöst wird</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ScrollArea className="h-[250px] pr-4">
@@ -493,7 +490,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                                                 key !== 'message' &&
                                                                 key !== 'newDescription'
                                                             )
-                                                            .slice(0, 3) // Show only first 3 properties
+                                                            .slice(0, 3) // Zeige nur die ersten 3 Eigenschaften
                                                             .map(([key, value]) => (
                                                                 <div key={key} className="flex items-center">
                                                                     <span className="font-medium min-w-24">{formatDetailsLabel(key)}:</span>
@@ -514,7 +511,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                             ) : (
                                 <div className="flex h-[100px] items-center justify-center text-center text-muted-foreground">
                                     <div>
-                                        <p>Keine Actions bis jetzt </p>
+                                        <p>Bis jetzt keine Aktionen</p>
                                         <p className="text-sm">Füge Aktionen hinzu, um zu bestimmen, was passieren soll, wenn dieser Flow ausgeführt wird</p>
                                     </div>
                                 </div>
@@ -534,7 +531,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                                 }}
                             >
                                 <Plus className="mr-2 h-4 w-4" />
-                                Action hinzufügen
+                                Aktion hinzufügen
                             </Button>
                         </CardFooter>
                     )}
@@ -550,7 +547,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 </div>
             )}
 
-            {/* Add Trigger Dialog */}
+            {/* Dialog zum Hinzufügen eines Triggers */}
             <AddTriggerDialog
                 open={isAddTriggerOpen}
                 onOpenChange={(open) => {
@@ -567,7 +564,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     : undefined}
             />
 
-            {/* Add Action Dialog - pass the current edited flow to use for variables */}
+            {/* Dialog zum Hinzufügen einer Aktion */}
             <AddActionDialog
                 open={isAddActionOpen}
                 onOpenChange={(open) => {
@@ -584,19 +581,19 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     : undefined}
             />
 
-            {/* Delete Confirmation Dialog */}
+            {/* Bestätigungsdialog für das Löschen */}
             <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog(prev => ({ ...prev, open }))}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle>Bist du sicher?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will permanently delete this {deleteDialog.itemType}. This action cannot be undone.
+                            Dies wird diesen {deleteDialog.itemType} dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                         <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Delete
+                            Löschen
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

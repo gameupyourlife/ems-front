@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { toast } from "sonner";
 
-// UI Components
+// UI Komponenten
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -21,25 +21,22 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Icons
-import { ArrowLeftIcon, FunctionSquare, Info, ListTodo, Save, Trash2 } from "lucide-react";
+import { ArrowLeftIcon, FileText, FunctionSquare, Info, ListTodo, Save, Trash2 } from "lucide-react";
 
-// Custom components
+// Eigene Komponenten
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
 import { mockFlows } from "@/lib/data";
 
-// Form schema
+// Formular-Schema
 import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";
 import { Flow } from "@/lib/backend/types";
 import { useEventDetails } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 import { AgendaEntry, deleteAgendaEntry, updateAgendaEntry } from "@/lib/backend/agenda";
 import LoadingSpinner from "@/components/loading-spinner";
-
-// Hooks
-import { useSession } from "next-auth/react";
 import { useEvents, useUpdateEvent } from "@/lib/backend/hooks/events";
 
 export default function EditEventPage() {
@@ -47,17 +44,17 @@ export default function EditEventPage() {
   const params = useParams();
   const eventId = params.eventId as string;
 
-
   const { data: session } = useSession();
   const { data: event, isLoading } = useEventDetails(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
 
+  // Lokale State-Variablen
   const [activeTab, setActiveTab] = useState("basic");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [agendaItems, setAgendaItems] = useState<AgendaEntry[]>(event?.agenda || []);
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>(event?.flows || []);
   const [selectedStatus, setSelectedStatus] = useState(String(event?.metadata.status));
 
-  // Initialize form with event data using our shared schema
+  // Formular initialisieren mit Event-Daten
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
@@ -73,23 +70,13 @@ export default function EditEventPage() {
     },
   });
 
-  // Form submission handler
+  // Formular-Submit-Handler
   const onSubmit = async (data: EventFormData) => {
-
     try {
-      // Combine date and time fields
 
-      // In a real app, you would call an API to update the event
+      console.log("Agenda-Punkte:", agendaItems);
+      console.log("Ausgewählte Flows:", selectedFlows);
 
-      console.log("Agenda items:", agendaItems);
-      console.log("Selected flows:", selectedFlows);
-
-
-
-
-
-   
-      // Deleted agenda entries are the diff between the last fetched agenda in the event object and the new agenda
       const deletedEntries = event?.agenda.filter((entry) => !agendaItems.some((item) => item.id === entry.id));
       deletedEntries && Promise.all(deletedEntries?.map((entry) => {
         return deleteAgendaEntry(session?.user?.organization.id || "", event?.metadata.id || "", entry.id, (session?.user?.jwt || ""));
@@ -105,6 +92,7 @@ export default function EditEventPage() {
         }, (session?.user?.jwt || ""));
       }))
 
+      // Aktualisierte Agenda-Einträge: Einträge, die schon existierten
       const updatedEntries = agendaItems.filter((entry) => event?.agenda.some((item) => item.id === entry.id));
       updatedEntries && Promise.all(updatedEntries?.map((entry) => {
         return updateAgendaEntry(session?.user?.organization.id || "", event?.metadata.id || "", entry.id, {
@@ -115,34 +103,32 @@ export default function EditEventPage() {
         }, (session?.user?.jwt || ""));
       }))
 
-      toast.success("Event updated successfully");
+      toast.success("Event erfolgreich aktualisiert");
       router.push(`/organization/events/${eventId}`);
     } catch (error) {
-      console.error("Error updating event:", error);
-      toast.error("Failed to update eventDetails.metadata. Please try again.");
+      console.error("Fehler beim Aktualisieren des Events:", error);
+      toast.error("Event konnte nicht aktualisiert werden. Bitte versuche es erneut.");
     }
   };
 
-  // Handle delete event
+  // Event löschen Handler
   const handleDeleteEvent = async () => {
-
     try {
-      // In a real app, you would call an API to delete the event
-      console.log("Deleting event:", eventId);
+      console.log("Event wird gelöscht:", eventId);
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      toast.success(`Event "${event?.metadata.title}" deleted successfully`);
+      toast.success(`Event "${event?.metadata.title}" wurde erfolgreich gelöscht`);
       router.push("/organization/events");
     } catch (error) {
-      console.error("Error deleting event:", error);
-      toast.error("Failed to delete eventDetails.metadata. Please try again.");
+      console.error("Fehler beim Löschen des Events:", error);
+      toast.error("Event konnte nicht gelöscht werden. Bitte versuche es erneut.");
     } finally {
       setIsDeleteDialogOpen(false);
     }
   };
 
+  // Event-Daten in State übernehmen, wenn geladen
   useEffect(() => {
     if (event && agendaItems.length === 0 && selectedFlows.length === 0 && selectedStatus.length === 0) {
       setSelectedFlows(event.flows);
@@ -162,6 +148,8 @@ export default function EditEventPage() {
     }
   }, [event]);
 
+  // Ladeanzeige
+
   if(isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
@@ -170,9 +158,10 @@ export default function EditEventPage() {
     );
   }
 
+  // Render
   return (
     <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-      {/* Header */}
+      {/* Kopfbereich */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -181,9 +170,9 @@ export default function EditEventPage() {
                 <ArrowLeftIcon className="h-4 w-4" />
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold">Edit Event</h1>
+            <h1 className="text-2xl font-bold">Event bearbeiten</h1>
           </div>
-          <p className="text-muted-foreground ml-10">Update the details for "{event?.metadata.title}"</p>
+          <p className="text-muted-foreground ml-10">Bearbeite die Details für "{event?.metadata.title}"</p>
         </div>
 
         <div className="flex gap-2">
@@ -193,7 +182,7 @@ export default function EditEventPage() {
             className="text-red-500 hover:text-red-600 hover:bg-red-50"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            Löschen
           </Button>
           <Button
             onClick={form.handleSubmit(onSubmit)}
@@ -202,109 +191,106 @@ export default function EditEventPage() {
             {isLoading ? (
               <div className="flex items-center">
                 <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                Saving...
+                Speichern...
               </div>
             ) : (
               <div className="flex items-center">
-                <Save className="mr-2 h-4 w-4" /> Save Changes
+                <Save className="mr-2 h-4 w-4" /> Änderungen speichern
               </div>
             )}
           </Button>
         </div>
       </div>
 
-      
-        <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
-            <TabsTrigger
-              value="basic"
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <Info className="h-4 w-4" />
-              <span>Basic Info</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="files"
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <FileText className="h-4 w-4" />
-              <span>Files</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="flows"
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <FunctionSquare className="h-4 w-4" />
-              <span>Flows</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="agenda"
-              className="flex items-center gap-2 data-[state=active]:bg-background"
-            >
-              <ListTodo className="h-4 w-4" />
-              <span>Agenda</span>
-            </TabsTrigger>
-          </TabsList>
+      {/* Tabs für die Event-Bearbeitung */}
+      <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
+          <TabsTrigger
+            value="basic"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <Info className="h-4 w-4" />
+            <span>Basisdaten</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="files"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <FileText className="h-4 w-4" />
+            <span>Dateien</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="flows"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <FunctionSquare className="h-4 w-4" />
+            <span>Flows</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="agenda"
+            className="flex items-center gap-2 data-[state=active]:bg-background"
+          >
+            <ListTodo className="h-4 w-4" />
+            <span>Agenda</span>
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Basic Info Tab */}
-          <TabsContent value="basic">
-            {/* ToDo: Fix the issues here with the form */}
-            <EventBasicInfoForm
-              form={form}
-              onTabChange={setActiveTab}
-            />
-          </TabsContent>
+        {/* Tab: Basisdaten */}
+        <TabsContent value="basic">
+          <EventBasicInfoForm
+            form={form}
+            onTabChange={setActiveTab}
+          />
+        </TabsContent>
 
-          {/* Flows Tab */}
-          <TabsContent value="flows">
-            <EventFlowsForm
-              selectedFlows={selectedFlows}
-              availableFlows={mockFlows}
-              onFlowsChange={setSelectedFlows}
-              onTabChange={setActiveTab}
-              eventId={eventId}
-            />
-          </TabsContent>
+        {/* Tab: Flows */}
+        <TabsContent value="flows">
+          <EventFlowsForm
+            selectedFlows={selectedFlows}
+            availableFlows={mockFlows}
+            onFlowsChange={setSelectedFlows}
+            onTabChange={setActiveTab}
+            eventId={eventId}
+          />
+        </TabsContent>
 
-          {/* Agenda Tab */}
-          <TabsContent value="agenda">
-            <EventAgendaForm
-              agendaItems={agendaItems}
-              onAgendaItemsChange={setAgendaItems}
-              onTabChange={setActiveTab}
-              eventId={eventId}
-              isFinalStep
-              submitLabel="Save Event"
-              isSubmitting={isLoading}
-            />
-          </TabsContent>
-        </Tabs>
-      </form>
+        {/* Tab: Agenda */}
+        <TabsContent value="agenda">
+          <EventAgendaForm
+            agendaItems={agendaItems}
+            onAgendaItemsChange={setAgendaItems}
+            onTabChange={setActiveTab}
+            eventId={eventId}
+            isFinalStep
+            submitLabel="Event speichern"
+            isSubmitting={isLoading}
+          />
+        </TabsContent>
+      </Tabs>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Bestätigungsdialog für Löschen */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this event?</AlertDialogTitle>
+            <AlertDialogTitle>Bist du sicher, dass du dieses Event löschen möchtest?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the event
-              "{event?.metadata.title}" and all associated data.
+              Diese Aktion kann nicht rückgängig gemacht werden. Das Event "{event?.metadata.title}" und alle zugehörigen Daten werden dauerhaft gelöscht.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {/* delete handler */}}
+              onClick={handleDeleteEvent}
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center">
                   <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Deleting...
+                  Löschen...
                 </div>
               ) : (
-                "Delete Event"
+                "Event löschen"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

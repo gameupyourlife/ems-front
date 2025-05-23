@@ -1,10 +1,10 @@
-"use client";;
+"use client";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-// UI Components
+// UI Komponenten
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -82,7 +82,7 @@ import {
 import { EventDetails, User } from "@/lib/types-old";
 import { Textarea } from "@/components/ui/textarea";
 
-// Attendee status types
+// Typen für Teilnehmerstatus
 type AttendeeStatus = "attending" | "pending" | "declined" | "cancelled";
 
 interface Attendee extends User {
@@ -92,7 +92,7 @@ interface Attendee extends User {
     notes?: string;
 }
 
-// Mock attendees with additional properties
+// Erzeugt Beispiel-Teilnehmer mit zusätzlichen Eigenschaften
 const generateMockAttendees = (baseUsers: User[]): Attendee[] => {
     const statuses: AttendeeStatus[] = ["attending", "pending", "declined", "cancelled"];
 
@@ -129,7 +129,7 @@ const generateMockAttendees = (baseUsers: User[]): Attendee[] => {
     }));
 };
 
-// Helper functions
+// Gibt das passende Status-Badge zurück
 const getStatusBadge = (status: AttendeeStatus) => {
     switch (status) {
         case "attending":
@@ -145,13 +145,13 @@ const getStatusBadge = (status: AttendeeStatus) => {
     }
 };
 
-// Main component
+// Hauptkomponente
 export default function EventAttendeesTab({ eventDetails }: { eventDetails: EventDetails }) {
     const router = useRouter();
     const eventId = eventDetails.metadata.id;
     const event = eventDetails.metadata;
 
-    // State
+    // State-Variablen
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState<string | null>(null);
     const [attendees, setAttendees] = useState<Attendee[]>(generateMockAttendees(eventDetails.attendees));
@@ -159,7 +159,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("all");
 
-    // Calculate attendance statistics
+    // Statistiken berechnen
     const attendingCount = attendees.filter(a => a.status === "attending").length;
     const pendingCount = attendees.filter(a => a.status === "pending").length;
     const declinedCount = attendees.filter(a => a.status === "declined").length;
@@ -168,11 +168,11 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
 
     const attendancePercentage = Math.round((attendingCount / event.capacity) * 100);
 
-    // Filter attendees based on search and status filter
+    // Teilnehmer nach Suchbegriff und Status filtern
     const filteredAttendees = useMemo(() => {
         let result = attendees;
 
-        // Apply search filter
+        // Suche anwenden
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             result = result.filter(
@@ -181,7 +181,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
             );
         }
 
-        // Apply status filter
+        // Status-Filter anwenden
         if (activeTab !== "all") {
             if (activeTab === "checked-in") {
                 result = result.filter(a => a.checkedIn);
@@ -193,7 +193,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
         return result;
     }, [attendees, searchQuery, activeTab]);
 
-    // Handler functions
+    // Handler: Alle auswählen/abwählen
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
             setSelectedAttendees(filteredAttendees.map(a => a.id));
@@ -202,6 +202,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
         }
     };
 
+    // Handler: Einzelnen Teilnehmer auswählen/abwählen
     const handleSelectAttendee = (id: string, checked: boolean) => {
         if (checked) {
             setSelectedAttendees(prev => [...prev, id]);
@@ -210,10 +211,9 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
         }
     };
 
-
-
+    // Handler: Teilnehmer entfernen
     const handleRemoveAttendees = () => {
-        // In a real app, you'd call an API to remove the attendees
+        // In einer echten Anwendung würde hier ein API-Call erfolgen
         setAttendees(prev => prev.filter(a => !selectedAttendees.includes(a.id)));
         setSelectedAttendees([]);
         setIsDeleteDialogOpen(false);
@@ -221,8 +221,9 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
         toast.success(`${selectedAttendees.length} Teilnehmer wurden entfernt`);
     };
 
+    // Handler: Teilnehmerstatus aktualisieren
     const handleUpdateStatus = (id: string, newStatus: AttendeeStatus) => {
-        // In a real app, you'd call an API to update the status
+        // In einer echten Anwendung würde hier ein API-Call erfolgen
         setAttendees(prev => prev.map(a =>
             a.id === id ? { ...a, status: newStatus } : a
         ));
@@ -230,19 +231,14 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
         toast.success("Teilnehmerstatus wurde aktualisiert");
     };
 
-
-
-
     return (
         <div className="flex flex-1 flex-col space-y-6">
-            {/* Header with back button and title */}
+            {/* Kopfbereich mit Aktions-Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-
                 <ActionButtons attendees={attendees} setAttendees={setAttendees}  />
-
             </div>
 
-            {/* Statistics Cards */}
+            {/* Statistik-Karten */}
             <div className="flex w-full flex-wrap gap-4">
                 <Card className="grow">
                     <CardHeader className="pb-2">
@@ -279,8 +275,6 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
                     </CardContent>
                 </Card>
 
-
-
                 <Card className="grow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -298,7 +292,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
                 </Card>
             </div>
 
-            {/* Tabs, Search and Filter */}
+            {/* Tabs, Suche und Filter */}
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
@@ -315,7 +309,6 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
                                 <Clock className="h-4 w-4" />
                                 <span>Ausstehend ({pendingCount})</span>
                             </TabsTrigger>
-
                         </TabsList>
                     </Tabs>
 
@@ -334,7 +327,7 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
                 </div>
             </div>
 
-            {/* Attendees Table */}
+            {/* Teilnehmer-Tabelle */}
             <Card>
                 <CardHeader className="pb-2">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -501,30 +494,27 @@ export default function EventAttendeesTab({ eventDetails }: { eventDetails: Even
     );
 }
 
+// Aktions-Buttons für Export und Einladen
 function ActionButtons({ attendees, setAttendees }: { attendees: Attendee[]; setAttendees: React.Dispatch<React.SetStateAction<Attendee[]>> }) {
 
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
     const [inviteEmails, setInviteEmails] = useState("");
 
-    
+    // Exportiert die Teilnehmerliste als CSV
     const exportAttendees = () => {
-        // In a real app, you would generate a CSV or Excel file
         toast.info("Teilnehmerliste wird exportiert...");
 
         try {
-            // Put attendees data into CSV format
+            // Teilnehmerdaten als CSV-Format aufbereiten
             const csvContent = `data:text/csv;charset=utf-8,${attendees.map(attendee => `${attendee.name},${attendee.email},${attendee.status},${attendee.registeredAt}`).join("\n")}`;
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
             link.setAttribute("download", "attendees.csv");
-            document.body.appendChild(link); // Required for FF
-            link.click(); // This will download the file
-            document.body.removeChild(link); // Clean up the link element
-            
-            
-            
-            // Mock download delay
+            document.body.appendChild(link); // Für Firefox erforderlich
+            link.click(); // Startet den Download
+            document.body.removeChild(link); // Entfernt das Element wieder
+
             toast.success("Teilnehmerliste wurde heruntergeladen");
         }
         catch (error) {
@@ -532,8 +522,9 @@ function ActionButtons({ attendees, setAttendees }: { attendees: Attendee[]; set
         }
     };
 
+    // Handler: Teilnehmer einladen
     const handleInviteAttendees = () => {
-        // Split emails by comma, newline, or semicolon
+        // E-Mails anhand von Komma, Semikolon oder Zeilenumbruch trennen
         const emails = inviteEmails
             .split(/[,;\n]/)
             .map(email => email.trim())
@@ -544,15 +535,15 @@ function ActionButtons({ attendees, setAttendees }: { attendees: Attendee[]; set
             return;
         }
 
-        // In a real app, you'd call an API to send invitations
+        // In einer echten Anwendung würde hier ein API-Call erfolgen
         toast.success(`${emails.length} Einladungen wurden erfolgreich versendet`);
         setIsInviteDialogOpen(false);
         setInviteEmails("");
 
-        // Add invited users to the attendees list with "pending" status
+        // Neue Teilnehmer mit Status "pending" hinzufügen
         const newAttendees: Attendee[] = emails.map((email, idx) => ({
             id: `new-${Date.now()}-${idx}`,
-            name: email.split('@')[0], // Use part before @ as temporary name
+            name: email.split('@')[0], // Teil vor dem @ als temporärer Name
             email,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -597,7 +588,6 @@ function ActionButtons({ attendees, setAttendees }: { attendees: Attendee[]; set
                                 value={inviteEmails}
                                 onChange={(e) => setInviteEmails(e.target.value)}
                                 className="min-h-[100px] resize-y"
-
                             />
                         </div>
 

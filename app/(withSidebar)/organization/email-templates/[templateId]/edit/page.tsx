@@ -42,12 +42,12 @@ interface EmailTemplate {
   description: string;
 }
 
-// Define form schema with validation
+// Formular-Schema mit Validierung
 const formSchema = z.object({
-  name: z.string().min(2, "Template name must be at least 2 characters.").max(100),
-  description: z.string().max(200, "Description must not exceed 200 characters.").optional(),
-  subject: z.string().min(2, "Subject line must be at least 2 characters.").max(150, "Subject must not exceed 150 characters."),
-  body: z.string().min(10, "Email body must be at least 10 characters."),
+  name: z.string().min(2, "Vorlagenname muss mindestens 2 Zeichen lang sein.").max(100),
+  description: z.string().max(200, "Beschreibung darf maximal 200 Zeichen enthalten.").optional(),
+  subject: z.string().min(2, "Betreff muss mindestens 2 Zeichen lang sein.").max(150, "Betreff darf maximal 150 Zeichen enthalten."),
+  body: z.string().min(10, "E-Mail-Inhalt muss mindestens 10 Zeichen lang sein."),
 });
 
 export default function TemplateEditPage() {
@@ -73,7 +73,7 @@ export default function TemplateEditPage() {
       name: "",
       description: "",
       subject: "",
-      body: "<p>Your email content here...</p>"
+      body: "<p>Ihr E-Mail-Inhalt hier...</p>"
     },
   });
 
@@ -81,33 +81,33 @@ export default function TemplateEditPage() {
     const fetchTemplate = async () => {
       setIsLoading(true);
       try {
-        // For a new template, we just use default values
+        // Neue Vorlage: Standardwerte setzen
         if (isNewTemplate) {
           setTemplate({
             id: "new-template",
-            name: "New Template",
-            description: "Enter your template description",
-            subject: "Your subject line",
-            body: "<p>Enter your email content here...</p>"
+            name: "Neue Vorlage",
+            description: "Vorlagenbeschreibung eingeben",
+            subject: "Ihr Betreff",
+            body: "<p>Ihr E-Mail-Inhalt hier...</p>"
           });
           form.reset({
-            name: "New Template",
-            description: "Enter your template description",
-            subject: "Your subject line",
-            body: "<p>Enter your email content here...</p>"
+            name: "Neue Vorlage",
+            description: "Vorlagenbeschreibung eingeben",
+            subject: "Ihr Betreff",
+            body: "<p>Ihr E-Mail-Inhalt hier...</p>"
           });
           setIsLoading(false);
           return;
         }
 
-        // In a real app, this would be an API call to fetch the template
+        // Simuliertes Laden (API-Aufruf)
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Find the template in our mock data
+        // Vorlage aus Mock-Daten suchen
         const foundTemplate = emailTemplates.find(t => t.id === templateId);
 
         if (!foundTemplate) {
-          setError("Template not found");
+          setError("Vorlage nicht gefunden");
           setTemplate(null);
         } else {
           setTemplate(foundTemplate);
@@ -120,8 +120,8 @@ export default function TemplateEditPage() {
           setError(null);
         }
       } catch (err) {
-        console.error("Error fetching template:", err);
-        setError("Failed to load template. Please try again.");
+        console.error("Fehler beim Laden der Vorlage:", err);
+        setError("Vorlage konnte nicht geladen werden. Bitte erneut versuchen.");
         setTemplate(null);
       } finally {
         setIsLoading(false);
@@ -133,25 +133,24 @@ export default function TemplateEditPage() {
     }
   }, [templateId, form, isNewTemplate]);
 
-  // Watch form values for preview
+  // Für Vorschau: aktuelle Werte beobachten
   const previewSubject = form.watch("subject");
   const previewBody = form.watch("body");
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSaving(true);
     try {
-      // In a real app, this would be an API call to save the template
+      // Simuliertes Speichern (API-Aufruf)
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Navigate back to template details or templates list
+      // Nach dem Speichern zurück zur Übersicht oder Detailseite
       if (isNewTemplate) {
         router.push('/organization/email-templates');
       } else {
         router.push(`/organization/email-templates/${templateId}`);
       }
     } catch (err) {
-      console.error("Error saving template:", err);
-      // Show error toast or notification here
+      console.error("Fehler beim Speichern der Vorlage:", err);
     } finally {
       setIsSaving(false);
     }
@@ -162,43 +161,37 @@ export default function TemplateEditPage() {
 
     setIsGenerating(true);
     try {
-      // Simulate AI generation
+      // Simulierte KI-Generierung
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // In a real app, this would call an AI service
-      // For now we'll just generate some mock content
+      // Generierter Beispielinhalt
       const generatedSubject = `${aiPrompt.substring(0, 20)}${aiPrompt.length > 20 ? '...' : ''}`;
-      const generatedBody = `<h2>Generated Email for: ${aiPrompt}</h2>
-        <p>This is an AI-generated email based on your request. You can now edit this content to fit your specific needs.</p>
-        <p>Your prompt was related to: <strong>${aiPrompt}</strong></p>
+      const generatedBody = `<h2>Generierte E-Mail für: ${aiPrompt}</h2>
+        <p>Dies ist eine KI-generierte E-Mail basierend auf Ihrer Anfrage. Sie können diesen Inhalt anpassen.</p>
+        <p>Ihr Prompt war: <strong>${aiPrompt}</strong></p>
         <ul>
-          <li>This is a sample bullet point</li>
-          <li>You can customize this content</li>
-          <li>Add your own specific details</li>
+          <li>Dies ist ein Beispiel-Punkt</li>
+          <li>Sie können den Inhalt anpassen</li>
+          <li>Fügen Sie eigene Details hinzu</li>
         </ul>
-        <p>Thank you for using our service.</p>
-        <p><em>Best regards,<br>[Organization]</em></p>`;
+        <p>Vielen Dank für die Nutzung unseres Services.</p>
+        <p><em>Mit freundlichen Grüßen,<br>[Organisation]</em></p>`;
 
-      // Update the form with generated content
       form.setValue("subject", generatedSubject);
       form.setValue("body", generatedBody);
 
-      // Close the AI generator dialog
       setAiGeneratorOpen(false);
       setAiPrompt("");
     } catch (err) {
-      console.error("Error generating content:", err);
-      // Show error toast or notification here
+      console.error("Fehler bei der KI-Generierung:", err);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // Insert a placeholder at cursor position in body or subject field
+  // Platzhalter am Ende des Feldes einfügen
   const insertPlaceholder = (placeholder: string, field: "subject" | "body") => {
     const currentValue = form.getValues(field);
-    // In a real app, you would use the cursor position
-    // For simplicity, we're just appending to the end
     const newValue = `${currentValue} [${placeholder}]`;
     form.setValue(field, newValue);
   };
@@ -215,12 +208,12 @@ export default function TemplateEditPage() {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Template Not Found</h2>
+        <h2 className="text-2xl font-bold mb-2">Vorlage nicht gefunden</h2>
         <p className="text-muted-foreground mb-6">{error}</p>
         <Button variant="outline" asChild>
           <Link href="/organization/email-templates">
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Templates
+            Zurück zu den Vorlagen
           </Link>
         </Button>
       </div>
@@ -253,7 +246,7 @@ export default function TemplateEditPage() {
           {isSaving ? (
             <>
               <div className="h-4 w-4 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
-              Speichere...
+              Speichern...
             </>
           ) : (
             <>
@@ -276,7 +269,7 @@ export default function TemplateEditPage() {
             <div className="grid grid-cols-1 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl">Template Information</CardTitle>
+                  <CardTitle className="text-xl">Vorlageninformationen</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -284,12 +277,12 @@ export default function TemplateEditPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Template Name</FormLabel>
+                        <FormLabel>Vorlagenname</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter template name" {...field} />
+                          <Input placeholder="Vorlagennamen eingeben" {...field} />
                         </FormControl>
                         <FormDescription>
-                          A recognizable name for your template
+                          Ein eindeutiger Name für die Vorlage
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -301,16 +294,16 @@ export default function TemplateEditPage() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Beschreibung</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Enter a brief description of this template"
+                            placeholder="Kurze Beschreibung dieser Vorlage"
                             className="resize-none"
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          Describe what this template is used for
+                          Beschreiben Sie, wofür diese Vorlage verwendet wird
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -322,8 +315,7 @@ export default function TemplateEditPage() {
               <Card>
                 <CardHeader className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl">Email Content</CardTitle>
-
+                    <CardTitle className="text-xl">E-Mail-Inhalt</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -334,7 +326,7 @@ export default function TemplateEditPage() {
                   >
                     <div className="px-6">
                       <TabsList className="grid grid-cols-2 mb-6 w-[200px]">
-                        <TabsTrigger value="edit">Edit</TabsTrigger>
+                        <TabsTrigger value="edit">Bearbeiten</TabsTrigger>
                         <TabsTrigger value="code">HTML</TabsTrigger>
                       </TabsList>
                     </div>
@@ -346,9 +338,9 @@ export default function TemplateEditPage() {
                           name="subject"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email Subject Line</FormLabel>
+                              <FormLabel>E-Mail-Betreff</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter email subject" {...field} />
+                                <Input placeholder="E-Mail-Betreff eingeben" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -357,23 +349,23 @@ export default function TemplateEditPage() {
                       </div>
 
                       <div className="flex gap-2 my-3">
-                        <div className="text-sm text-muted-foreground">Insert placeholder:</div>
+                        <div className="text-sm text-muted-foreground">Platzhalter einfügen:</div>
                         <div className="flex flex-wrap gap-1">
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => insertPlaceholder("Event Name", "subject")}
+                            onClick={() => insertPlaceholder("Veranstaltungsname", "subject")}
                           >
-                            [Event Name]
+                            [Veranstaltungsname]
                           </Button>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => insertPlaceholder("Attendee Name", "subject")}
+                            onClick={() => insertPlaceholder("Teilnehmername", "subject")}
                           >
-                            [Attendee Name]
+                            [Teilnehmername]
                           </Button>
                         </div>
                       </div>
@@ -384,10 +376,10 @@ export default function TemplateEditPage() {
                           name="body"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email Body</FormLabel>
+                              <FormLabel>E-Mail-Inhalt</FormLabel>
                               <FormControl>
                                 <Textarea
-                                  placeholder="Enter email body content (HTML supported)"
+                                  placeholder="E-Mail-Inhalt eingeben (HTML unterstützt)"
                                   className="min-h-[300px] font-mono"
                                   {...field}
                                 />
@@ -398,45 +390,45 @@ export default function TemplateEditPage() {
                         />
 
                         <div className="flex gap-2 mt-4 mb-2">
-                          <div className="text-sm text-muted-foreground">Insert placeholder:</div>
+                          <div className="text-sm text-muted-foreground">Platzhalter einfügen:</div>
                           <div className="flex flex-wrap gap-1">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => insertPlaceholder("Event Name", "body")}
+                              onClick={() => insertPlaceholder("Veranstaltungsname", "body")}
                             >
-                              [Event Name]
+                              [Veranstaltungsname]
                             </Button>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => insertPlaceholder("Attendee Name", "body")}
+                              onClick={() => insertPlaceholder("Teilnehmername", "body")}
                             >
-                              [Attendee Name]
+                              [Teilnehmername]
                             </Button>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => insertPlaceholder("Event Date", "body")}
+                              onClick={() => insertPlaceholder("Veranstaltungsdatum", "body")}
                             >
-                              [Event Date]
+                              [Veranstaltungsdatum]
                             </Button>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => insertPlaceholder("Organization", "body")}
+                              onClick={() => insertPlaceholder("Organisation", "body")}
                             >
-                              [Organization]
+                              [Organisation]
                             </Button>
                           </div>
                         </div>
 
                         <p className="text-sm text-muted-foreground mt-6">
-                          Use HTML tags for formatting. Placeholders will be replaced with actual content when the email is sent.
+                          Verwenden Sie HTML-Tags für die Formatierung. Platzhalter werden beim Versand durch echte Inhalte ersetzt.
                         </p>
                       </TabsContent>
 
@@ -446,10 +438,10 @@ export default function TemplateEditPage() {
                           name="body"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>HTML Source</FormLabel>
+                              <FormLabel>HTML-Quelltext</FormLabel>
                               <FormControl>
                                 <Textarea
-                                  placeholder="Enter HTML code"
+                                  placeholder="HTML-Code eingeben"
                                   className="min-h-[300px] font-mono bg-black text-green-400 dark:bg-black"
                                   {...field}
                                 />
@@ -459,7 +451,7 @@ export default function TemplateEditPage() {
                           )}
                         />
                         <p className="text-sm text-muted-foreground mt-4">
-                          Edit the raw HTML directly. Be careful with syntax to avoid rendering issues.
+                          Bearbeiten Sie den HTML-Quelltext direkt. Achten Sie auf die Syntax, um Darstellungsfehler zu vermeiden.
                         </p>
                       </TabsContent>
 
@@ -471,27 +463,27 @@ export default function TemplateEditPage() {
           </form>
         </Form>
 
-        {/* Preview Dialog */}
+        {/* Vorschau-Dialog */}
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] h-[90vh] flex flex-col">
             <DialogHeader>
-              <DialogTitle className="text-xl">Template Preview</DialogTitle>
+              <DialogTitle className="text-xl">Vorlagen-Vorschau</DialogTitle>
               <DialogDescription>
-                This is how your email will appear when sent
+                So sieht Ihre E-Mail beim Versand aus
               </DialogDescription>
             </DialogHeader>
 
             <div className="border-t -mx-6 px-6 pt-6 flex-1 overflow-hidden">
               <div className="space-y-6 flex-1 overflow-auto">
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Subject:</div>
+                  <div className="text-sm font-medium">Betreff:</div>
                   <div className="border rounded-md p-3 bg-muted text-sm">
-                    {previewSubject || "No subject provided"}
+                    {previewSubject || "Kein Betreff angegeben"}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Email Body:</div>
+                  <div className="text-sm font-medium">E-Mail-Inhalt:</div>
                   <div className="border rounded-md overflow-auto flex-1">
                     <div className="p-5 bg-card">
                       {previewBody ? (
@@ -500,7 +492,7 @@ export default function TemplateEditPage() {
                           dangerouslySetInnerHTML={{ __html: previewBody }}
                         />
                       ) : (
-                        <p className="text-muted-foreground">No content provided</p>
+                        <p className="text-muted-foreground">Kein Inhalt angegeben</p>
                       )}
                     </div>
                   </div>
@@ -511,31 +503,31 @@ export default function TemplateEditPage() {
             <DialogFooter className="border-t -mx-6 px-6 pt-4">
               <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
                 <X className="mr-2 h-4 w-4" />
-                Close Preview
+                Vorschau schließen
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* AI Generator Dialog */}
+        {/* KI-Generator-Dialog */}
         <Dialog open={aiGeneratorOpen} onOpenChange={setAiGeneratorOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>AI Email Generator</DialogTitle>
+              <DialogTitle>KI-E-Mail-Generator</DialogTitle>
               <DialogDescription>
-                Describe what kind of email you want to create, and our AI will generate content for you.
+                Beschreiben Sie, welche Art von E-Mail Sie erstellen möchten. Die KI generiert einen Vorschlag.
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <label htmlFor="aiPrompt" className="text-sm font-medium">
-                  What kind of email do you want to create?
+                  Welche E-Mail möchten Sie erstellen?
                 </label>
                 <textarea
                   id="aiPrompt"
                   className="w-full p-2 h-32 border rounded-md resize-none"
-                  placeholder="e.g. Create a welcome email for new conference attendees with information about the schedule"
+                  placeholder="z.B. Willkommensmail für neue Konferenzteilnehmer mit Infos zum Ablauf"
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   disabled={isGenerating}
@@ -545,7 +537,7 @@ export default function TemplateEditPage() {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setAiGeneratorOpen(false)} disabled={isGenerating}>
-                Cancel
+                Abbrechen
               </Button>
               <Button
                 onClick={handleAiGenerate}
@@ -555,12 +547,12 @@ export default function TemplateEditPage() {
                 {isGenerating ? (
                   <>
                     <div className="h-4 w-4 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
-                    Generating...
+                    Generiere...
                   </>
                 ) : (
                   <>
                     <Wand className="mr-2 h-4 w-4" />
-                    Generate Content
+                    Inhalt generieren
                   </>
                 )}
               </Button>

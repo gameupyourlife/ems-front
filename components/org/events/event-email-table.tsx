@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,23 +84,23 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
     const [sendDialogOpen, setSendDialogOpen] = useState(false);
     const [emailToSend, setEmailToSend] = useState<string | null>(null);
 
-    // Helper to get status badge color
+    // Gibt das passende Badge für den Status zurück
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'draft':
-                return <Badge variant="outline" className="bg-gray-100 text-gray-800">Draft</Badge>;
+                return <Badge variant="outline" className="bg-gray-100 text-gray-800">Entwurf</Badge>;
             case 'scheduled':
-                return <Badge variant="outline" className="bg-blue-50 text-blue-800">Scheduled</Badge>;
+                return <Badge variant="outline" className="bg-blue-50 text-blue-800">Geplant</Badge>;
             case 'sent':
-                return <Badge variant="outline" className="bg-green-50 text-green-800">Sent</Badge>;
+                return <Badge variant="outline" className="bg-green-50 text-green-800">Gesendet</Badge>;
             case 'failed':
-                return <Badge variant="outline" className="bg-red-50 text-red-800">Failed</Badge>;
+                return <Badge variant="outline" className="bg-red-50 text-red-800">Fehlgeschlagen</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
     };
 
-    // Define the columns for the table
+    // Definition der Tabellenspalten
     const columns: ColumnDef<Email>[] = [
         {
             id: "select",
@@ -111,14 +111,14 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
                     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
+                    aria-label="Alle auswählen"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
+                    aria-label="Zeile auswählen"
                 />
             ),
             enableSorting: false,
@@ -131,7 +131,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Subject
+                    Betreff
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -141,7 +141,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
         },
         {
             accessorKey: "recipients",
-            header: "Recipients",
+            header: "Empfänger",
             cell: ({ row }) => {
                 const recipients = row.original.recipients;
                 const count = recipients.length;
@@ -153,7 +153,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 <div className="max-w-[150px] truncate">
                                     {count === 1 
                                         ? recipients[0] 
-                                        : `${recipients[0]} ${count > 1 ? `+ ${count - 1} more` : ""}`}
+                                        : `${recipients[0]} ${count > 1 ? `+ ${count - 1} weitere` : ""}`}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -183,7 +183,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Scheduled For
+                    Geplant für
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -192,7 +192,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                 return value ? (
                     <div className="flex items-center">
                         <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                        {format(new Date(value), "MMM dd, yyyy HH:mm")}
+                        {format(new Date(value), "dd. MMM yyyy HH:mm")}
                     </div>
                 ) : (
                     <div className="text-gray-500">—</div>
@@ -206,17 +206,17 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Created
+                    Erstellt am
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
-                return <div className="text-sm">{format(new Date(row.original.createdAt), "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{format(new Date(row.original.createdAt), "dd. MMM yyyy")}</div>;
             },
         },
         {
             id: "actions",
-            header: "Actions",
+            header: "Aktionen",
             cell: ({ row }) => {
                 const email = row.original;
                 
@@ -233,7 +233,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 }}
                             >
                                 <Send className="h-4 w-4" />
-                                <span className="sr-only">Send</span>
+                                <span className="sr-only">Senden</span>
                             </Button>
                         )}
                         
@@ -245,7 +245,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         >
                             <Link href={`/organization/events/${eventId}/emails/${email.id}`}>
                                 <ChevronRight className="h-4 w-4" />
-                                <span className="sr-only">View</span>
+                                <span className="sr-only">Anzeigen</span>
                             </Link>
                         </Button>
                         
@@ -253,7 +253,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                     <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Open menu</span>
+                                    <span className="sr-only">Menü öffnen</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -261,7 +261,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                     <DropdownMenuItem asChild>
                                         <Link href={`/organization/events/${eventId}/emails/${email.id}/edit`} className="flex cursor-pointer">
                                             <Edit className="mr-2 h-4 w-4" />
-                                            <span>Edit Email</span>
+                                            <span>Email bearbeiten</span>
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
@@ -269,7 +269,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 <DropdownMenuItem asChild>
                                     <Link href={`/organization/events/${eventId}/emails/create?duplicate=${email.id}`} className="flex cursor-pointer">
                                         <Copy className="mr-2 h-4 w-4" />
-                                        <span>Duplicate</span>
+                                        <span>Duplizieren</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 
@@ -283,7 +283,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                     }}
                                 >
                                     <Trash className="mr-2 h-4 w-4" />
-                                    <span>Delete Email</span>
+                                    <span>Email löschen</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -293,7 +293,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
         },
     ];
 
-    // Create the table instance
+    // Erstelle die Tabelleninstanz
     const table = useReactTable({
         data: emails,
         columns,
@@ -315,16 +315,16 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
         },
     });
 
-    // Handle global search
+    // Behandelt die globale Suche
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchQuery(value);
         
-        // Filter the subject column
+        // Filtert die Betreff-Spalte
         table.getColumn("subject")?.setFilterValue(value);
     };
 
-    // Handle deletion confirmation
+    // Bestätigt das Löschen einer E-Mail
     const handleDeleteConfirm = () => {
         if (emailToDelete && onDeleteEmail) {
             onDeleteEmail(emailToDelete);
@@ -333,7 +333,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
         setEmailToDelete(null);
     };
 
-    // Handle send confirmation
+    // Bestätigt das Senden einer E-Mail
     const handleSendConfirm = () => {
         if (emailToSend && onSendEmail) {
             onSendEmail(emailToSend);
@@ -347,11 +347,10 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Input
-                        placeholder="Search emails..."
+                        placeholder="E-Mails durchsuchen..."
                         value={searchQuery}
                         onChange={handleSearch}
                         className="max-w-sm"
-                        // prefix={<SearchIcon className="h-4 w-4 text-muted-foreground" />}
                     />
                     
                     <Popover>
@@ -363,7 +362,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0" align="start">
                             <Command>
-                                <CommandInput placeholder="Filter status..." />
+                                <CommandInput placeholder="Status filtern..." />
                                 <CommandList>
                                     <CommandGroup heading="Status">
                                         <CommandItem
@@ -380,7 +379,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                                 <Checkbox 
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("draft")}
                                                 />
-                                                <span>Draft</span>
+                                                <span>Entwurf</span>
                                             </div>
                                         </CommandItem>
                                         <CommandItem
@@ -397,7 +396,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                                 <Checkbox 
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("scheduled")}
                                                 />
-                                                <span>Scheduled</span>
+                                                <span>Geplant</span>
                                             </div>
                                         </CommandItem>
                                         <CommandItem
@@ -414,7 +413,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                                 <Checkbox 
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("sent")}
                                                 />
-                                                <span>Sent</span>
+                                                <span>Gesendet</span>
                                             </div>
                                         </CommandItem>
                                         <CommandItem
@@ -431,7 +430,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                                 <Checkbox 
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("failed")}
                                                 />
-                                                <span>Failed</span>
+                                                <span>Fehlgeschlagen</span>
                                             </div>
                                         </CommandItem>
                                     </CommandGroup>
@@ -442,7 +441,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                                 table.getColumn("status")?.setFilterValue([]);
                                             }}
                                         >
-                                            Clear filters
+                                            Filter zurücksetzen
                                         </CommandItem>
                                     </CommandGroup>
                                 </CommandList>
@@ -454,7 +453,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                 <Button asChild>
                     <Link href={`/organization/events/${eventId}/emails/create`}>
                         <Mail className="mr-2 h-4 w-4" />
-                        Create Email
+                        E-Mail erstellen
                     </Link>
                 </Button>
             </div>
@@ -497,11 +496,11 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                     {emails.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center p-4 text-muted-foreground">
                                             <Mail className="h-8 w-8 mb-2 opacity-50" />
-                                            <p>No emails yet</p>
-                                            <p className="text-sm">Create your first email for this event</p>
+                                            <p>Noch keine E-Mails</p>
+                                            <p className="text-sm">Erstelle die erste E-Mail für dieses Event</p>
                                         </div>
                                     ) : (
-                                        <p>No results found</p>
+                                        <p>Keine Ergebnisse gefunden</p>
                                     )}
                                 </TableCell>
                             </TableRow>
@@ -512,8 +511,8 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
 
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                    {table.getFilteredSelectedRowModel().rows.length} von{" "}
+                    {table.getFilteredRowModel().rows.length} Zeile(n) ausgewählt.
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -523,7 +522,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        Zurück
                     </Button>
                     <Button
                         variant="outline"
@@ -531,42 +530,42 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        Weiter
                     </Button>
                 </div>
             </div>
 
-            {/* Delete confirmation dialog */}
+            {/* Bestätigungsdialog für das Löschen */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Email</AlertDialogTitle>
+                        <AlertDialogTitle>E-Mail löschen</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete this email? This action cannot be undone.
+                            Bist du sicher, dass du diese E-Mail löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
-                            Delete
+                            Löschen
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
 
-            {/* Send confirmation dialog */}
+            {/* Bestätigungsdialog für das Senden */}
             <AlertDialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Send Email</AlertDialogTitle>
+                        <AlertDialogTitle>E-Mail senden</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to send this email now? This will send the email to all recipients immediately.
+                            Bist du sicher, dass du diese E-Mail jetzt senden möchtest? Die E-Mail wird sofort an alle Empfänger verschickt.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                         <AlertDialogAction onClick={handleSendConfirm} className="bg-blue-600 hover:bg-blue-700">
-                            Send Now
+                            Jetzt senden
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

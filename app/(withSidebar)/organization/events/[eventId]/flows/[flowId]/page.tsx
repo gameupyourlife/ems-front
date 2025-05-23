@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,36 +33,34 @@ export default function FlowDetailsPage() {
     const { data: session } = useSession();
     const queryClient = useQueryClient();
 
-    // Get the flow ID from the URL parameters
+    // Hole die Flow-ID aus den URL-Parametern
     const flowId = Array.isArray(params.flowId) ? params.flowId[0] : params.flowId as string;
     const eventId = Array.isArray(params.eventId) ? params.eventId[0] : params.eventId as string;
 
-    // Find the flow in the mock data
     const { data: flow, isLoading, error } = eventId ? useEventFlow(session?.user?.organization?.id || "", eventId, flowId, session?.user?.jwt || "") : useOrgFlowTemplate(session?.user?.organization?.id || "", flowId, session?.user?.jwt || "");
 
-    // State for editable flow data and editing mode
     const [isEditing, setIsEditing] = useState(false);
 
     console.log("error", error);
 
-    // If flow not found, handle gracefully
+    // Zeige eine Fehlermeldung, falls der Flow nicht gefunden wurde
     if (!flow && !isLoading) {
         return (
             <div className="flex flex-col items-center justify-center p-8">
                 <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-                <h1 className="text-2xl font-bold mb-2">Flow Not Found</h1>
-                <p className="text-muted-foreground mb-6">The flow you are looking for does not exist.</p>
+                <h1 className="text-2xl font-bold mb-2">Flow nicht gefunden</h1>
+                <p className="text-muted-foreground mb-6">Der gesuchte Flow existiert nicht.</p>
                 <Button asChild>
                     <Link href={`/organization/flows`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Flows
+                        Zurück zu den Flows
                     </Link>
                 </Button>
             </div>
         );
     }
 
-    // Function to handle saving changes
+    // Speichert Änderungen am Flow
     const handleSave = async (updatedFlow: Flow) => {
         try {
             if (updatedFlow.isTemplate) {
@@ -116,7 +114,7 @@ export default function FlowDetailsPage() {
                             updatedFlow.id,
                             action.id,
                             {
-                                name: action.name || "No name",
+                                name: action.name || "Kein Name",
                                 type: action.type,
                                 details: action.details,
                                 summary: action.description,
@@ -138,19 +136,15 @@ export default function FlowDetailsPage() {
                         );
                     }
                 });
-
-                // Execute all promises in parallel
                 await Promise.all([metadataPromise, ...triggerPromises, ...actionPromises]);
 
-                // Set everything as present in the db
                 updatedFlow.triggers = updatedFlow.triggers?.map(trigger => ({ ...trigger, existInDb: true }));
                 updatedFlow.actions = updatedFlow.actions?.map(action => ({ ...action, existInDb: true }));
 
-                // React query delete cache
                 queryClient.invalidateQueries({ queryKey: [flowId] });
 
-                toast.success("Flow updated", {
-                    description: "All flow components were updated successfully.",
+                toast.success("Flow aktualisiert", {
+                    description: "Alle Komponenten des Flows wurden erfolgreich aktualisiert.",
                     duration: 3000,
                 });
             } else {
@@ -207,7 +201,7 @@ export default function FlowDetailsPage() {
                             updatedFlow.id,
                             action.id,
                             {
-                                name: action.name || "No name",
+                                name: action.name || "Kein Name",
                                 type: action.type,
                                 details: action.details,
                                 summary: action.description,
@@ -231,42 +225,38 @@ export default function FlowDetailsPage() {
                     }
                 });
 
-                // Execute all promises in parallel
                 await Promise.all([metadataPromise, ...triggerPromises, ...actionPromises]);
 
-                // Set everything as present in the db
                 updatedFlow.triggers = updatedFlow.triggers?.map(trigger => ({ ...trigger, existInDb: true }));
                 updatedFlow.actions = updatedFlow.actions?.map(action => ({ ...action, existInDb: true }));
 
-                // React query delete cache
                 queryClient.invalidateQueries({ queryKey: [flowId] });
 
-                toast.success("Flow updated", {
-                    description: "All flow components were updated successfully.",
+                toast.success("Flow aktualisiert", {
+                    description: "Alle Komponenten des Flows wurden erfolgreich aktualisiert.",
                     duration: 3000,
                 });
             }
 
             setIsEditing(false);
         } catch (error) {
-            console.error("Error updating flow:", error);
-            toast.error("Failed to update flow", {
-                description: "An error occurred while saving your changes. Please try again.",
+            console.error("Fehler beim Aktualisieren des Flows:", error);
+            toast.error("Flow konnte nicht aktualisiert werden", {
+                description: "Beim Speichern der Änderungen ist ein Fehler aufgetreten. Bitte versuche es erneut.",
                 duration: 5000,
             });
         }
     };
 
-    // Function to handle running the flow manually
     const handleRunFlow = () => {
-        toast.error("Flow can not be run manually", { description: "This feature is currently in progress and will be available soon." })
-        // toast.info("Flow triggered", {
-        //     description: "The flow has been triggered manually and is now running.",
+        toast.error("Flow kann nicht manuell ausgeführt werden", { description: "Diese Funktion ist in Arbeit und bald verfügbar." })
+        // toast.info("Flow ausgelöst", {
+        //     description: "Der Flow wurde manuell ausgelöst und wird nun ausgeführt.",
         //     duration: 3000,
         // });
     };
 
-    // Function to handle deleting the flow
+    // Löscht den Flow
     const handleDelete = async () => {
         if (!flow) {
             toast.error("Flow nicht gefunden", {
@@ -289,9 +279,9 @@ export default function FlowDetailsPage() {
                 router.push(`/organization/flows`);
 
             } catch (error) {
-                console.error("Error deleting flow:", error);
+                console.error("Fehler beim Löschen des Flows:", error);
                 toast.error("Flow konnte nicht gelöscht werden", {
-                    description: "Ein Fehler ist beim Löschen des Flows aufgetreten. Bitte versuchen Sie es erneut.",
+                    description: "Beim Löschen des Flows ist ein Fehler aufgetreten. Bitte versuche es erneut.",
                     duration: 5000,
                 });
             }
@@ -309,29 +299,26 @@ export default function FlowDetailsPage() {
                 router.push(`/organization/events/${flow.eventId}?tab=flows`);
 
             } catch (error) {
-                console.error("Error deleting flow:", error);
+                console.error("Fehler beim Löschen des Flows:", error);
                 toast.error("Flow konnte nicht gelöscht werden", {
-                    description: "Ein Fehler ist beim Löschen des Flows aufgetreten. Bitte versuchen Sie es erneut.",
+                    description: "Beim Löschen des Flows ist ein Fehler aufgetreten. Bitte versuche es erneut.",
                     duration: 5000,
                 });
             }
         }
     };
 
-    // Function to handle duplicating the flow
+    // Dupliziert den Flow (noch nicht implementiert)
     const handleDuplicate = () => {
-        toast.error("Flow can not be duplicated", { description: "This feature is currently in progress and will be available soon." })
-        // toast.success("Flow duplicated", {
-        //     description: "A copy of this flow has been created.",
+        toast.error("Flow kann nicht dupliziert werden", { description: "Diese Funktion ist in Arbeit und bald verfügbar." })
+        // toast.success("Flow dupliziert", {
+        //     description: "Eine Kopie dieses Flows wurde erstellt.",
         //     duration: 3000,
         // });
     };
 
-    // Get formatted dates
-    const createdAtFormatted = format(new Date(flow?.createdAt || 0), "MMMM dd, yyyy 'at' HH:mm");
-    const updatedAtFormatted = format(new Date(flow?.updatedAt || 0), "MMMM dd, yyyy 'at' HH:mm");
-
-
+    const createdAtFormatted = format(new Date(flow?.createdAt || 0), "dd. MMMM yyyy 'um' HH:mm");
+    const updatedAtFormatted = format(new Date(flow?.updatedAt || 0), "dd. MMMM yyyy 'um' HH:mm");
 
     const quickActions: QuickAction[] = [
         {
@@ -352,7 +339,6 @@ export default function FlowDetailsPage() {
         },
         {
             children: (
-
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -382,11 +368,10 @@ export default function FlowDetailsPage() {
     return (
         <>
             <SiteHeader actions={quickActions} >
-                <BreadcrumbItem  >
+                <BreadcrumbItem>
                     {flow ?
                         <BreadcrumbPage>{flow?.name}</BreadcrumbPage> :
                         <BreadcrumbPage><Skeleton className="w-60 h-6" /></BreadcrumbPage>}
-
                 </BreadcrumbItem>
             </SiteHeader>
 
@@ -395,12 +380,12 @@ export default function FlowDetailsPage() {
                 {flow ?
                     <Tabs defaultValue="overview" className="space-y-4 ">
                         <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
-                            <TabsTrigger value="overview">Overview</TabsTrigger>
-                            <TabsTrigger value="logs">Execution Logs</TabsTrigger>
-                            <TabsTrigger value="settings">Settings</TabsTrigger>
+                            <TabsTrigger value="overview">Übersicht</TabsTrigger>
+                            <TabsTrigger value="logs">Ausführungsprotokolle</TabsTrigger>
+                            <TabsTrigger value="settings">Einstellungen</TabsTrigger>
                         </TabsList>
 
-                        {/* Overview Tab - Using shared Flow Form */}
+                        {/* Übersicht-Tab – Gemeinsames Flow-Formular */}
                         <TabsContent value="overview" className="space-y-4">
                             <FlowForm
                                 flow={flow}
@@ -409,54 +394,55 @@ export default function FlowDetailsPage() {
                             />
                         </TabsContent>
 
-                        {/* Logs Tab */}
+                        {/* Protokolle-Tab */}
                         <TabsContent value="logs" className="space-y-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Execution Logs</CardTitle>
-                                    <CardDescription>History of flow executions and their results</CardDescription>
+                                    <CardTitle>Ausführungsprotokolle</CardTitle>
+                                    <CardDescription>Verlauf der Flow-Ausführungen und deren Ergebnisse</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="rounded-md border">
                                         <div className="flex items-center justify-between p-4 border-b">
-                                            <div className="font-medium">Recent Executions</div>
+                                            <div className="font-medium">Letzte Ausführungen</div>
                                             <Button variant="outline" size="sm">
                                                 <HistoryIcon className="mr-2 h-4 w-4" />
-                                                View All
+                                                Alle anzeigen
                                             </Button>
                                         </div>
                                         <div className="p-4 text-center text-muted-foreground">
-                                            No recent executions found for this flow.
+                                            Keine aktuellen Ausführungen für diesen Flow gefunden.
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
-                        {/* Settings Tab */}
+                        {/* Einstellungen-Tab */}
                         <TabsContent value="settings" className="space-y-4">
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        Flow Settings
+                                        Flow-Einstellungen
                                         <Badge variant="outline" className="mt-0.5 text-xs cursor-pointer" onClick={(e) => {
                                             e.stopPropagation();
-                                            // Copy flow ID to clipboard
+                                            // Kopiere Flow-ID in die Zwischenablage
                                             navigator.clipboard.writeText(flow.id).then(() => {
-                                                toast.success("Flow ID copied to clipboard", {
-                                                    description: "You can now paste it wherever you need.",
+                                                toast.success("Flow-ID in die Zwischenablage kopiert", {
+                                                    description: "Du kannst sie jetzt überall einfügen.",
                                                     duration: 3000,
                                                 });
                                             });
                                         }}>
                                             ID: {flow.id}
-                                        </Badge></CardTitle>
-                                    <CardDescription>Configure advanced settings for this flow</CardDescription>
+                                        </Badge>
+                                    </CardTitle>
+                                    <CardDescription>Erweiterte Einstellungen für diesen Flow konfigurieren</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="retention">Log Retention (days)</Label>
+                                        <Label htmlFor="retention">Protokoll-Aufbewahrung (Tage)</Label>
                                         <Input
                                             id="retention"
                                             type="number"
@@ -464,12 +450,12 @@ export default function FlowDetailsPage() {
                                             disabled={!isEditing}
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Execution logs will be retained for this many days.
+                                            Ausführungsprotokolle werden so viele Tage gespeichert.
                                         </p>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="timeout">Execution Timeout (seconds)</Label>
+                                        <Label htmlFor="timeout">Ausführungs-Timeout (Sekunden)</Label>
                                         <Input
                                             id="timeout"
                                             type="number"
@@ -477,27 +463,27 @@ export default function FlowDetailsPage() {
                                             disabled={!isEditing}
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Maximum time allowed for flow execution before timing out.
+                                            Maximale Ausführungszeit für den Flow, bevor abgebrochen wird.
                                         </p>
                                     </div>
 
                                     <div className="rounded-md border p-4 bg-muted/50">
-                                        <div className="font-medium text-destructive mb-2">Danger Zone</div>
+                                        <div className="font-medium text-destructive mb-2">Gefahrenzone</div>
                                         <p className="text-sm text-muted-foreground mb-4">
-                                            The following actions are destructive and cannot be undone.
+                                            Die folgenden Aktionen sind destruktiv und können nicht rückgängig gemacht werden.
                                         </p>
                                         <ConfirmationButton
                                             variant="destructive"
                                             onConfirm={handleDelete}
                                         >
                                             <Trash className="mr-2 h-4 w-4" />
-                                            Delete Flow
+                                            Flow löschen
                                         </ConfirmationButton>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="border-t px-6 py-4">
                                     <p className="text-muted-foreground">
-                                        Created by {flow.createdBy} • Last updated {updatedAtFormatted}
+                                        Erstellt von {flow.createdBy} • Zuletzt geändert am {updatedAtFormatted}
                                     </p>
                                     <Button
                                         variant="default"
@@ -506,7 +492,7 @@ export default function FlowDetailsPage() {
                                         className="ml-auto"
                                     >
                                         <Save className="mr-2 h-4 w-4" />
-                                        Save Settings
+                                        Einstellungen speichern
                                     </Button>
                                 </CardFooter>
                             </Card>
@@ -522,7 +508,6 @@ export default function FlowDetailsPage() {
                             </div>
                         </div>
                         <div className="mx-auto w-fit h-fit my-20">
-
                             <LoadingSpinner />
                         </div>
                     </div>
@@ -530,6 +515,5 @@ export default function FlowDetailsPage() {
 
             </div>
         </>
-
     );
 }

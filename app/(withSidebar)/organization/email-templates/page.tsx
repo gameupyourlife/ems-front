@@ -1,4 +1,6 @@
-"use client";;
+"use client";
+
+// Imports
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -72,7 +74,7 @@ import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 
-// Add a user-created flag to templates
+// Typdefinitionen
 type EmailTemplate = {
   id: string;
   name: string;
@@ -88,6 +90,8 @@ type EmailTemplate = {
 
 export default function EmailTemplates() {
   const router = useRouter();
+
+  // State-Definitionen
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [templateToPreview, setTemplateToPreview] = useState<EmailTemplate | null>(null);
@@ -102,47 +106,48 @@ export default function EmailTemplates() {
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [activeTemplateType, setActiveTemplateType] = useState<string | null>(null);
 
+  // Templates laden (Mock)
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        // In a real app, this would be a fetch call to your API
+        // In einer echten App wäre dies ein API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Add metadata to system templates
+        // Metadaten zu Systemvorlagen hinzufügen
         const templatesWithMetadata = emailTemplates.map(template => ({
           ...template,
-          isUserCreated: false, // System templates
+          isUserCreated: false, // Systemvorlagen
           createdBy: "System",
           updatedBy: "System",
           createdAt: new Date("2023-01-15"),
           updatedAt: new Date("2023-01-15")
         }));
 
-        // Add a few user-created templates with metadata
+        // Einige benutzerdefinierte Vorlagen mit Metadaten hinzufügen
         const userTemplates: EmailTemplate[] = [
           {
             id: "user-template-1",
-            name: "My Custom Welcome Email",
-            subject: "Welcome to [Event Name] - Important Information",
-            body: `<h2>Welcome to [Event Name]!</h2>
-              <p>Thank you for registering for our upcoming event. We're excited to have you join us!</p>
-              <p>This email contains all the information you'll need to make the most of your experience.</p>
-              <h3>Event Details:</h3>
+            name: "Mein benutzerdefiniertes Willkommensmail",
+            subject: "Willkommen zu [Event Name] - Wichtige Informationen",
+            body: `<h2>Willkommen zu [Event Name]!</h2>
+              <p>Vielen Dank für Ihre Anmeldung zu unserer Veranstaltung. Wir freuen uns, Sie dabei zu haben!</p>
+              <p>Diese E-Mail enthält alle wichtigen Informationen für Ihr Erlebnis.</p>
+              <h3>Veranstaltungsdetails:</h3>
               <ul>
-                <li><strong>Date:</strong> [Event Date]</li>
-                <li><strong>Time:</strong> [Start Time] - [End Time]</li>
-                <li><strong>Location:</strong> [Venue Name]</li>
+                <li><strong>Datum:</strong> [Event Date]</li>
+                <li><strong>Uhrzeit:</strong> [Start Time] - [End Time]</li>
+                <li><strong>Ort:</strong> [Venue Name]</li>
               </ul>
-              <h3>What to Bring:</h3>
+              <h3>Was Sie mitbringen sollten:</h3>
               <ul>
-                <li>Your ticket (digital or printed)</li>
-                <li>A notebook and pen</li>
-                <li>Business cards for networking</li>
-                <li>A fully charged laptop or tablet</li>
+                <li>Ihr Ticket (digital oder ausgedruckt)</li>
+                <li>Notizbuch und Stift</li>
+                <li>Visitenkarten zum Netzwerken</li>
+                <li>Voll aufgeladenes Laptop oder Tablet</li>
               </ul>
-              <p>We look forward to seeing you at the event!</p>
-              <p>Best regards,<br>The Event Team</p>`,
-            description: "My customized welcome email for attendees",
+              <p>Wir freuen uns auf Sie!</p>
+              <p>Viele Grüße,<br>Das Event-Team</p>`,
+            description: "Meine angepasste Willkommensmail für Teilnehmer",
             isUserCreated: true,
             createdBy: "Jane Doe",
             updatedBy: "Jane Doe",
@@ -151,15 +156,15 @@ export default function EmailTemplates() {
           },
           {
             id: "user-template-2",
-            name: "Speaker Thank You",
-            subject: "Thank You for Speaking at [Event Name]",
-            body: `<h2>Thank You for Speaking at [Event Name]!</h2>
-              <p>On behalf of all attendees and our organizing team, I want to extend our sincere gratitude for your excellent presentation.</p>
-              <p>Your insights on the topic were valuable and generated a lot of positive feedback from our attendees.</p>
-              <p>We'd love to invite you back to speak at our future events. In the meantime, we've shared your contact information with those who requested it for follow-up questions.</p>
-              <p>Thank you once again for your contribution to making our event a success!</p>
-              <p>Best regards,<br>The Event Team</p>`,
-            description: "Thank you note for event speakers",
+            name: "Danke an Speaker",
+            subject: "Danke für Ihren Vortrag bei [Event Name]",
+            body: `<h2>Danke für Ihren Vortrag bei [Event Name]!</h2>
+              <p>Im Namen aller Teilnehmer und des Organisationsteams möchten wir uns herzlich für Ihren großartigen Vortrag bedanken.</p>
+              <p>Ihre Einblicke waren sehr wertvoll und haben viel positives Feedback erhalten.</p>
+              <p>Wir würden uns freuen, Sie auch bei zukünftigen Events als Speaker begrüßen zu dürfen. Ihre Kontaktdaten wurden an interessierte Teilnehmer weitergegeben.</p>
+              <p>Nochmals vielen Dank für Ihren Beitrag zum Erfolg unserer Veranstaltung!</p>
+              <p>Viele Grüße,<br>Das Event-Team</p>`,
+            description: "Dankesnachricht für Speaker",
             isUserCreated: true,
             createdBy: "John Smith",
             updatedBy: "John Smith",
@@ -171,7 +176,7 @@ export default function EmailTemplates() {
         setTemplates([...templatesWithMetadata, ...userTemplates]);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching templates:", error);
+        console.error("Fehler beim Laden der Vorlagen:", error);
         setIsLoading(false);
       }
     };
@@ -179,6 +184,7 @@ export default function EmailTemplates() {
     fetchTemplates();
   }, []);
 
+  // Event-Handler
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -195,34 +201,34 @@ export default function EmailTemplates() {
 
   const confirmDelete = () => {
     if (templateToDelete) {
-      // Filter out the template to delete
+      // Vorlage entfernen
       setTemplates(templates.filter(t => t.id !== templateToDelete.id));
       setDeleteDialogOpen(false);
-      toast.success(`Template "${templateToDelete.name}" deleted successfully`);
+      toast.success(`Vorlage "${templateToDelete.name}" erfolgreich gelöscht`);
     }
   };
 
   const handleDuplicate = (template: EmailTemplate) => {
-    // Create a copy of the template with a new ID
+    // Kopie der Vorlage mit neuer ID erstellen
     const newTemplate: EmailTemplate = {
       ...template,
       id: `copy-${template.id}-${Date.now()}`,
-      name: `Copy of ${template.name}`,
-      isUserCreated: true, // Mark as user created
-      createdBy: "Current User",
-      updatedBy: "Current User",
+      name: `Kopie von ${template.name}`,
+      isUserCreated: true, // Als benutzerdefiniert markieren
+      createdBy: "Aktueller Benutzer",
+      updatedBy: "Aktueller Benutzer",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     setTemplates([...templates, newTemplate]);
-    toast.success(`Template "${template.name}" duplicated successfully`);
+    toast.success(`Vorlage "${template.name}" erfolgreich dupliziert`);
   };
 
-  // Template type options
-  const templateTypes = ["System", "Custom"];
+  // Filter-Logik
+  const templateTypes = ["System", "Benutzerdefiniert"];
 
-  // Function to toggle template type filter
+  // Template-Typ-Filter umschalten
   const toggleTemplateTypeFilter = (type: string) => {
     if (activeTemplateType === type) {
       setActiveTemplateType(null);
@@ -240,19 +246,19 @@ export default function EmailTemplates() {
     });
   };
 
-  // Function to check if a filter is active
+  // Prüfen, ob Filter aktiv ist
   const isFilterActive = (value: string) => {
     return activeTemplateType === value;
   };
 
-  // Clear all filters
+  // Alle Filter zurücksetzen
   const clearAllFilters = () => {
     setActiveTemplateType(null);
     setColumnFilters([]);
     setSearchQuery("");
   };
 
-  // Custom global filter function
+  // Benutzerdefinierte globale Filterfunktion
   const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
     const templateName = String(row.original.name).toLowerCase();
     const templateDesc = String(row.original.description).toLowerCase();
@@ -266,7 +272,7 @@ export default function EmailTemplates() {
       createdBy.includes(searchTerm);
   };
 
-  // Define the columns for the table
+  // Tabellenspalten definieren
   const columns: ColumnDef<EmailTemplate>[] = [
     {
       id: "select",
@@ -277,14 +283,14 @@ export default function EmailTemplates() {
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Alle auswählen"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Zeile auswählen"
         />
       ),
       enableSorting: false,
@@ -297,7 +303,7 @@ export default function EmailTemplates() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Template Name
+          Vorlagenname
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -310,7 +316,7 @@ export default function EmailTemplates() {
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: "Beschreibung",
       cell: ({ row }) => (
         <div className="max-w-[300px] truncate">
           {row.original.description}
@@ -324,7 +330,7 @@ export default function EmailTemplates() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Subject Line
+          Betreffzeile
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -336,8 +342,8 @@ export default function EmailTemplates() {
     },
     {
       id: "templateType",
-      accessorFn: (row) => row.isUserCreated ? "Custom" : "System",
-      header: "Type",
+      accessorFn: (row) => row.isUserCreated ? "Benutzerdefiniert" : "System",
+      header: "Typ",
       cell: ({ row }) => {
         const isUserCreated = row.original.isUserCreated;
         return (
@@ -349,7 +355,7 @@ export default function EmailTemplates() {
                 : "bg-blue-50 text-blue-800"
             )}
           >
-            {isUserCreated ? "Custom" : "System"}
+            {isUserCreated ? "Benutzerdefiniert" : "System"}
           </Badge>
         );
       },
@@ -360,21 +366,21 @@ export default function EmailTemplates() {
     },
     {
       accessorKey: "createdBy",
-      header: "Created By",
+      header: "Erstellt von",
       cell: ({ row }) => (
-        <div>{row.original.createdBy || "Unknown"}</div>
+        <div>{row.original.createdBy || "Unbekannt"}</div>
       ),
     },
     {
       id: "actions",
-      header: "Options",
+      header: "Optionen",
       cell: ({ row }) => {
         const template = row.original;
         return (
           <div className="flex justify-end">
             <Link href={`/organization/email-templates/${template.id}`} className="flex items-center">
               <Button variant="outline" size="sm" className="mr-2" >
-                View
+                Anzeigen
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
@@ -382,17 +388,17 @@ export default function EmailTemplates() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">Menü öffnen</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => handlePreview(template)}>
                   <Eye className="mr-2 h-4 w-4" />
-                  <span>Preview</span>
+                  <span>Vorschau</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleDuplicate(template)}>
                   <Copy className="mr-2 h-4 w-4" />
-                  <span>Duplicate</span>
+                  <span>Duplizieren</span>
                 </DropdownMenuItem>
                 {template.isUserCreated && (
                   <>
@@ -400,7 +406,7 @@ export default function EmailTemplates() {
                     <DropdownMenuItem asChild>
                       <Link href={`/organization/email-templates/${template.id}/edit`} className="flex cursor-pointer">
                         <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit</span>
+                        <span>Bearbeiten</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -409,7 +415,7 @@ export default function EmailTemplates() {
                       onClick={() => handleDelete(template)}
                     >
                       <Trash className="mr-2 h-4 w-4" />
-                      <span>Delete</span>
+                      <span>Löschen</span>
                     </DropdownMenuItem>
                   </>
                 )}
@@ -421,7 +427,7 @@ export default function EmailTemplates() {
     },
   ];
 
-  // Create the table instance
+  // Tabelle initialisieren
   const table = useReactTable({
     data: templates,
     columns,
@@ -453,389 +459,388 @@ export default function EmailTemplates() {
     },
   });
 
+  // Quick Actions für Header
   const quickActions: QuickAction[] = [
     {
-        label: "Template erstellen",
+        label: "Vorlage erstellen",
         onClick: () => router.push("/organization/email-templates/create"),
         icon: <Plus className="h-4 w-4" />,
     },
+  ];
 
-];
-
-
+  // Render
   return (
     <>
-                <SiteHeader actions={quickActions} />
+      <SiteHeader actions={quickActions} />
 
-    <div className="space-y-6 p-4 md:p-6">
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 md:p-6">
+        <div className="space-y-6">
 
-        <div>
-          <div className="space-y-4">
-            {/* Table Controls */}
-            <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-              <div className="relative w-full max-w-sm">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search templates..."
-                  className="pl-8 w-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Filter Menu */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <FilterIcon className="mr-2 h-4 w-4" />
-                      Filters
-                      {(columnFilters.length > 0 || searchQuery) && (
-                        <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
-                          {columnFilters.length + (searchQuery ? 1 : 0)}
-                        </Badge>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[220px] p-0" align="end">
-                    <Command>
-                      <CommandInput placeholder="Search filters..." />
-                      <CommandList>
-                        <CommandEmpty>No filters found.</CommandEmpty>
-                        <CommandGroup heading="Template Types">
-                          {templateTypes.map((type) => (
-                            <CommandItem
-                              key={type}
-                              onSelect={() => toggleTemplateTypeFilter(type)}
-                              className="flex items-center justify-between"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className={cn(
-                                  isFilterActive(type) ? "font-medium" : ""
-                                )}>
-                                  {type}
-                                </span>
-                              </div>
-                              {isFilterActive(type) && (
-                                <Check className="h-4 w-4 text-primary" />
-                              )}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-
-                        {/* Show active filters section if any filters are applied */}
-                        {(activeTemplateType || searchQuery) && (
-                          <>
-                            <CommandSeparator />
-                            <CommandGroup heading="Active Filters">
-                              {activeTemplateType && (
-                                <CommandItem
-                                  onSelect={() => toggleTemplateTypeFilter(activeTemplateType)}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Badge variant="outline" className="flex items-center gap-1">
-                                    Type: {activeTemplateType}
-                                    <X className="h-3 w-3" />
-                                  </Badge>
-                                </CommandItem>
-                              )}
-                              {searchQuery && (
-                                <CommandItem
-                                  onSelect={() => setSearchQuery("")}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Badge variant="outline" className="flex items-center gap-1">
-                                    Search: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
-                                    <X className="h-3 w-3" />
-                                  </Badge>
-                                </CommandItem>
-                              )}
-                            </CommandGroup>
-                          </>
+          <div>
+            <div className="space-y-4">
+              {/* Tabellen-Steuerung */}
+              <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                <div className="relative w-full max-w-sm">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Vorlagen durchsuchen..."
+                    className="pl-8 w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Filter-Menü */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        <FilterIcon className="mr-2 h-4 w-4" />
+                        Filter
+                        {(columnFilters.length > 0 || searchQuery) && (
+                          <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
+                            {columnFilters.length + (searchQuery ? 1 : 0)}
+                          </Badge>
                         )}
-
-                        <CommandSeparator />
-                        <CommandGroup>
-                          <CommandItem
-                            onSelect={clearAllFilters}
-                            className="justify-center text-center"
-                          >
-                            Clear All Filters
-                          </CommandItem>
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Column Visibility Menu */}
-                <Popover open={columnsOpen} onOpenChange={setColumnsOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <LayoutList className="mr-2 h-4 w-4" />
-                      Columns
-                      {Object.values(columnVisibility).some(Boolean) && (
-                        <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
-                          {Object.values(columnVisibility).filter(Boolean).length}
-                        </Badge>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" className="w-[220px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search columns..." />
-                      <CommandList>
-                        <CommandEmpty>No columns found.</CommandEmpty>
-                        <CommandGroup heading="Toggle columns">
-                          {table
-                            .getAllColumns()
-                            .filter(column => column.getCanHide())
-                            .map(column => {
-                              return (
-                                <CommandItem
-                                  key={column.id}
-                                  onSelect={() => column.toggleVisibility(!column.getIsVisible())}
-                                  className="flex items-center justify-between"
-                                >
-                                  <span className={column.getIsVisible() ? "font-medium" : ""}>
-                                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[220px] p-0" align="end">
+                      <Command>
+                        <CommandInput placeholder="Filter suchen..." />
+                        <CommandList>
+                          <CommandEmpty>Keine Filter gefunden.</CommandEmpty>
+                          <CommandGroup heading="Vorlagentypen">
+                            {templateTypes.map((type) => (
+                              <CommandItem
+                                key={type}
+                                onSelect={() => toggleTemplateTypeFilter(type)}
+                                className="flex items-center justify-between"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className={cn(
+                                    isFilterActive(type) ? "font-medium" : ""
+                                  )}>
+                                    {type}
                                   </span>
-                                  {column.getIsVisible() && (
-                                    <Check className="h-4 w-4 text-primary" />
-                                  )}
-                                </CommandItem>
-                              );
-                            })}
-                        </CommandGroup>
-                        <CommandSeparator />
-                        <CommandGroup>
-                          <CommandItem
-                            onSelect={() => {
-                              // Reset to default visibility
-                              table.setColumnVisibility({
-                                createdBy: false,
-                              });
-                            }}
-                            className="justify-center text-center"
-                          >
-                            Reset to default
-                          </CommandItem>
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
+                                </div>
+                                {isFilterActive(type) && (
+                                  <Check className="h-4 w-4 text-primary" />
+                                )}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
 
-            {/* Active Filters Display */}
-            {(activeTemplateType || searchQuery) && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted-foreground">Active filters:</span>
-                {activeTemplateType && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    Type: {activeTemplateType}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={() => toggleTemplateTypeFilter(activeTemplateType)}
-                    />
-                  </Badge>
-                )}
-                {searchQuery && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    Search: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={() => setSearchQuery("")}
-                    />
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={clearAllFilters}
-                >
-                  Clear all
-                </Button>
-              </div>
-            )}
+                          {/* Aktive Filter anzeigen */}
+                          {(activeTemplateType || searchQuery) && (
+                            <>
+                              <CommandSeparator />
+                              <CommandGroup heading="Aktive Filter">
+                                {activeTemplateType && (
+                                  <CommandItem
+                                    onSelect={() => toggleTemplateTypeFilter(activeTemplateType)}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <Badge variant="outline" className="flex items-center gap-1">
+                                      Typ: {activeTemplateType}
+                                      <X className="h-3 w-3" />
+                                    </Badge>
+                                  </CommandItem>
+                                )}
+                                {searchQuery && (
+                                  <CommandItem
+                                    onSelect={() => setSearchQuery("")}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <Badge variant="outline" className="flex items-center gap-1">
+                                      Suche: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
+                                      <X className="h-3 w-3" />
+                                    </Badge>
+                                  </CommandItem>
+                                )}
+                              </CommandGroup>
+                            </>
+                          )}
 
-            {/* Selected Templates Count */}
-            {Object.keys(rowSelection).length > 0 && (
-              <div className="bg-muted text-muted-foreground rounded-md px-4 py-2 text-sm">
-                {Object.keys(rowSelection).length} template(s) selected
-              </div>
-            )}
+                          <CommandSeparator />
+                          <CommandGroup>
+                            <CommandItem
+                              onSelect={clearAllFilters}
+                              className="justify-center text-center"
+                            >
+                              Alle Filter zurücksetzen
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
 
-            {isLoading ? (
-              <div className="py-8 flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  {/* Spaltenauswahl-Menü */}
+                  <Popover open={columnsOpen} onOpenChange={setColumnsOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        <LayoutList className="mr-2 h-4 w-4" />
+                        Spalten
+                        {Object.values(columnVisibility).some(Boolean) && (
+                          <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
+                            {Object.values(columnVisibility).filter(Boolean).length}
+                          </Badge>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-[220px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Spalten suchen..." />
+                        <CommandList>
+                          <CommandEmpty>Keine Spalten gefunden.</CommandEmpty>
+                          <CommandGroup heading="Spalten umschalten">
+                            {table
+                              .getAllColumns()
+                              .filter(column => column.getCanHide())
+                              .map(column => {
+                                return (
+                                  <CommandItem
+                                    key={column.id}
+                                    onSelect={() => column.toggleVisibility(!column.getIsVisible())}
+                                    className="flex items-center justify-between"
+                                  >
+                                    <span className={column.getIsVisible() ? "font-medium" : ""}>
+                                      {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                                    </span>
+                                    {column.getIsVisible() && (
+                                      <Check className="h-4 w-4 text-primary" />
+                                    )}
+                                  </CommandItem>
+                                );
+                              })}
+                          </CommandGroup>
+                          <CommandSeparator />
+                          <CommandGroup>
+                            <CommandItem
+                              onSelect={() => {
+                                // Sichtbarkeit auf Standard zurücksetzen
+                                table.setColumnVisibility({
+                                  createdBy: false,
+                                });
+                              }}
+                              className="justify-center text-center"
+                            >
+                              Auf Standard zurücksetzen
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-            ) : (
-              /* Tanstack Table for Templates */
-              <div className="rounded-md border w-full overflow-auto">
-                <Table className="min-w-full">
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow
-                          key={row.id}
-                          data-state={row.getIsSelected() && "selected"}
-                        >
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
+
+              {/* Aktive Filter-Anzeige */}
+              {(activeTemplateType || searchQuery) && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Aktive Filter:</span>
+                  {activeTemplateType && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      Typ: {activeTemplateType}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => toggleTemplateTypeFilter(activeTemplateType)}
+                      />
+                    </Badge>
+                  )}
+                  {searchQuery && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      Suche: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => setSearchQuery("")}
+                      />
+                    </Badge>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={clearAllFilters}
+                  >
+                    Alle löschen
+                  </Button>
+                </div>
+              )}
+
+              {/* Anzahl ausgewählter Vorlagen */}
+              {Object.keys(rowSelection).length > 0 && (
+                <div className="bg-muted text-muted-foreground rounded-md px-4 py-2 text-sm">
+                  {Object.keys(rowSelection).length} Vorlage(n) ausgewählt
+                </div>
+              )}
+
+              {isLoading ? (
+                <div className="py-8 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                /* Tanstack Tabelle für Vorlagen */
+                <div className="rounded-md border w-full overflow-auto">
+                  <Table className="min-w-full">
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                          No templates found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Showing {table.getRowModel().rows.length} of {templates.length} templates
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  Previous
-                </Button>
-                <div className="text-sm">
-                  Page{" "}
-                  <strong>
-                    {table.getState().pagination.pageIndex + 1} of{" "}
-                    {table.getPageCount()}
-                  </strong>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow
+                            key={row.id}
+                            data-state={row.getIsSelected() && "selected"}
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={columns.length} className="h-24 text-center">
+                            Keine Vorlagen gefunden.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  Next
-                </Button>
+              )}
+
+              {/* Paginierungs-Steuerung */}
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Zeige {table.getRowModel().rows.length} von {templates.length} Vorlagen
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    Zurück
+                  </Button>
+                  <div className="text-sm">
+                    Seite{" "}
+                    <strong>
+                      {table.getState().pagination.pageIndex + 1} von{" "}
+                      {table.getPageCount()}
+                    </strong>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    Weiter
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Preview Dialog */}
-      <AlertDialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <AlertDialogContent className="max-w-3xl max-h-[80vh]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {templateToPreview?.name}
-              {templateToPreview && !templateToPreview.isUserCreated && (
-                <Badge className="ml-2 bg-blue-50 text-blue-800">System Template</Badge>
-              )}
-              {templateToPreview && templateToPreview.isUserCreated && (
-                <Badge className="ml-2 bg-green-50 text-green-800">Custom Template</Badge>
-              )}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {templateToPreview?.description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="overflow-y-auto max-h-[50vh]">
-            <div className="space-y-4 py-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-muted-foreground">Subject</h3>
-                <div className="text-sm border rounded-md p-3 bg-muted/50">{templateToPreview?.subject}</div>
-              </div>
+        {/* Vorschau-Dialog */}
+        <AlertDialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+          <AlertDialogContent className="max-w-3xl max-h-[80vh]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {templateToPreview?.name}
+                {templateToPreview && !templateToPreview.isUserCreated && (
+                  <Badge className="ml-2 bg-blue-50 text-blue-800">Systemvorlage</Badge>
+                )}
+                {templateToPreview && templateToPreview.isUserCreated && (
+                  <Badge className="ml-2 bg-green-50 text-green-800">Benutzerdefiniert</Badge>
+                )}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {templateToPreview?.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="overflow-y-auto max-h-[50vh]">
+              <div className="space-y-4 py-4">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-muted-foreground">Betreff</h3>
+                  <div className="text-sm border rounded-md p-3 bg-muted/50">{templateToPreview?.subject}</div>
+                </div>
 
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-muted-foreground">Email Body</h3>
-                <div className="border rounded-md p-4 ">
-                  <div
-                    className="prose dark:prose-invert max-w-none text-sm"
-                    dangerouslySetInnerHTML={{ __html: templateToPreview?.body || "" }}
-                  />
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-muted-foreground">E-Mail-Inhalt</h3>
+                  <div className="border rounded-md p-4 ">
+                    <div
+                      className="prose dark:prose-invert max-w-none text-sm"
+                      dangerouslySetInnerHTML={{ __html: templateToPreview?.body || "" }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <AlertDialogFooter>
-            {templateToPreview?.isUserCreated && (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="mr-auto"
-              >
-                <Link href={`/organization/email-templates/${templateToPreview?.id}/edit`}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Template
-                </Link>
+            <AlertDialogFooter>
+              {templateToPreview?.isUserCreated && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="mr-auto"
+                >
+                  <Link href={`/organization/email-templates/${templateToPreview?.id}/edit`}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Vorlage bearbeiten
+                  </Link>
+                </Button>
+              )}
+              <AlertDialogCancel>Schließen</AlertDialogCancel>
+              <Button onClick={() => handleDuplicate(templateToPreview!)}>
+                <Copy className="h-4 w-4 mr-2" />
+                Duplizieren
               </Button>
-            )}
-            <AlertDialogCancel>Close</AlertDialogCancel>
-            <Button onClick={() => handleDuplicate(templateToPreview!)}>
-              <Copy className="h-4 w-4 mr-2" />
-              Duplicate
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the template &quot;{templateToDelete?.name}&quot;?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Trash className="h-4 w-4 mr-2" />
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Lösch-Bestätigungsdialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Vorlage löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie die Vorlage &quot;{templateToDelete?.name}&quot; wirklich löschen?
+                Diese Aktion kann nicht rückgängig gemacht werden.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash className="h-4 w-4 mr-2" />
+                Löschen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </>
-
   );
 }

@@ -29,6 +29,7 @@ export default function EventDetailPage() {
   const profilePicture = session?.user?.profilePicture || ""
   const queryClient = useQueryClient()
 
+  // Event-Daten abrufen
   const {
     data: eventData,
     isLoading,
@@ -57,14 +58,17 @@ export default function EventDetailPage() {
     },
   })
 
-  function isEventInfo(obj: any): obj is EventInfo {
+  // Typüberprüfung für EventInfo
+  function istEventInfo(obj: any): obj is EventInfo {
     return obj && typeof obj === "object" && "id" in obj && "title" in obj && "location" in obj
   }
 
+  // Event-Objekt extrahieren
   const event: EventInfo | null = Array.isArray(eventData)
-    ? (isEventInfo(eventData[0]) ? eventData[0] : null)
-    : (isEventInfo(eventData) ? eventData : null)
+    ? (istEventInfo(eventData[0]) ? eventData[0] : null)
+    : (istEventInfo(eventData) ? eventData : null)
 
+  // Ladeanzeige
   if (isLoading) {
     return (
       <div className="container mx-auto py-20 text-center">
@@ -79,6 +83,7 @@ export default function EventDetailPage() {
     )
   }
 
+  // Fehleranzeige
   if (fetchError || !event) {
     return (
       <div className="container mx-auto py-20 text-center">
@@ -92,10 +97,12 @@ export default function EventDetailPage() {
     )
   }
 
+  // Hilfsfunktionen für Datums- und Zeitformatierung
   const formatDate = (date: Date) =>
     format(new Date(date), "EEEE, d. MMMM yyyy", { locale: de })
   const formatTime = (date: Date) => format(new Date(date), "HH:mm", { locale: de })
 
+  // Status-Badge für Eventstatus
   const getStatusBadge = (status: number | string) => {
     const st = typeof status === "string" ? Number.parseInt(status, 10) : status
     switch (st) {
@@ -116,6 +123,7 @@ export default function EventDetailPage() {
     }
   }
 
+  // Prüfen, ob Nutzer angemeldet ist
   const isRegistered = event.isAttending
 
   return (
@@ -148,6 +156,7 @@ export default function EventDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-8">
+            {/* Event-Bild */}
             <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden bg-muted">
               {event.image ? (
                 <Image
@@ -164,6 +173,7 @@ export default function EventDetailPage() {
               )}
             </div>
 
+            {/* Event-Beschreibung */}
             <div>
               <h2 className="text-2xl font-semibold mb-4">Beschreibung</h2>
               <div className="prose max-w-none">
@@ -177,9 +187,11 @@ export default function EventDetailPage() {
 
             <Separator />
 
+            {/* Event-Details */}
             <div>
               <h2 className="text-2xl font-semibold mb-4">Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Datum */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
@@ -192,6 +204,7 @@ export default function EventDetailPage() {
                   </CardContent>
                 </Card>
 
+                {/* Uhrzeit */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
@@ -206,6 +219,7 @@ export default function EventDetailPage() {
                   </CardContent>
                 </Card>
 
+                {/* Ort */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
@@ -218,6 +232,7 @@ export default function EventDetailPage() {
                   </CardContent>
                 </Card>
 
+                {/* Teilnehmer */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
@@ -236,7 +251,7 @@ export default function EventDetailPage() {
           </div>
 
         <div className="space-y-6">
-          {/* Teilnehmen-/Abmelden-Card */}
+          {/* Teilnahme-/Abmelde-Karte */}
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
@@ -274,6 +289,7 @@ export default function EventDetailPage() {
             </CardContent>
           </Card>
 
+            {/* Ersteller-Info */}
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-xl font-semibold mb-4">Ersteller</h3>
@@ -283,6 +299,7 @@ export default function EventDetailPage() {
               </CardContent>
             </Card>
 
+            {/* Weitere Informationen */}
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-xl font-semibold mb-4">Weitere Informationen</h3>

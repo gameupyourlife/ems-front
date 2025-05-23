@@ -19,17 +19,17 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Event Details Card */}
+            {/* Event-Details-Karte */}
             <Card className="md:col-span-2 flex flex-col ">
                 <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
                         <CalendarIcon className="h-5 w-5 text-primary" />
-                        Event Details
+                        Veranstaltungsdetails
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 grow">
                     <div className="space-y-2">
-                        <h3 className="font-medium">Description</h3>
+                        <h3 className="font-medium">Beschreibung</h3>
                         <p className="text-sm text-muted-foreground">{event.description}</p>
                     </div>
 
@@ -37,18 +37,18 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <h3 className="text-sm font-medium">Date & Time</h3>
+                            <h3 className="text-sm font-medium">Datum & Uhrzeit</h3>
                             <div className="flex items-center text-sm text-muted-foreground">
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 <div>
-                                    <div>{format(new Date(event.start), "MMMM dd, yyyy")}</div>
-                                    <div>{format(new Date(event.start), "h:mm a")} - {format(new Date(event.end), "h:mm a")}</div>
+                                    <div>{format(new Date(event.start), "dd. MMMM yyyy")}</div>
+                                    <div>{format(new Date(event.start), "HH:mm")} - {format(new Date(event.end), "HH:mm")}</div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-sm font-medium">Location</h3>
+                            <h3 className="text-sm font-medium">Ort</h3>
                             <div className="flex items-center text-sm text-muted-foreground">
                                 <MapPin className="mr-2 h-4 w-4" />
                                 <span>{event.location}</span>
@@ -56,7 +56,7 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-sm font-medium">Category</h3>
+                            <h3 className="text-sm font-medium">Kategorie</h3>
                             <div className="flex items-center text-sm text-muted-foreground">
                                 <Tag className="mr-2 h-4 w-4" />
                                 <span>{event.category}</span>
@@ -64,10 +64,10 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-sm font-medium">Attendance</h3>
+                            <h3 className="text-sm font-medium">Teilnahme</h3>
                             <div className="flex items-center text-sm text-muted-foreground">
                                 <Users className="mr-2 h-4 w-4" />
-                                <span>{event.attendeeCount} / {event.capacity} attendees</span>
+                                <span>{event.attendeeCount} / {event.capacity} Teilnehmer</span>
                             </div>
 
                             <div className="pt-1">
@@ -90,25 +90,25 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                 </CardContent>
                 <CardFooter className="bg-muted/40 border-t px-6 py-4 text-xs text-muted-foreground">
                     <div className="flex justify-between w-full">
-                        <div>Created: {format(new Date(event.createdAt), "MMM dd, yyyy")} by {event.createdBy}</div>
-                        <div>Last updated: {format(new Date(event.updatedAt), "MMM dd, yyyy")} by {event.updatedBy}</div>
+                        <div>Erstellt am: {format(new Date(event.createdAt), "dd. MMM yyyy")} von {event.createdBy}</div>
+                        <div>Zuletzt aktualisiert: {format(new Date(event.updatedAt), "dd. MMM yyyy")} von {event.updatedBy}</div>
                     </div>
                 </CardFooter>
             </Card>
 
-            {/* Attendees Card */}
+            {/* Teilnehmer-Karte */}
             <Card>
                 <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
                         <Users className="h-5 w-5 text-primary" />
-                        Attendees
+                        Teilnehmer
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
                             <div className="text-2xl font-bold">{event.attendeeCount}</div>
-                            <p className="text-sm text-muted-foreground">of {event.capacity} capacity</p>
+                            <p className="text-sm text-muted-foreground">von {event.capacity} Plätzen</p>
                         </div>
                         <div className="h-16 w-16 rounded-full border-4 border-primary flex items-center justify-center bg-background relative">
                             <div className="text-lg font-bold">{attendancePercentage}%</div>
@@ -118,7 +118,7 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                     <Separator />
 
                     <div className="space-y-4">
-                        <h3 className="font-medium">Recent Attendees</h3>
+                        <h3 className="font-medium">Letzte Teilnehmer</h3>
 
                         <div className="space-y-3">
                             {eventDetails.attendees.map((attendee) => (
@@ -138,7 +138,7 @@ export default function EventOverviewTab({ eventDetails }: { eventDetails: Event
                         <Button variant="outline" size="sm" className="w-full" asChild>
                             <Link href={`/organization/events/${eventId}/attendees`}>
                                 <Users className="mr-2 h-4 w-4" />
-                                View All Attendees
+                                Alle Teilnehmer anzeigen
                             </Link>
                         </Button>
                     </div>

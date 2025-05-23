@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, SaveIcon } from "lucide-react";
@@ -19,14 +19,14 @@ export default function CreateFlowPage() {
     const templateId = searchParams.get('templateId');
     const eventId = searchParams.get('eventId');
 
-    // States
+    // State-Variablen
     const [isCreating, setIsCreating] = useState(false);
     const [isLoading, setIsLoading] = useState(!!templateId);
     const [flow, setFlow] = useState<Flow | null>(null);
 
-    // Initialize with a new empty flow template or load from template
+    // Initialisiere mit leerer Flow-Vorlage oder lade aus Vorlage
     useEffect(() => {
-        // Create a new empty flow template as default
+        // Standardmäßig eine neue leere Flow-Vorlage erstellen
         const emptyFlow: Flow = {
             id: "",
             name: "",
@@ -39,22 +39,21 @@ export default function CreateFlowPage() {
             updatedBy: session?.user?.id || "Unbekannt",
             existInDb: false,
             isTemplate: false,
-
             isActive: false,
             multipleRuns: false,
             stillPending: false,
         };
 
-        // If templateId is provided, load the template
+        // Falls templateId vorhanden, lade die Vorlage
         if (templateId && session?.user?.organization?.id) {
             setIsLoading(true);
             getOrgFlowTemplate(session.user.organization.id, templateId, session.user.jwt || "")
                 .then(templateFlow => {
-                    // Make a copy of template with modified properties
+                    // Kopie der Vorlage mit angepassten Eigenschaften erstellen
                     const newFlow: Flow = {
                         ...templateFlow,
-                        id: "", // Clear ID since this is a new flow
-                        name: `Copy of ${templateFlow.name}`,
+                        id: "", // ID leeren, da es ein neuer Flow ist
+                        name: `Kopie von ${templateFlow.name}`,
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString(),
                         createdBy: session?.user?.id || "Unbekannt",
@@ -67,9 +66,9 @@ export default function CreateFlowPage() {
                     setIsLoading(false);
                 })
                 .catch(error => {
-                    console.error("Error loading template:", error);
-                    toast.error("Failed to load template", {
-                        description: "There was an error loading the template. Creating a blank flow instead.",
+                    console.error("Fehler beim Laden der Vorlage:", error);
+                    toast.error("Vorlage konnte nicht geladen werden", {
+                        description: "Beim Laden der Vorlage ist ein Fehler aufgetreten. Es wird stattdessen ein leerer Flow erstellt.",
                         duration: 3000,
                     });
                     setFlow(emptyFlow);
@@ -80,14 +79,12 @@ export default function CreateFlowPage() {
         }
     }, [templateId, session]);
 
-    // Function to handle flow creation
+    // Funktion zum Erstellen eines Flows
     const handleCreateFlow = async (flow: Flow) => {
         setIsCreating(true);
 
         try {
-
             if (flow.isTemplate) {
-
                 const createdFlow = await createOrgFlowTemplate(
                     session?.user?.organization?.id || "",
                     {
@@ -100,9 +97,9 @@ export default function CreateFlowPage() {
                         organizationId: session?.user?.organization?.id || "",
                     },
                     session?.user?.jwt || "",
-                )
+                );
 
-                // Create all triggers concurrently
+                // Alle Trigger gleichzeitig erstellen
                 const createdTriggers = Promise.all(
                     (flow.triggers || []).map(trigger =>
                         createOrgFlowTemplateTrigger(
@@ -112,15 +109,15 @@ export default function CreateFlowPage() {
                                 flowId: createdFlow.id,
                                 type: trigger.type,
                                 details: trigger.details,
-                                name: trigger.name || "No name",
-                                summary: trigger.description || "No description",
+                                name: trigger.name || "Kein Name",
+                                summary: trigger.description || "Keine Beschreibung",
                             },
                             session?.user?.jwt || ""
                         )
                     )
                 );
 
-                // Create all actions concurrently
+                // Alle Aktionen gleichzeitig erstellen
                 const createdActions = Promise.all(
                     (flow.actions || []).map(action =>
                         createOrgFlowTemplateAction(
@@ -130,22 +127,22 @@ export default function CreateFlowPage() {
                                 flowId: createdFlow.id,
                                 type: action.type,
                                 details: action.details,
-                                name: action.name || "No name",
-                                summary: action.description || "No description",
+                                name: action.name || "Kein Name",
+                                summary: action.description || "Keine Beschreibung",
                             },
                             session?.user?.jwt || ""
                         )
                     )
                 );
 
-                await Promise.all([createdTriggers, createdActions])
+                await Promise.all([createdTriggers, createdActions]);
 
-                toast.success("Flow created", {
-                    description: "Your flow has been created successfully and is now ready to use.",
+                toast.success("Flow erstellt", {
+                    description: "Ihr Flow wurde erfolgreich erstellt und ist jetzt einsatzbereit.",
                     duration: 3000,
                 });
 
-                // Redirect to appropriate location
+                // Weiterleitung zur passenden Seite
                 setTimeout(() => {
                     if (eventId) {
                         router.push(`/organization/events/${eventId}`);
@@ -153,9 +150,7 @@ export default function CreateFlowPage() {
                         router.push('/organization/flows');
                     }
                 }, 1500);
-            }
-            else {
-
+            } else {
                 const createdFlow = await createFlow(
                     session?.user?.organization?.id || "",
                     eventId || "",
@@ -171,9 +166,9 @@ export default function CreateFlowPage() {
                         // organizationId: session?.user?.organization?.id || "",
                     },
                     session?.user?.jwt || "",
-                )
+                );
 
-                // Create all triggers concurrently
+                // Alle Trigger gleichzeitig erstellen
                 const createdTriggers = Promise.all(
                     (flow.triggers || []).map(trigger =>
                         createTrigger(
@@ -184,15 +179,15 @@ export default function CreateFlowPage() {
                                 flowId: createdFlow.id,
                                 type: trigger.type,
                                 details: trigger.details,
-                                name: trigger.name || "No name",
-                                summary: trigger.description || "No description",
+                                name: trigger.name || "Kein Name",
+                                summary: trigger.description || "Keine Beschreibung",
                             },
                             session?.user?.jwt || ""
                         )
                     )
                 );
 
-                // Create all actions concurrently
+                // Alle Aktionen gleichzeitig erstellen
                 const createdActions = Promise.all(
                     (flow.actions || []).map(action =>
                         createAction(
@@ -203,22 +198,22 @@ export default function CreateFlowPage() {
                                 flowId: createdFlow.id,
                                 type: action.type,
                                 details: action.details,
-                                name: action.name || "No name",
-                                summary: action.description || "No description",
+                                name: action.name || "Kein Name",
+                                summary: action.description || "Keine Beschreibung",
                             },
                             session?.user?.jwt || ""
                         )
                     )
                 );
 
-                await Promise.all([createdTriggers, createdActions])
+                await Promise.all([createdTriggers, createdActions]);
 
-                toast.success("Flow created", {
-                    description: "Your flow has been created successfully and is now ready to use.",
+                toast.success("Flow erstellt", {
+                    description: "Ihr Flow wurde erfolgreich erstellt und ist jetzt einsatzbereit.",
                     duration: 3000,
                 });
 
-                // Redirect to appropriate location
+                // Weiterleitung zur passenden Seite
                 setTimeout(() => {
                     if (eventId) {
                         router.push(`/organization/events/${eventId}`);
@@ -227,13 +222,11 @@ export default function CreateFlowPage() {
                     }
                 }, 1500);
             }
-
         } catch (error) {
-            toast.error("Flow creation failed", {
-                description: "There was an error creating your flow. Please try again.",
+            toast.error("Flow konnte nicht erstellt werden", {
+                description: "Beim Erstellen des Flows ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
                 duration: 3000,
             });
-
         } finally {
             setIsCreating(false);
         }
@@ -241,14 +234,14 @@ export default function CreateFlowPage() {
 
     const quickActions: QuickAction[] = [
         {
-            label: "Back",
+            label: "Zurück",
             onClick: () => eventId ? router.push(`/organization/events/${eventId}`) : router.push(`/organization/flows`),
             icon: <ArrowLeft className="h-4 w-4" />,
             variant: "outline",
         },
         {
-            label: "Save Flow",
-            onClick: () => { }, // Handled by form
+            label: "Flow speichern",
+            onClick: () => { }, // Wird vom Formular gehandhabt
             icon: <SaveIcon className="h-4 w-4" />,
         },
     ];
@@ -259,7 +252,7 @@ export default function CreateFlowPage() {
                 <SiteHeader actions={quickActions} />
                 <div className="flex flex-1 flex-col items-center justify-center space-y-6 p-4 md:p-6">
                     <LoadingSpinner />
-                    <p className="text-muted-foreground">Loading template...</p>
+                    <p className="text-muted-foreground">Vorlage wird geladen...</p>
                 </div>
             </>
         );

@@ -24,6 +24,7 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
   }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Wird aufgerufen, wenn Dateien per Drag & Drop hinzugefügt werden
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const filesToUpload = acceptedFiles.map(file => ({
       file,
@@ -36,7 +37,7 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
   const { getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject } = useDropzone({
     onDrop,
     accept: {
-      // Accept all common file types
+      // Erlaubte Dateitypen
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
       'application/pdf': ['.pdf'],
       'application/vnd.ms-excel': ['.xls'],
@@ -49,15 +50,15 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
       'text/csv': ['.csv'],
       'video/mp4': ['.mp4'],
     },
-    maxSize: 10485760, // 10MB
+    maxSize: 10485760, // 10MB maximale Dateigröße
   });
 
+  // Startet den Upload und simuliert den Fortschritt
   const handleUpload = async () => {
     if (uploadingFiles.length === 0) return;
     
     setIsUploading(true);
     
-    // Simulate upload progress for each file
     uploadingFiles.forEach((fileData, index) => {
       let progress = 0;
       
@@ -72,12 +73,12 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
             const newFiles = [...prev];
             newFiles[index] = { ...newFiles[index], progress: 100, complete: true };
             
-            // Check if all files are complete
+            // Prüft, ob alle Uploads abgeschlossen sind
             const allComplete = newFiles.every(f => f.complete);
             if (allComplete) {
               setIsUploading(false);
               
-              // In a real app, you would get the uploaded file information from the server
+              // In einer echten App würde hier die Serverantwort verarbeitet
               if (onUploadComplete) {
                 const mockUploadedFiles = newFiles.map(f => ({
                   id: Math.random().toString(36).substring(2, 15),
@@ -85,14 +86,14 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
                   type: f.file.type.split('/')[1] || f.file.type,
                   createdAt: new Date(),
                   updatedAt: new Date(),
-                  createdBy: "Current User",
-                  updatedBy: "Current User",
+                  createdBy: "Aktueller Benutzer",
+                  updatedBy: "Aktueller Benutzer",
                   url: URL.createObjectURL(f.file)
                 }));
                 onUploadComplete(mockUploadedFiles);
               }
               
-              toast.success(`Successfully uploaded ${newFiles.length} ${newFiles.length === 1 ? 'file' : 'files'}`);
+              toast.success(`Erfolgreich ${newFiles.length} ${newFiles.length === 1 ? 'Datei' : 'Dateien'} hochgeladen`);
             }
             
             return newFiles;
@@ -108,17 +109,18 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
     });
   };
 
+  // Entfernt eine Datei aus der Upload-Liste
   const removeFile = (index: number) => {
     setUploadingFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Schließt den Dialog und setzt den Zustand zurück
   const closeDialog = () => {
     if (isUploading) {
-      toast.error("Please wait until upload is complete");
+      toast.error("Bitte warten Sie, bis der Upload abgeschlossen ist");
       return;
     }
     
-    // Reset state
     setUploadingFiles([]);
     setIsUploading(false);
     onClose();
@@ -128,9 +130,9 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
     <Dialog open={isOpen} onOpenChange={closeDialog}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Upload Files</DialogTitle>
+          <DialogTitle>Dateien hochladen</DialogTitle>
           <DialogDescription>
-            Upload files to your organization. Accepted file types include images, documents, spreadsheets, and more.
+            Laden Sie Dateien für Ihre Organisation hoch. Erlaubte Dateitypen: Bilder, Dokumente, Tabellen und mehr.
           </DialogDescription>
         </DialogHeader>
         
@@ -153,12 +155,12 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
                   <p className="text-lg font-medium">
                     {isDragActive 
                       ? isDragAccept 
-                        ? "Drop the files here" 
-                        : "Some files will be rejected"
-                      : "Drag & drop files here"}
+                        ? "Dateien hier ablegen" 
+                        : "Einige Dateien werden abgelehnt"
+                      : "Dateien per Drag & Drop hierher ziehen"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    or click to browse (10MB max per file)
+                    oder klicken zum Auswählen (max. 10MB pro Datei)
                   </p>
                 </div>
               </div>
@@ -168,10 +170,10 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
           {uploadingFiles.length > 0 && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Files to upload</h3>
+                <h3 className="text-lg font-medium">Dateien zum Hochladen</h3>
                 {!isUploading && (
                   <Button variant="ghost" size="sm" onClick={() => setUploadingFiles([])}>
-                    Clear all
+                    Alle entfernen
                   </Button>
                 )}
               </div>
@@ -217,7 +219,7 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
                 >
                   <input {...getInputProps()} />
                   <p className="text-sm text-muted-foreground">
-                    Drop more files or click to browse
+                    Weitere Dateien ablegen oder klicken zum Auswählen
                   </p>
                 </div>
               )}
@@ -231,13 +233,13 @@ export default function FileUploadDialog({ isOpen, onClose, onUploadComplete }: 
             onClick={closeDialog}
             disabled={isUploading}
           >
-            Cancel
+            Abbrechen
           </Button>
           <Button
             onClick={handleUpload}
             disabled={uploadingFiles.length === 0 || isUploading}
           >
-            {isUploading ? "Uploading..." : "Upload Files"}
+            {isUploading ? "Hochladen..." : "Dateien hochladen"}
           </Button>
         </DialogFooter>
       </DialogContent>

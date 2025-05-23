@@ -1,4 +1,3 @@
-// app/organization/events/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
@@ -17,12 +16,13 @@ export default function OrganizationEventsPage() {
   const orgId = session?.user?.organization.id;
   const creatorId = session?.user?.id;
 
+  // Events des aktuellen Nutzers in der Organisation abrufen
   const { data: events, isLoading, error } = useEventsByCreator(orgId || "", creatorId || "", token || "");
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-20 text-center">
-        <div className="animate-pulse">Lade Events …</div>
+        <div className="animate-pulse">Events werden geladen …</div>
       </div>
     )
   }
@@ -38,15 +38,15 @@ export default function OrganizationEventsPage() {
     )
   }
 
-
   const now = new Date()
+  // Zukünftige Events filtern und sortieren
   const upcoming = events
     .filter(e => e.start > now)
     .sort((a, b) => a.start.getTime() - b.start.getTime())
+  // Vergangene Events filtern und sortieren
   const past = events
     .filter(e => e.start < now)
     .sort((a, b) => b.start.getTime() - a.start.getTime())
-
 
   if (error) {
     return (
@@ -74,8 +74,8 @@ export default function OrganizationEventsPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">All Events</CardTitle>
-              <CardDescription>Total number of events</CardDescription>
+              <CardTitle className="text-xl">Alle Events</CardTitle>
+              <CardDescription>Gesamtanzahl der Events</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{events.length}</div>

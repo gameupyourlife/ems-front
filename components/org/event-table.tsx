@@ -127,7 +127,7 @@ export default function EventTable() {
     [data],
   )
 
-  // --- Debounced globaler Filter ---
+  //  Debounced globaler Filter 
   const [globalFilter, setGlobalFilter] = useState("")
   const debouncedSetGlobalFilter = useCallback(
     (() => {
@@ -142,7 +142,7 @@ export default function EventTable() {
     []
   )
 
-  // --- Filterfunktion für die globale Suche ---
+  // Filterfunktion für die globale Suche 
   const globalFilterFn = useCallback((row: { original: { title: string; location: string; description: string } }, _columnId: any, filterValue: string) => {
     if (!filterValue) return true
     const term = filterValue.toLowerCase()
@@ -153,7 +153,7 @@ export default function EventTable() {
     )
   }, [])
 
-  // --- Status- und Kategorie-Filter ---
+  //  Status- und Kategorie-Filter 
   const [activeStatus, setActiveStatus] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
@@ -187,7 +187,7 @@ export default function EventTable() {
     setGlobalFilter("")
   }, [])
 
-  // --- Spalten-Definitionen ---
+  //  Spalten-Definitionen 
   const columns = useMemo<ColumnDef<EventInfo>[]>(() => {
     return [
       {
@@ -326,7 +326,7 @@ export default function EventTable() {
     ]
   }, [deleteEvent, activeCategory, activeStatus])
 
-  // --- Aktionen für jede Zeile ---
+  //  Aktionen für jede Zeile 
   const RowActions = React.memo(({ event, onDelete }: { event: EventInfo; onDelete: any }) => (
     <div className="flex items-center justify-end gap-2">
       <Button variant="ghost" size="sm" asChild>
@@ -361,7 +361,7 @@ export default function EventTable() {
   ))
   RowActions.displayName = "RowActions"
 
-  // --- Tabelle initialisieren ---
+  //  Tabelle initialisieren 
   const table = useReactTable({
     data,
     columns,

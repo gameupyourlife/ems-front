@@ -56,11 +56,11 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
   const [activeTab, setActiveTab] = useState<"single" | "range">(initialFilters?.dateType || "single")
   const [filteredEvents, setFilteredEvents] = useState<EventInfo[]>(events)
 
-  // Filter anwenden (Suche, Kategorie, Datum, Ort)
+  // Filter anwenden: Suche, Kategorie, Datum, Ort
   const applyFilters = useCallback(() => {
     let filtered = [...events]
 
-    // Suche nach Text im Titel, Beschreibung oder organization
+    // Suche nach Text in Titel, Beschreibung oder Organisation
     if (searchQuery.trim()) {
       const normalizedQuery = searchQuery.trim().toLowerCase()
       filtered = filtered.filter(
@@ -78,7 +78,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
       )
     }
 
-    // Datumsfilter
+    // Datums-Filter
     if (selectedFilters.dateType === "single" && selectedFilters.singleDate) {
       const filterDate = selectedFilters.singleDate
       filtered = filtered.filter((event) => {
@@ -92,7 +92,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     } else if (selectedFilters.dateType === "range") {
       if (selectedFilters.dateRange.start) {
         const startDate = new Date(selectedFilters.dateRange.start)
-        // Set time to beginning of day
+        // Zeit auf Tagesbeginn setzen
         startDate.setHours(0, 0, 0, 0)
         filtered = filtered.filter((event) => {
           const eventEndDate = new Date(event.end || event.start)
@@ -101,7 +101,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
       }
       if (selectedFilters.dateRange.end) {
         const endDate = new Date(selectedFilters.dateRange.end)
-        // Set time to end of day
+        // Zeit auf Tagesende setzen
         endDate.setHours(23, 59, 59, 999)
         filtered = filtered.filter((event) => {
           const eventStartDate = new Date(event.start)
@@ -119,7 +119,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     setFilteredEvents(filtered)
   }, [events, searchQuery, selectedFilters])
 
-  // Kategorie auswählen/abwählen
+  // Kategorie auswählen oder abwählen
   const toggleCategory = (category: string) => {
     setSelectedFilters((prev) => {
       const newCategories = prev.category.includes(category)
@@ -133,21 +133,22 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     })
   }
 
-  // Datum validieren im Format TT.MM.JJJJ
+  // Datum im Format TT.MM.JJJJ validieren
   const validateDate = (dateString: string): Date | null => {
     if (!/^\d{2}\.\d{2}\.\d{4}$/.test(dateString)) {
       return null
     }
 
-    const [day, month, year] = dateString.split(".").map(Number)
-    const date = new Date(year, month - 1, day)
-    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    const [tag, monat, jahr] = dateString.split(".").map(Number)
+    const date = new Date(jahr, monat - 1, tag)
+    if (date.getFullYear() !== jahr || date.getMonth() !== monat - 1 || date.getDate() !== tag) {
       return null
     }
 
     return date
   }
 
+  // Einzelnes Datum validieren und setzen
   const validateAndSetSingleDate = (dateString: string) => {
     setSingleDateError(null)
 
@@ -169,6 +170,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     return true
   }
 
+  // Startdatum validieren und setzen
   const validateAndSetStartDate = (dateString: string) => {
     setStartDateError(null)
 
@@ -193,6 +195,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     return true
   }
 
+  // Enddatum validieren und setzen
   const validateAndSetEndDate = (dateString: string) => {
     setEndDateError(null)
 
@@ -217,6 +220,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     return true
   }
 
+  // Prüfen, ob das Startdatum vor dem Enddatum liegt
   const validateDateRange = () => {
     if (selectedFilters.dateRange.start && selectedFilters.dateRange.end) {
       if (selectedFilters.dateRange.start > selectedFilters.dateRange.end) {
@@ -227,6 +231,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     return true
   }
 
+  // Tab für Einzel- oder Zeitraum-Auswahl wechseln
   const handleTabChange = (value: string) => {
     if (value === "single" || value === "range") {
       setActiveTab(value)
@@ -237,6 +242,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     }
   }
 
+  // Standort-Filter anwenden
   const applyLocationFilter = () => {
     setSelectedFilters((prev) => ({
       ...prev,
@@ -244,6 +250,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     }))
   }
 
+  // Alle Filter zurücksetzen
   const clearAllFilters = () => {
     setSelectedFilters({
       category: [],
@@ -264,6 +271,7 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     setEndDateError(null)
   }
 
+  // Filter anwenden und ggf. Callback auslösen
   const handleApplyFilters = () => {
     let isValid = true
 
@@ -326,6 +334,5 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     clearAllFilters,
     handleApplyFilters,
     applyFilters,
-    
   }
 }

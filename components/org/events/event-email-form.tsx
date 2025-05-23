@@ -40,14 +40,14 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { emailTemplates, applyTemplateValues, generatePlaceholderValues } from "@/lib/mock/email-data";
 
-// Editor component imports
+// Editor-Komponenten-Importe
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 
-// Toolbar component for the email editor
+// Toolbar-Komponente für den E-Mail-Editor
 function EmailEditorToolbar({ editor }: { editor: any }) {
   if (!editor) {
     return null;
@@ -108,7 +108,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           editor.isActive("bulletList") ? "bg-muted" : ""
         )}
       >
-        • List
+        • Liste
       </Button>
       <Button
         variant="ghost"
@@ -119,7 +119,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           editor.isActive("orderedList") ? "bg-muted" : ""
         )}
       >
-        1. List
+        1. Liste
       </Button>
       <Button
         variant="ghost"
@@ -141,14 +141,14 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
         variant="ghost"
         size="sm"
         onClick={() => {
-          const url = window.prompt("Image URL");
+          const url = window.prompt("Bild-URL");
           if (url) {
             editor.chain().focus().setImage({ src: url }).run();
           }
         }}
         className="h-8 px-2"
       >
-        Image
+        Bild
       </Button>
 
       <div className="ml-auto flex gap-1">
@@ -159,7 +159,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           disabled={!editor.can().undo()}
           className="h-8 px-2"
         >
-          Undo
+          Rückgängig
         </Button>
         <Button
           variant="ghost"
@@ -168,14 +168,14 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           disabled={!editor.can().redo()}
           className="h-8 px-2"
         >
-          Redo
+          Wiederholen
         </Button>
       </div>
     </div>
   );
 }
 
-// The main email form component
+// Hauptkomponente für das E-Mail-Formular
 interface EventEmailFormProps {
   email?: Email;
   eventId: string;
@@ -207,20 +207,20 @@ export function EventEmailForm({
   );
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   
-  // Email content editor
+  // Editor für den E-Mail-Inhalt
   const editor = useEditor({
     extensions: [
       StarterKit,
       Link,
       Image,
       Placeholder.configure({
-        placeholder: 'Write your email content here...',
+        placeholder: 'Schreibe hier deinen E-Mail-Inhalt...',
       }),
     ],
     content: email?.body || "",
   });
 
-  // Reset the form if email changes
+  // Formular zurücksetzen, wenn sich die E-Mail ändert
   useEffect(() => {
     if (email) {
       setSubject(email.subject || "");
@@ -235,21 +235,21 @@ export function EventEmailForm({
     }
   }, [email, editor]);
 
-  // Handle form submission
+  // Formular absenden
   const handleSubmit = async (sendNow: boolean = false) => {
     if (!subject.trim()) {
-      alert("Please enter a subject for your email");
+      alert("Bitte gib einen Betreff für deine E-Mail ein");
       return;
     }
 
     if (!editor?.getHTML() || editor?.getHTML() === '<p></p>') {
-      alert("Please enter content for your email");
+      alert("Bitte gib einen Inhalt für deine E-Mail ein");
       return;
     }
 
-    // If scheduling but no date selected
+    // Wenn geplant, aber kein Datum ausgewählt
     if (scheduleSetting === "later" && !scheduledDate) {
-      alert("Please select a date for scheduling this email");
+      alert("Bitte wähle ein Datum für den Versand der E-Mail");
       return;
     }
 
@@ -270,49 +270,49 @@ export function EventEmailForm({
       await onSave(emailData);
       router.push(`/organization/events/${eventId}/emails`);
     } catch (error) {
-      console.error("Error saving email:", error);
-      alert("Failed to save email. Please try again.");
+      console.error("Fehler beim Speichern der E-Mail:", error);
+      alert("E-Mail konnte nicht gespeichert werden. Bitte versuche es erneut.");
     }
   };
 
-  // Add an individual recipient
+  // Einzelnen Empfänger hinzufügen
   const addRecipient = (email: string) => {
     if (email && !recipients.includes(email)) {
       setRecipients([...recipients, email]);
     }
   };
 
-  // Remove a recipient
+  // Empfänger entfernen
   const removeRecipient = (email: string) => {
     setRecipients(recipients.filter(r => r !== email));
   };
 
-  // Handle adding recipients from attendees list
+  // Teilnehmer aus der Teilnehmerliste hinzufügen
   const addAttendee = (attendee: User) => {
     if (!recipients.includes(attendee.email)) {
       setRecipients([...recipients, attendee.email]);
     }
   };
 
-  // Apply a template to the email
+  // Vorlage auf die E-Mail anwenden
   const applyTemplate = (templateId: string) => {
     const template = emailTemplates.find(t => t.id === templateId);
     if (!template) return;
 
-    // Generate placeholders based on event details
+    // Platzhalter basierend auf Event-Details generieren
     const placeholders = generatePlaceholderValues(eventDetails);
 
-    // Apply placeholders to template
+    // Platzhalter in Vorlage einsetzen
     const subjectWithValues = applyTemplateValues(template.subject, placeholders);
     const bodyWithValues = applyTemplateValues(template.body, placeholders);
 
-    // Update the form
+    // Formular aktualisieren
     setSubject(subjectWithValues);
     if (editor) {
       editor.commands.setContent(bodyWithValues);
     }
 
-    // Close the dialog
+    // Dialog schließen
     setTemplateDialogOpen(false);
   };
 
@@ -325,7 +325,7 @@ export function EventEmailForm({
           onClick={() => router.push(`/organization/events/${eventId}/emails`)}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Emails
+          Zurück zu den E-Mails
         </Button>
       </div>
 
@@ -333,18 +333,18 @@ export function EventEmailForm({
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
-            {isEditing ? "Edit Email" : "Create Email"}
+            {isEditing ? "E-Mail bearbeiten" : "E-Mail erstellen"}
           </CardTitle>
           <CardDescription>
             {isEditing 
-              ? "Update the email details and content" 
-              : "Compose a new email to send to event attendees"}
+              ? "Bearbeite die E-Mail und deren Inhalt" 
+              : "Verfasse eine neue E-Mail für die Teilnehmer der Veranstaltung"}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-muted-foreground">Email Content</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">E-Mail-Inhalt</h3>
             <Button
               variant="outline"
               size="sm"
@@ -365,33 +365,33 @@ export function EventEmailForm({
                 <path d="M3 9h18" />
                 <path d="M9 21V9" />
               </svg>
-              Use Template
+              Vorlage verwenden
             </Button>
           </div>
 
           <div className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="subject">Subject</Label>
+              <Label htmlFor="subject">Betreff</Label>
               <Input
                 id="subject"
-                placeholder="Enter email subject"
+                placeholder="Betreff der E-Mail eingeben"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label>Recipients</Label>
+              <Label>Empfänger</Label>
               <Tabs defaultValue={recipientType} onValueChange={(value) => setRecipientType(value as "all" | "specific")}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="all">All Attendees</TabsTrigger>
-                  <TabsTrigger value="specific">Specific Recipients</TabsTrigger>
+                  <TabsTrigger value="all">Alle Teilnehmer</TabsTrigger>
+                  <TabsTrigger value="specific">Bestimmte Empfänger</TabsTrigger>
                 </TabsList>
                 <TabsContent value="all" className="space-y-2">
                   <div className="flex items-center py-2">
                     <Users className="h-5 w-5 mr-2 text-muted-foreground" />
                     <span className="text-sm">
-                      This email will be sent to all attendees ({eventAttendees.length})
+                      Diese E-Mail wird an alle Teilnehmer gesendet ({eventAttendees.length})
                     </span>
                   </div>
                 </TabsContent>
@@ -400,7 +400,7 @@ export function EventEmailForm({
                     <div className="flex-1">
                       <Input
                         id="recipientEmail"
-                        placeholder="Enter email address"
+                        placeholder="E-Mail-Adresse eingeben"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -420,7 +420,7 @@ export function EventEmailForm({
                         input.value = '';
                       }}
                     >
-                      Add
+                      Hinzufügen
                     </Button>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -430,8 +430,8 @@ export function EventEmailForm({
                       </PopoverTrigger>
                       <PopoverContent className="w-80 p-0">
                         <div className="p-3 border-b">
-                          <h4 className="font-medium">Add Event Attendees</h4>
-                          <p className="text-xs text-muted-foreground">Select from event attendees</p>
+                          <h4 className="font-medium">Teilnehmer hinzufügen</h4>
+                          <p className="text-xs text-muted-foreground">Aus den Veranstaltungsteilnehmern auswählen</p>
                         </div>
                         <ScrollArea className="h-72">
                           {eventAttendees.length > 0 ? (
@@ -455,14 +455,14 @@ export function EventEmailForm({
                                       addAttendee(attendee);
                                     }}
                                   >
-                                    Add
+                                    Hinzufügen
                                   </Button>
                                 </div>
                               ))}
                             </div>
                           ) : (
                             <div className="p-4 text-center text-sm text-muted-foreground">
-                              No attendees for this event
+                              Keine Teilnehmer für diese Veranstaltung
                             </div>
                           )}
                         </ScrollArea>
@@ -486,7 +486,7 @@ export function EventEmailForm({
                     ))}
                     {recipients.length === 0 && (
                       <div className="text-sm text-muted-foreground p-1">
-                        No recipients added yet
+                        Noch keine Empfänger hinzugefügt
                       </div>
                     )}
                   </div>
@@ -495,22 +495,22 @@ export function EventEmailForm({
             </div>
 
             <div className="grid gap-2">
-              <Label>Scheduling</Label>
+              <Label>Versandzeitpunkt</Label>
               <Tabs defaultValue={scheduleSetting} onValueChange={(value) => setScheduleSetting(value as "now" | "later")}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="now">Send when ready</TabsTrigger>
-                  <TabsTrigger value="later">Schedule for later</TabsTrigger>
+                  <TabsTrigger value="now">Sofort senden</TabsTrigger>
+                  <TabsTrigger value="later">Für später planen</TabsTrigger>
                 </TabsList>
                 <TabsContent value="now" className="space-y-2">
                   <div className="flex items-center py-2">
                     <span className="text-sm">
-                      The email will be saved as a draft and can be sent manually when ready.
+                      Die E-Mail wird als Entwurf gespeichert und kann später manuell versendet werden.
                     </span>
                   </div>
                 </TabsContent>
                 <TabsContent value="later" className="space-y-2">
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="scheduledDate">Select date and time</Label>
+                    <Label htmlFor="scheduledDate">Datum und Uhrzeit auswählen</Label>
                     <DateTimePicker24h
                       initialDate={scheduledDate}
                       onDateChange={(date => setScheduledDate(date))}
@@ -521,7 +521,7 @@ export function EventEmailForm({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="content">Email Content</Label>
+              <Label htmlFor="content">E-Mail-Inhalt</Label>
               <div className="border rounded-md">
                 {editor && <EmailEditorToolbar editor={editor} />}
                 <EditorContent
@@ -539,7 +539,7 @@ export function EventEmailForm({
             onClick={() => router.push(`/organization/events/${eventId}/emails`)}
             disabled={isSubmitting}
           >
-            Cancel
+            Abbrechen
           </Button>
           <div className="flex gap-2">
             <Button
@@ -547,7 +547,7 @@ export function EventEmailForm({
               onClick={() => handleSubmit(false)}
               disabled={isSubmitting}
             >
-              Save as Draft
+              Als Entwurf speichern
             </Button>
             {scheduleSetting === "now" && (
               <Button
@@ -557,7 +557,7 @@ export function EventEmailForm({
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Send className="h-4 w-4 mr-2" />
-                Send Now
+                Jetzt senden
               </Button>
             )}
             {scheduleSetting === "later" && (
@@ -567,20 +567,20 @@ export function EventEmailForm({
                 disabled={isSubmitting}
               >
                 <CalendarIcon className="h-4 w-4 mr-2" />
-                Schedule
+                Planen
               </Button>
             )}
           </div>
         </CardFooter>
       </Card>
 
-      {/* Template selection dialog */}
+      {/* Dialog zur Vorlagenauswahl */}
       <AlertDialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
         <AlertDialogContent className="max-w-3xl max-h-[80vh]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Choose an Email Template</AlertDialogTitle>
+            <AlertDialogTitle>E-Mail-Vorlage auswählen</AlertDialogTitle>
             <AlertDialogDescription>
-              Select a template to use as a starting point for your email. Event details will be automatically inserted where possible.
+              Wähle eine Vorlage als Ausgangspunkt für deine E-Mail. Veranstaltungsdetails werden automatisch eingefügt, sofern möglich.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="overflow-y-auto max-h-[50vh]">
@@ -594,14 +594,14 @@ export function EventEmailForm({
                   <h3 className="font-medium mb-2">{template.name}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   <div className="text-xs text-muted-foreground">
-                    Subject: <span className="text-foreground">{template.subject}</span>
+                    Betreff: <span className="text-foreground">{template.subject}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

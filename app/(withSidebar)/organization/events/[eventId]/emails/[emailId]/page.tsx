@@ -38,7 +38,7 @@ import {
   AlertCircle
 } from "lucide-react";
 
-// Mock data for emails
+// Mock-Daten für E-Mails
 const mockEmails: Email[] = [
   {
     id: "email-1",
@@ -90,29 +90,30 @@ export default function ViewEmail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // State for dialogs
+  // Zustände für Dialoge
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // Lädt die E-Mail anhand der ID
     const fetchEmail = async () => {
       setIsLoading(true);
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Find the email
+        // Sucht die E-Mail
         const foundEmail = mockEmails.find(e => e.id === emailId && e.eventId === eventId);
         
         if (foundEmail) {
           setEmail(foundEmail);
         } else {
-          setError("Email not found");
+          setError("E-Mail nicht gefunden");
         }
       } catch (err) {
-        console.error("Error fetching email:", err);
-        setError("Failed to load email. Please try again.");
+        console.error("Fehler beim Laden der E-Mail:", err);
+        setError("E-Mail konnte nicht geladen werden. Bitte versuche es erneut.");
       } finally {
         setIsLoading(false);
       }
@@ -121,14 +122,14 @@ export default function ViewEmail() {
     fetchEmail();
   }, [eventId, emailId]);
 
-  // Handle send email
+  // Versendet die E-Mail
   const handleSendEmail = async () => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be a POST request to your API
+      // In einer echten App wäre dies ein POST-Request an die API
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Update local state
+      // Lokalen Status aktualisieren
       if (email) {
         setEmail({
           ...email,
@@ -139,47 +140,47 @@ export default function ViewEmail() {
       
       setSendDialogOpen(false);
     } catch (err) {
-      console.error("Error sending email:", err);
-      alert("Failed to send email. Please try again.");
+      console.error("Fehler beim Versenden der E-Mail:", err);
+      alert("E-Mail konnte nicht gesendet werden. Bitte versuche es erneut.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle delete email
+  // Löscht die E-Mail
   const handleDeleteEmail = async () => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be a DELETE request to your API
+      // In einer echten App wäre dies ein DELETE-Request an die API
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Navigate back to emails list
+      // Zurück zur E-Mail-Liste navigieren
       router.push(`/organization/events/${eventId}/emails`);
     } catch (err) {
-      console.error("Error deleting email:", err);
-      alert("Failed to delete email. Please try again.");
+      console.error("Fehler beim Löschen der E-Mail:", err);
+      alert("E-Mail konnte nicht gelöscht werden. Bitte versuche es erneut.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Helper for status badge
+  // Gibt das Status-Badge zurück
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800">Draft</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800">Entwurf</Badge>;
       case 'scheduled':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-800">Scheduled</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-800">Geplant</Badge>;
       case 'sent':
-        return <Badge variant="outline" className="bg-green-50 text-green-800">Sent</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-800">Gesendet</Badge>;
       case 'failed':
-        return <Badge variant="outline" className="bg-red-50 text-red-800">Failed</Badge>;
+        return <Badge variant="outline" className="bg-red-50 text-red-800">Fehlgeschlagen</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  // Show loading state
+  // Ladezustand anzeigen
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -188,16 +189,16 @@ export default function ViewEmail() {
     );
   }
 
-  // Show error state
+  // Fehlerzustand anzeigen
   if (error || !email) {
     return (
       <div className="py-20 text-center">
-        <p className="text-red-600 text-lg">{error || "Email not found"}</p>
+        <p className="text-red-600 text-lg">{error || "E-Mail nicht gefunden"}</p>
         <button 
           onClick={() => router.push(`/organization/events/${eventId}/emails`)} 
           className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
         >
-          Return to Emails
+          Zurück zur Übersicht
         </button>
       </div>
     );
@@ -212,7 +213,7 @@ export default function ViewEmail() {
           onClick={() => router.push(`/organization/events/${eventId}/emails`)}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Emails
+          Zurück zu den E-Mails
         </Button>
         
         <div className="flex items-center gap-2">
@@ -225,7 +226,7 @@ export default function ViewEmail() {
               >
                 <Link href={`/organization/events/${eventId}/emails/${emailId}/edit`}>
                   <Edit className="h-4 w-4 mr-1" />
-                  Edit
+                  Bearbeiten
                 </Link>
               </Button>
               <Button 
@@ -235,7 +236,7 @@ export default function ViewEmail() {
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Send className="h-4 w-4 mr-1" />
-                Send Now
+                Jetzt senden
               </Button>
             </>
           )}
@@ -247,7 +248,7 @@ export default function ViewEmail() {
           >
             <Link href={`/organization/events/${eventId}/emails/create?duplicate=${emailId}`}>
               <Copy className="h-4 w-4 mr-1" />
-              Duplicate
+              Duplizieren
             </Link>
           </Button>
           
@@ -257,7 +258,7 @@ export default function ViewEmail() {
             onClick={() => setDeleteDialogOpen(true)}
           >
             <Trash className="h-4 w-4 mr-1" />
-            Delete
+            Löschen
           </Button>
         </div>
       </div>
@@ -267,17 +268,17 @@ export default function ViewEmail() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-xl">{email.subject}</CardTitle>
-              <CardDescription>Email for event #{eventId}</CardDescription>
+              <CardDescription>E-Mail für Event #{eventId}</CardDescription>
             </div>
             <div>{getStatusBadge(email.status)}</div>
           </div>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {/* Email details */}
+          {/* E-Mail Details */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-muted-foreground">Recipients</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Empfänger</h4>
               <div className="space-y-1">
                 {email.recipients.map((recipient, index) => (
                   <div key={index} className="flex items-center">
@@ -286,33 +287,33 @@ export default function ViewEmail() {
                   </div>
                 ))}
                 {email.recipients.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No recipients specified</p>
+                  <p className="text-sm text-muted-foreground">Keine Empfänger angegeben</p>
                 )}
               </div>
             </div>
             
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground">Created</h4>
-                <p className="text-sm">{format(new Date(email.createdAt), "PPP 'at' p")}</p>
+                <h4 className="text-sm font-medium text-muted-foreground">Erstellt am</h4>
+                <p className="text-sm">{format(new Date(email.createdAt), "PPP 'um' p")}</p>
               </div>
               
               {email.status === "scheduled" && email.scheduledFor && (
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Scheduled For</h4>
+                  <h4 className="text-sm font-medium text-muted-foreground">Geplant für</h4>
                   <div className="flex items-center">
                     <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <p className="text-sm">{format(new Date(email.scheduledFor), "PPP 'at' p")}</p>
+                    <p className="text-sm">{format(new Date(email.scheduledFor), "PPP 'um' p")}</p>
                   </div>
                 </div>
               )}
               
               {email.status === "sent" && email.sentAt && (
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Sent At</h4>
+                  <h4 className="text-sm font-medium text-muted-foreground">Gesendet am</h4>
                   <div className="flex items-center">
                     <CheckCircle className="h-4 w-4 mr-1 text-green-600" />
-                    <p className="text-sm">{format(new Date(email.sentAt), "PPP 'at' p")}</p>
+                    <p className="text-sm">{format(new Date(email.sentAt), "PPP 'um' p")}</p>
                   </div>
                 </div>
               )}
@@ -322,7 +323,7 @@ export default function ViewEmail() {
                   <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
                   <div className="flex items-center">
                     <AlertCircle className="h-4 w-4 mr-1 text-red-600" />
-                    <p className="text-sm">Failed to send</p>
+                    <p className="text-sm">Senden fehlgeschlagen</p>
                   </div>
                 </div>
               )}
@@ -331,9 +332,9 @@ export default function ViewEmail() {
           
           <Separator />
           
-          {/* Email content preview */}
+          {/* Vorschau des E-Mail-Inhalts */}
           <div className="space-y-2">
-            <h3 className="text-lg font-medium">Email Content</h3>
+            <h3 className="text-lg font-medium">E-Mail-Inhalt</h3>
             <div 
               className="prose dark:prose-invert max-w-none border rounded-md p-6 bg-white dark:bg-gray-900"
               dangerouslySetInnerHTML={{ __html: email.body }}
@@ -344,22 +345,22 @@ export default function ViewEmail() {
         <CardFooter className="border-t px-6 py-4">
           <div className="flex items-center text-xs text-muted-foreground">
             <Clock className="h-3 w-3 mr-1" />
-            Last updated {format(new Date(email.updatedAt), "PPP 'at' p")}
+            Zuletzt aktualisiert am {format(new Date(email.updatedAt), "PPP 'um' p")}
           </div>
         </CardFooter>
       </Card>
       
-      {/* Send confirmation dialog */}
+      {/* Bestätigungsdialog für Senden */}
       <AlertDialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Send Email</AlertDialogTitle>
+            <AlertDialogTitle>E-Mail senden</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to send this email now? This will send the email to all {email.recipients.length} recipients immediately.
+              Möchtest du diese E-Mail jetzt an alle {email.recipients.length} Empfänger senden?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleSendEmail} 
               className="bg-blue-600 hover:bg-blue-700"
@@ -368,12 +369,12 @@ export default function ViewEmail() {
               {isSubmitting ? (
                 <>
                   <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent rounded-full" />
-                  Sending...
+                  Senden...
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  Send Now
+                  Jetzt senden
                 </>
               )}
             </AlertDialogAction>
@@ -381,17 +382,17 @@ export default function ViewEmail() {
         </AlertDialogContent>
       </AlertDialog>
       
-      {/* Delete confirmation dialog */}
+      {/* Bestätigungsdialog für Löschen */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Email</AlertDialogTitle>
+            <AlertDialogTitle>E-Mail löschen</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this email? This action cannot be undone.
+              Bist du sicher, dass du diese E-Mail löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteEmail} 
               className="bg-red-600 hover:bg-red-700"
@@ -400,12 +401,12 @@ export default function ViewEmail() {
               {isSubmitting ? (
                 <>
                   <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent rounded-full" />
-                  Deleting...
+                  Lösche...
                 </>
               ) : (
                 <>
                   <Trash className="h-4 w-4 mr-2" />
-                  Delete
+                  Löschen
                 </>
               )}
             </AlertDialogAction>

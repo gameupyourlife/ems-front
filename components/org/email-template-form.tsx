@@ -16,12 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, FileText, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Add React Hook Form imports
+// React Hook Form-Importe
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// Editor component imports
+// Editor-Komponenten-Importe
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -30,7 +30,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { SiteHeader } from "../site-header";
 import { QuickAction } from "../dynamic-quick-actions";
 
-// Define the template type
+// Typdefinition für das Template
 export interface EmailTemplateFormData {
   id?: string;
   name: string;
@@ -40,17 +40,17 @@ export interface EmailTemplateFormData {
   isUserCreated?: boolean;
 }
 
-// Define form validation schema
+// Validierungsschema für das Formular
 const templateFormSchema = z.object({
-  name: z.string().trim().min(1, "Template name is required"),
-  subject: z.string().trim().min(1, "Subject line is required"),
-  description: z.string().trim().min(1, "Description is required"),
-  body: z.string().min(1, "Email content is required").refine(val => val !== '<p></p>', "Email content is required"),
+  name: z.string().trim().min(1, "Vorlagenname ist erforderlich"),
+  subject: z.string().trim().min(1, "Betreff ist erforderlich"),
+  description: z.string().trim().min(1, "Beschreibung ist erforderlich"),
+  body: z.string().min(1, "E-Mail-Inhalt ist erforderlich").refine(val => val !== '<p></p>', "E-Mail-Inhalt ist erforderlich"),
 });
 
 type FormData = z.infer<typeof templateFormSchema>;
 
-// Editor toolbar component - reused from email-form.tsx
+// Editor-Toolbar-Komponente – wiederverwendet aus email-form.tsx
 function EmailEditorToolbar({ editor }: { editor: any }) {
   if (!editor) {
     return null;
@@ -111,7 +111,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           editor.isActive("bulletList") ? "bg-muted" : ""
         )}
       >
-        • List
+        • Liste
       </Button>
       <Button
         variant="ghost"
@@ -122,7 +122,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           editor.isActive("orderedList") ? "bg-muted" : ""
         )}
       >
-        1. List
+        1. Liste
       </Button>
       <Button
         variant="ghost"
@@ -144,14 +144,14 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
         variant="ghost"
         size="sm"
         onClick={() => {
-          const url = window.prompt("Image URL");
+          const url = window.prompt("Bild-URL");
           if (url) {
             editor.chain().focus().setImage({ src: url }).run();
           }
         }}
         className="h-8 px-2"
       >
-        Image
+        Bild
       </Button>
 
       <div className="ml-auto flex gap-1">
@@ -162,7 +162,7 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           disabled={!editor.can().undo()}
           className="h-8 px-2"
         >
-          Undo
+          Rückgängig
         </Button>
         <Button
           variant="ghost"
@@ -171,50 +171,50 @@ function EmailEditorToolbar({ editor }: { editor: any }) {
           disabled={!editor.can().redo()}
           className="h-8 px-2"
         >
-          Redo
+          Wiederholen
         </Button>
       </div>
     </div>
   );
 }
 
-// PlaceholderHelp component
+// Komponente für Platzhalter-Hilfe
 function PlaceholderHelp() {
   return (
     <div className="bg-muted/30 rounded-md p-4 text-sm space-y-3">
-      <h4 className="font-medium">Available Placeholders</h4>
-      <p>Use these placeholders in your template to automatically fill in event details:</p>
+      <h4 className="font-medium">Verfügbare Platzhalter</h4>
+      <p>Nutze diese Platzhalter, um Veranstaltungsdetails automatisch einzufügen:</p>
       <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <code className="bg-muted rounded px-1">[Event Name]</code> - Event title
+          <code className="bg-muted rounded px-1">[Event Name]</code> – Veranstaltungstitel
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Event Date]</code> - Event date
+          <code className="bg-muted rounded px-1">[Event Date]</code> – Veranstaltungsdatum
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Start Time]</code> - Event start time
+          <code className="bg-muted rounded px-1">[Start Time]</code> – Beginn
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[End Time]</code> - Event end time
+          <code className="bg-muted rounded px-1">[End Time]</code> – Ende
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Venue Name]</code> - Event location
+          <code className="bg-muted rounded px-1">[Venue Name]</code> – Veranstaltungsort
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Room/Area]</code> - Room or area
+          <code className="bg-muted rounded px-1">[Room/Area]</code> – Raum oder Bereich
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Venue Address]</code> - Venue address
+          <code className="bg-muted rounded px-1">[Venue Address]</code> – Adresse des Veranstaltungsorts
         </div>
         <div>
-          <code className="bg-muted rounded px-1">[Code]</code> - Event code
+          <code className="bg-muted rounded px-1">[Code]</code> – Veranstaltungs-Code
         </div>
       </div>
     </div>
   );
 }
 
-// Props interface for the form
+// Props-Interface für das Formular
 interface EmailTemplateFormProps {
   template?: EmailTemplateFormData;
   onSave: (templateData: EmailTemplateFormData) => Promise<void>;
@@ -229,7 +229,7 @@ export default function EmailTemplateForm({
   const router = useRouter();
   const isEditing = !!template;
   
-  // Setup React Hook Form
+  // Initialisierung von React Hook Form
   const { 
     control, 
     handleSubmit: hookFormSubmit, 
@@ -248,14 +248,14 @@ export default function EmailTemplateForm({
   
   const bodyValue = watch("body");
 
-  // Email body editor
+  // Editor für den E-Mail-Inhalt
   const editor = useEditor({
     extensions: [
       StarterKit,
       Link,
       Image,
       Placeholder.configure({
-        placeholder: 'Write your email template content here...',
+        placeholder: 'Schreibe hier den Inhalt deiner E-Mail-Vorlage...',
       }),
     ],
     content: template?.body || "",
@@ -264,9 +264,9 @@ export default function EmailTemplateForm({
     }
   });
 
-  // Form submission handler
+  // Handler für das Absenden des Formulars
   const onSubmit = async (data: FormData) => {
-    // Prepare template data
+    // Vorlagendaten vorbereiten
     const templateData: EmailTemplateFormData = {
       id: template?.id,
       name: data.name,
@@ -280,8 +280,8 @@ export default function EmailTemplateForm({
       await onSave(templateData);
       router.push('/organization/email-templates');
     } catch (error) {
-      console.error("Error saving template:", error);
-      alert("Failed to save template. Please try again.");
+      console.error("Fehler beim Speichern der Vorlage:", error);
+      alert("Vorlage konnte nicht gespeichert werden. Bitte versuche es erneut.");
     }
   };
 
@@ -293,7 +293,7 @@ export default function EmailTemplateForm({
       variant: "outline",
     },
     {
-      label: "Mail Template speichern",
+      label: "Mail-Vorlage speichern",
       onClick: hookFormSubmit((data) => onSubmit(data)),
       icon: <Save className="h-4 w-4" />,
     },
@@ -309,12 +309,12 @@ export default function EmailTemplateForm({
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
-                {isEditing ? "Edit Email Template" : "Create Email Template"}
+                {isEditing ? "E-Mail-Vorlage bearbeiten" : "E-Mail-Vorlage erstellen"}
               </CardTitle>
               <CardDescription>
                 {isEditing
-                  ? "Update the template details and content"
-                  : "Create a new reusable email template for your events"}
+                  ? "Bearbeite die Details und den Inhalt der Vorlage"
+                  : "Erstelle eine neue, wiederverwendbare E-Mail-Vorlage für deine Veranstaltungen"}
               </CardDescription>
             </CardHeader>
 
@@ -322,7 +322,7 @@ export default function EmailTemplateForm({
               <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="name" className={errors.name ? "text-red-500" : ""}>
-                    Template Name *
+                    Vorlagenname *
                   </Label>
                   <Controller
                     name="name"
@@ -330,7 +330,7 @@ export default function EmailTemplateForm({
                     render={({ field }) => (
                       <Input
                         id="name"
-                        placeholder="Enter a name for your template"
+                        placeholder="Gib einen Namen für die Vorlage ein"
                         className={errors.name ? "border-red-500" : ""}
                         {...field}
                       />
@@ -343,7 +343,7 @@ export default function EmailTemplateForm({
 
                 <div className="grid gap-2">
                   <Label htmlFor="description" className={errors.description ? "text-red-500" : ""}>
-                    Description *
+                    Beschreibung *
                   </Label>
                   <Controller
                     name="description"
@@ -351,7 +351,7 @@ export default function EmailTemplateForm({
                     render={({ field }) => (
                       <Textarea
                         id="description"
-                        placeholder="Write a brief description of this template's purpose"
+                        placeholder="Beschreibe kurz den Zweck dieser Vorlage"
                         rows={2}
                         className={errors.description ? "border-red-500" : ""}
                         {...field}
@@ -365,7 +365,7 @@ export default function EmailTemplateForm({
 
                 <div className="grid gap-2">
                   <Label htmlFor="subject" className={errors.subject ? "text-red-500" : ""}>
-                    Email Subject Line *
+                    E-Mail-Betreff *
                   </Label>
                   <Controller
                     name="subject"
@@ -373,7 +373,7 @@ export default function EmailTemplateForm({
                     render={({ field }) => (
                       <Input
                         id="subject"
-                        placeholder="Enter email subject with placeholders like [Event Name]"
+                        placeholder="Gib den E-Mail-Betreff mit Platzhaltern wie [Event Name] ein"
                         className={errors.subject ? "border-red-500" : ""}
                         {...field}
                       />
@@ -388,7 +388,7 @@ export default function EmailTemplateForm({
 
                 <div className="grid gap-2">
                   <Label htmlFor="body" className={errors.body ? "text-red-500" : ""}>
-                    Email Content *
+                    E-Mail-Inhalt *
                   </Label>
                   <div className={`border rounded-md ${errors.body ? "border-red-500" : ""}`}>
                     {editor && <EmailEditorToolbar editor={editor} />}
@@ -411,7 +411,7 @@ export default function EmailTemplateForm({
                 onClick={() => router.push('/organization/email-templates')}
                 disabled={isSubmitting}
               >
-                Cancel
+                Abbrechen
               </Button>
               <Button
                 type="submit"
@@ -420,12 +420,12 @@ export default function EmailTemplateForm({
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent rounded-full" />
-                    {isEditing ? "Updating..." : "Creating..."}
+                    {isEditing ? "Wird aktualisiert..." : "Wird erstellt..."}
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    {isEditing ? "Update Template" : "Save Template"}
+                    {isEditing ? "Vorlage aktualisieren" : "Vorlage speichern"}
                   </>
                 )}
               </Button>

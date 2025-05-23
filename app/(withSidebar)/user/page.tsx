@@ -33,7 +33,7 @@ import { deleteAccount, resetPasswort, updateUser } from "@/lib/backend/users";
 import { useSession } from "next-auth/react";
 import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth";
 
-
+// Validierungsschema für das Profilformular
 const profileFormSchema = z.object({
     firstName: z
         .string()
@@ -46,6 +46,7 @@ const profileFormSchema = z.object({
     email: z.string().min(1, { message: "E-Mail ist erforderlich." }).email("Dies ist keine gültige E-Mail-Adresse."),
 })
 
+// Validierungsschema für das Passwortformular
 const passwordFormSchema = z
     .object({
         currentPassword: z.string().min(1, { message: "Aktuelles Passwort ist erforderlich." }),
@@ -76,6 +77,7 @@ export default function ProfileEditPage() {
     const { data: session, update } = useSession();
     const user = session?.user;
 
+    // Initialisiert das Profilformular mit den Benutzerdaten
     const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
@@ -86,6 +88,7 @@ export default function ProfileEditPage() {
         mode: "onChange",
     })
 
+    // Initialisiert das Passwortformular
     const passwordForm = useForm<PasswordFormValues>({
         resolver: zodResolver(passwordFormSchema),
         defaultValues: {
@@ -96,6 +99,7 @@ export default function ProfileEditPage() {
         mode: "onChange",
     })
 
+    // Setzt die Formulardaten zurück, wenn sich der Benutzer ändert
     useEffect(() => {
         if (user)
             profileForm.reset({
@@ -105,7 +109,7 @@ export default function ProfileEditPage() {
             })
     }, [user])
 
-
+    // Zeigt einen Ladehinweis, wenn kein Benutzer geladen ist
     if (!user) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -114,6 +118,7 @@ export default function ProfileEditPage() {
         )
     }
 
+    // Handler für das Absenden des Profilformulars
     function onProfileSubmit(data: ProfileFormValues) {
         setIsLoading(true)
 
@@ -125,16 +130,14 @@ export default function ProfileEditPage() {
 
         toast.promise(async () => {
             await updateUser(user.id, {
-                // updatedAt: new Date().toISOString(),
                 firstName: data.firstName,
                 lastName: data.lastName,
                 profilePicture: user.profilePicture,
-                // email: data.email,
             }, user.jwt)
             await update({})
         },
             {
-                loading: "Aktualisiere Profil...",
+                loading: "Profil wird aktualisiert...",
                 success: () => {
                     setIsLoading(false)
                     if (data.email !== user.email)
@@ -142,16 +145,15 @@ export default function ProfileEditPage() {
                     return "Profil erfolgreich aktualisiert."
                 },
                 error: (error) => {
-                    console.error("Error updating profile:", error)
+                    console.error("Fehler beim Aktualisieren des Profils:", error)
                     setIsLoading(false)
                     return "Fehler beim Aktualisieren des Profils."
                 },
             },
         )
-
-
     }
 
+    // Handler für das Absenden des Passwortformulars
     function onPasswordSubmit(data: PasswordFormValues) {
         if (!user) {
             toast.error("Kein Benutzer angemeldet")
@@ -160,8 +162,6 @@ export default function ProfileEditPage() {
         }
 
         setIsPasswordLoading(true)
-
-        console.log("Updating password for user:", user)
 
         toast.promise(resetPasswort(
             user.email, passwordForm.getValues("newPassword"), passwordForm.getValues("confirmPassword"), user.jwt
@@ -173,19 +173,16 @@ export default function ProfileEditPage() {
                     return "Passwort erfolgreich aktualisiert."
                 },
                 error: (error) => {
-                    console.error("Error updating password:", error)
+                    console.error("Fehler beim Aktualisieren des Passworts:", error)
                     setIsPasswordLoading(false)
                     return "Fehler beim Aktualisieren des Passworts."
                 },
             },
         )
-
     }
 
+    // Handler zum Löschen des Benutzerkontos
     function handleDeleteAccount() {
-        // In a real app, this would call your API to delete the account
-        // console.log("Deleting account:", user?.id)
-
         if (!user) {
             toast.error("Kein Benutzer angemeldet")
             router.push("/login")
@@ -202,35 +199,35 @@ export default function ProfileEditPage() {
                     return "Konto erfolgreich gelöscht."
                 },
                 error: (error) => {
-                    console.error("Error deleting account:", error)
+                    console.error("Fehler beim Löschen des Kontos:", error)
                     return "Fehler beim Löschen des Kontos."
                 },
             },
         )
     }
 
-    function calculatePasswordStrength(password: string) {
-        if (!password) return 0
+    // Berechnet die Passwortstärke anhand einfacher Kriterien
+    function berechnePasswortStaerke(passwort: string) {
+        if (!passwort) return 0
 
-        let strength = 0
+        let staerke = 0
 
-        // Length check
-        if (password.length >= 8) strength += 25
+        if (passwort.length >= 8) staerke += 25
+        if (/[A-Z]/.test(passwort)) staerke += 25
+        if (/[a-z]/.test(passwort)) staerke += 25
+        if (/[0-9]/.test(passwort)) staerke += 25
 
-        // Character type checks
-        if (/[A-Z]/.test(password)) strength += 25
-        if (/[a-z]/.test(password)) strength += 25
-        if (/[0-9]/.test(password)) strength += 25
-
-        return strength
+        return staerke
     }
 
+    // Aktualisiert die Passwortstärke beim Ändern des Passwortfelds
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newPassword = e.target.value
-        passwordForm.setValue("newPassword", newPassword)
-        setPasswordStrength(calculatePasswordStrength(newPassword))
+        const neuesPasswort = e.target.value
+        passwordForm.setValue("newPassword", neuesPasswort)
+        setPasswordStrength(berechnePasswortStaerke(neuesPasswort))
     }
 
+    // Formatiert ein Datum im deutschen Format
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("de-DE", {
             year: "numeric",
@@ -239,29 +236,30 @@ export default function ProfileEditPage() {
         })
     }
 
-    const getStrengthColor = (strength: number) => {
-        if (strength === 0) return "bg-gray-200 dark:bg-neutral-700"
-        if (strength < 50) return "bg-red-500"
-        if (strength < 100) return "bg-yellow-500"
+    // Gibt die Farbe für die Passwortstärke zurück
+    const getStrengthColor = (staerke: number) => {
+        if (staerke === 0) return "bg-gray-200 dark:bg-neutral-700"
+        if (staerke < 50) return "bg-red-500"
+        if (staerke < 100) return "bg-yellow-500"
         return "bg-green-500"
     }
 
-    const getStrengthText = (strength: number) => {
-        if (strength === 0) return "Nicht bewertet"
-        if (strength < 50) return "Schwach"
-        if (strength < 100) return "Mittel"
+    // Gibt den Text für die Passwortstärke zurück
+    const getStrengthText = (staerke: number) => {
+        if (staerke === 0) return "Nicht bewertet"
+        if (staerke < 50) return "Schwach"
+        if (staerke < 100) return "Mittel"
         return "Stark"
     }
 
     return <>
-
         <SiteHeader actions={[]}>
             Kontoeinstellungen
         </SiteHeader>
 
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row gap-8">
-                {/* Profile Header */}
+                {/* Profilübersicht */}
                 <div className="md:w-1/3">
                     <div className="sticky top-8 space-y-6">
                         <Card className="border ">
@@ -331,17 +329,8 @@ export default function ProfileEditPage() {
                     </div>
                 </div>
 
-                {/* Main Content */}
+                {/* Hauptinhalt */}
                 <div className="flex-1">
-                    {/* <Card className="mb-6 border ">
-                        <CardHeader>
-                            <CardTitle>Kontoeinstellungen</CardTitle>
-                            <CardDescription>
-                                Verwalten Sie Ihre persönlichen Informationen und Sicherheitseinstellungen
-                            </CardDescription>
-                        </CardHeader>
-                    </Card> */}
-
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="grid grid-cols-2 w-full">
                             <TabsTrigger
@@ -360,7 +349,7 @@ export default function ProfileEditPage() {
                             </TabsTrigger>
                         </TabsList>
 
-                        {/* Profile Tab */}
+                        {/* Profil-Tab */}
                         <TabsContent value="profile" className="space-y-6">
                             <Card className="border ">
                                 <CardHeader>
@@ -412,7 +401,7 @@ export default function ProfileEditPage() {
                                                 )}
                                             />
 
-                                            {/* Account Information */}
+                                            {/* Kontoinformationen */}
                                             <div className="pt-4 mt-4 border-t ">
                                                 <h3 className="text-sm font-medium mb-3">Kontoinformationen</h3>
                                                 <div className="grid gap-3 text-sm bg-muted/50 dark:bg-neutral-800 p-3 rounded-md">
@@ -448,9 +437,9 @@ export default function ProfileEditPage() {
                             </Card>
                         </TabsContent>
 
-                        {/* Security Tab */}
+                        {/* Sicherheits-Tab */}
                         <TabsContent value="security" className="space-y-6">
-                            {/* Password Reset */}
+                            {/* Passwort zurücksetzen */}
                             <Card className="border ">
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
@@ -599,7 +588,7 @@ export default function ProfileEditPage() {
                                 </CardFooter>
                             </Card>
 
-                            {/* Danger Zone - Account Deletion */}
+                            {/* Gefahrenbereich - Konto löschen */}
                             <Card className="border border-red-200 dark:border-red-900/50">
                                 <CardHeader className="pb-3 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/10">
                                     <CardTitle className="flex items-center text-red-600 dark:text-red-400">
@@ -668,6 +657,5 @@ export default function ProfileEditPage() {
                 </div>
             </div>
         </div>
-
     </>;
 }

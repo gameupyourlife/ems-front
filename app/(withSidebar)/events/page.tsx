@@ -1,19 +1,27 @@
-"use client";;
+"use client";
+
+// Komponenten-Importe
 import { SiteHeader } from "@/components/site-header";
 import EventLayout from "@/components/user/event-layout";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 
+// EventList-Komponente
 export default function EventList() {
+  // Session und Token auslesen
   const { data: session } = useSession();
   const token = session?.user?.jwt;
   const orgId = session?.user?.organization.id;
 
+  // Events für die Organisation laden
   const { data: events, isLoading, error } = useEvents(orgId || "", token || "");
 
+  // Ladeanzeige
   if (isLoading) {
-    return <div className="py-20 text-center">Lade Events …</div>;
+    return <div className="py-20 text-center">Events werden geladen …</div>;
   }
+
+  // Fehleranzeige
   if (error) {
     return (
       <div className="py-20 text-center text-red-500">

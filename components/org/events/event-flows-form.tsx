@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-// UI Components
+// UI-Komponenten
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -35,7 +35,7 @@ import {
     Image
 } from "lucide-react";
 
-// Types
+// Typen
 import { Flow } from "@/lib/types-old";
 
 interface EventFlowsFormProps {
@@ -54,10 +54,10 @@ export function EventFlowsForm({
   onFlowsChange,
   onTabChange,
   eventId,
-  submitLabel = "Save Changes",
+  submitLabel = "Änderungen speichern",
   isSubmitting = false
 }: EventFlowsFormProps) {
-  // Handle selecting flows
+  // Auswahl eines Flows umschalten
   const toggleFlowSelection = (flow: Flow) => {
     if (selectedFlows.some(f => f.id === flow.id)) {
       onFlowsChange(selectedFlows.filter(f => f.id !== flow.id));
@@ -66,7 +66,7 @@ export function EventFlowsForm({
     }
   };
 
-  // Get icon for a trigger type
+  // Gibt das passende Icon für einen Trigger-Typ zurück
   const getTriggerIcon = (type: string) => {
     switch (type) {
       case 'date':
@@ -82,7 +82,7 @@ export function EventFlowsForm({
     }
   };
 
-  // Get icon for an action type
+  // Gibt das passende Icon für einen Aktions-Typ zurück
   const getActionIcon = (type: string) => {
     switch (type) {
       case 'email':
@@ -104,51 +104,51 @@ export function EventFlowsForm({
     }
   };
 
-  // Get a human-readable description for a trigger
+  // Gibt eine verständliche Beschreibung für einen Trigger zurück
   const getTriggerDescription = (type: string, details: any) => {
     switch (type) {
       case 'date':
         return details?.reference ? 
-          `${details.amount} ${details.unit} ${details.direction} event ${details.reference}` : 
-          'On a specific date';
+          `${details.amount} ${details.unit} ${details.direction} Event ${details.reference}` : 
+          'Zu einem bestimmten Datum';
       case 'numOfAttendees':
         return details?.operator ? 
-          `When attendance ${details.operator} ${details.value}${details.valueType === 'percentage' ? '%' : ''}` :
-          'When attendance reaches a certain level';
+          `Wenn Teilnehmerzahl ${details.operator} ${details.value}${details.valueType === 'percentage' ? '%' : ''}` :
+          'Wenn eine bestimmte Teilnehmerzahl erreicht wird';
       case 'status':
         return details?.status ? 
-          `When event status changes to ${details.status}` :
-          'When event status changes';
+          `Wenn der Event-Status auf ${details.status} wechselt` :
+          'Wenn sich der Event-Status ändert';
       case 'registration':
-        return 'When someone registers for the event';
+        return 'Wenn sich jemand für das Event registriert';
       default:
-        return 'When triggered';
+        return 'Wenn ausgelöst';
     }
   };
 
-  // Get a human-readable description for an action
+  // Gibt eine verständliche Beschreibung für eine Aktion zurück
   const getActionDescription = (type: string, details: any) => {
     switch (type) {
       case 'email':
         return details?.subject ? 
-          `Send email: "${details.subject}"` :
-          'Send an email notification';
+          `E-Mail senden: "${details.subject}"` :
+          'E-Mail-Benachrichtigung senden';
       case 'notification':
-        return 'Send an in-app notification';
+        return 'In-App-Benachrichtigung senden';
       case 'statusChange':
         return details?.newStatus ? 
-          `Change event status to ${details.newStatus}` :
-          'Update the event status';
+          `Event-Status auf ${details.newStatus} ändern` :
+          'Event-Status aktualisieren';
       case 'fileShare':
-        return 'Share files with attendees';
+        return 'Dateien mit Teilnehmern teilen';
       case 'titleChange':
         return details?.newTitle ? 
-          `Update title to "${details.newTitle}"` :
-          'Change the event title';
+          `Titel ändern zu "${details.newTitle}"` :
+          'Event-Titel ändern';
       case 'descriptionChange':
-        return 'Update the event description';
+        return 'Event-Beschreibung aktualisieren';
       default:
-        return 'Perform an action';
+        return 'Aktion ausführen';
     }
   };
 
@@ -157,21 +157,21 @@ export function EventFlowsForm({
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <FunctionSquare className="h-5 w-5 text-primary" />
-          Event Flows
+          Event-Flows
         </CardTitle>
         <CardDescription>
-          Add automation flows that will be associated with this event
+          Füge Automatisierungs-Flows hinzu, die mit diesem Event verknüpft werden
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium">Flows for this event</h3>
+            <h3 className="text-lg font-medium">Flows für dieses Event</h3>
             <p className="text-sm text-muted-foreground">
-              Select automation flows to attach to your event
+              Wähle Automatisierungs-Flows aus, die mit deinem Event verknüpft werden sollen
               {selectedFlows.length > 0 && (
                 <Badge variant="outline" className="ml-2">
-                  {selectedFlows.length} selected
+                  {selectedFlows.length} ausgewählt
                 </Badge>
               )}
             </p>
@@ -179,7 +179,7 @@ export function EventFlowsForm({
           <Button variant="outline" size="sm" asChild>
             <Link href={eventId ? `/organization/flows/create?eventId=${eventId}` : "/organization/flows/create"}>
               <Plus className="h-4 w-4 mr-2" />
-              Create New Flow
+              Neuen Flow erstellen
             </Link>
           </Button>
         </div>
@@ -191,14 +191,14 @@ export function EventFlowsForm({
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <FunctionSquare className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium">No flows available</h3>
+            <h3 className="text-lg font-medium">Keine Flows verfügbar</h3>
             <p className="text-sm text-muted-foreground max-w-sm mt-1">
-              Create new automation flows to associate with this event
+              Erstelle neue Automatisierungs-Flows, um sie mit diesem Event zu verknüpfen
             </p>
             <Button variant="outline" className="mt-4" asChild>
               <Link href={eventId ? `/organization/flows/create?eventId=${eventId}` : "/organization/flows/create"}>
                 <FunctionSquare className="h-4 w-4 mr-2" />
-                Create Flow
+                Flow erstellen
               </Link>
             </Button>
           </div>
@@ -231,10 +231,10 @@ export function EventFlowsForm({
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="bg-background">
-                          {flow.trigger.length} {flow.trigger.length === 1 ? 'Trigger' : 'Triggers'}
+                          {flow.trigger.length} {flow.trigger.length === 1 ? 'Trigger' : 'Trigger'}
                         </Badge>
                         <Badge variant="outline" className="bg-background">
-                          {flow.actions.length} {flow.actions.length === 1 ? 'Action' : 'Actions'}
+                          {flow.actions.length} {flow.actions.length === 1 ? 'Aktion' : 'Aktionen'}
                         </Badge>
                         {isSelected ? (
                           <div className="ml-2 h-6 w-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground shrink-0">
@@ -250,11 +250,11 @@ export function EventFlowsForm({
                     
                     <div className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Triggers column */}
+                        {/* Trigger-Spalte */}
                         <div className="space-y-3">
                           <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                             <Zap className="h-4 w-4" />
-                            WHEN THESE TRIGGERS OCCUR
+                            WENN F
                           </h5>
                           
                           <div className="space-y-2">
@@ -277,11 +277,11 @@ export function EventFlowsForm({
                           </div>
                         </div>
                         
-                        {/* Actions column */}
+                        {/* Aktionen-Spalte */}
                         <div className="space-y-3">
                           <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                             <FunctionSquare className="h-4 w-4" />
-                            THEN PERFORM THESE ACTIONS
+                            DANN FÜHRE DIESE AKTIONEN AUS
                           </h5>
                           
                           <div className="space-y-2">
@@ -315,10 +315,10 @@ export function EventFlowsForm({
       <CardFooter className="flex justify-between border-t p-6">
         <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("files")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Previous: Files
+          Zurück: Dateien
         </Button>
         <Button variant="default" type="button" onClick={() => onTabChange && onTabChange("agenda")}>
-          Next: Agenda
+          Weiter: Agenda
           <ArrowLeftIcon className="ml-2 h-4 w-4 rotate-180" />
         </Button>
       </CardFooter>

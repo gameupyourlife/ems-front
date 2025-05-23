@@ -1,5 +1,6 @@
 "use client"
 
+// React & externe Libraries importieren
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,33 +25,34 @@ import { Save, Loader2 } from "lucide-react";
 import { updateOrg } from "@/lib/backend/org";
 import { useSession } from "next-auth/react";
 
-// Define the organization form schema with Zod
+// 1. Zod-Schema für das Organisationsformular definieren
 const organizationSchema = z.object({
     name: z.string().min(3, {
-        message: "Organization name must be at least 3 characters.",
+        message: "Organisationsname muss mindestens 3 Zeichen lang sein.",
     }),
     description: z.string().min(10, {
-        message: "Description must be at least 10 characters.",
+        message: "Beschreibung muss mindestens 10 Zeichen lang sein.",
     }),
     address: z.string().min(5, {
-        message: "Address must be at least 5 characters.",
+        message: "Adresse muss mindestens 5 Zeichen lang sein.",
     }),
     website: z.string().url({
-        message: "Please enter a valid website URL.",
+        message: "Bitte eine gültige Website-URL eingeben.",
     }).optional().or(z.literal("")),
 });
 
-// Type for the form data
+// Typ für die Formulardaten
 type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 export default function Page() {
 
-
     const { data: session, update } = useSession()
     const currentOrg = session?.org;
 
-    if (!currentOrg) return null; // Ensure currentOrg is available before proceeding
+    if (!currentOrg) return null;
+
     const [isSubmitting, setIsSubmitting] = useState(false);
+
     const quickActions: QuickAction[] = [
         {
             label: "Speichern",
@@ -59,7 +61,6 @@ export default function Page() {
         }
     ];
 
-    // Initialize react-hook-form with zod resolver
     const form = useForm<OrganizationFormValues>({
         resolver: zodResolver(organizationSchema),
         defaultValues: {
@@ -70,38 +71,34 @@ export default function Page() {
         },
     });
 
-    // Handle form submission
+    // Formular-Submit-Handler
     const onSubmit = async (data: OrganizationFormValues) => {
         setIsSubmitting(true);
         try {
-            // In a real app, you would make an API call here to update the organization
-            console.log("Organization data to update:", data);
+            console.log("Zu aktualisierende Organisationsdaten:", data);
 
             const updatedOrg = {
                 ...currentOrg,
                 ...data,
-                updatedAt: new Date().toISOString(), // Update the timestamp
+                updatedAt: new Date().toISOString(),
             };
 
-            // Simulate API call delay
-            await updateOrg(updatedOrg, session.user?.jwt || "" ); // Call the API to update the organization
+            await updateOrg(updatedOrg, session.user?.jwt || "" ); 
 
             update({
                 org: updatedOrg,
             })
 
-            
-            // setCurrentOrg(updatedOrg); // Update the context with the new organization data
-
-            toast.success("Organization details updated successfully!");
+            toast.success("Organisationsdaten erfolgreich aktualisiert!");
             setIsSubmitting(false);
         } catch (error) {
-            console.error("Error updating organization:", error);
-            toast.error("Failed to update organization details. Please try again.");
+            console.error("Fehler beim Aktualisieren der Organisation:", error);
+            toast.error("Aktualisierung der Organisationsdaten fehlgeschlagen. Bitte erneut versuchen.");
             setIsSubmitting(false);
         }
     };
 
+    // Rendern des Formulars
     return (
         <>
             <SiteHeader actions={quickActions} />
@@ -109,9 +106,9 @@ export default function Page() {
             <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
                 <Card className="w-full">
                     <CardHeader>
-                        <CardTitle className="text-xl">Edit Organization</CardTitle>
+                        <CardTitle className="text-xl">Organisation bearbeiten</CardTitle>
                         <CardDescription>
-                            Update your organization's details and information
+                            Aktualisieren Sie die Daten und Informationen Ihrer Organisation
                         </CardDescription>
                     </CardHeader>
                     <Form {...form}>
@@ -122,9 +119,9 @@ export default function Page() {
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Organization Name</FormLabel>
+                                            <FormLabel>Organisationsname</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter organization name" {...field} />
+                                                <Input placeholder="Organisationsname eingeben" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -135,10 +132,10 @@ export default function Page() {
                                     name="description"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Description</FormLabel>
+                                            <FormLabel>Beschreibung</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Enter organization description"
+                                                    placeholder="Beschreibung der Organisation eingeben"
                                                     className="min-h-[120px]"
                                                     {...field}
                                                 />
@@ -152,9 +149,9 @@ export default function Page() {
                                     name="address"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Address</FormLabel>
+                                            <FormLabel>Adresse</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter organization address" {...field} />
+                                                <Input placeholder="Adresse der Organisation eingeben" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -167,27 +164,25 @@ export default function Page() {
                                         <FormItem>
                                             <FormLabel>Website</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="https://example.com" {...field} />
+                                                <Input placeholder="https://beispiel.de" {...field} />
                                             </FormControl>
                                             <FormDescription>
-                                                Enter the full URL including http:// or https://
+                                                Bitte die vollständige URL inkl. http:// oder https:// eingeben
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-
-
                             </CardContent>
                             <CardFooter className="flex justify-between border-t p-6">
-                                {/* Additional meta information */}
+                                {/* Zusätzliche Metainformationen */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 flex-grow">
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium">Created at</p>
+                                        <p className="text-sm font-medium">Erstellt am</p>
                                         <p className="text-sm text-muted-foreground">{new Date(currentOrg.createdAt).toLocaleDateString()}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium">Last updated</p>
+                                        <p className="text-sm font-medium">Zuletzt aktualisiert</p>
                                         <p className="text-sm text-muted-foreground">{new Date(currentOrg.updatedAt).toLocaleDateString()}</p>
                                     </div>
                                 </div>
@@ -196,12 +191,12 @@ export default function Page() {
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Saving...
+                                            Speichern...
                                         </>
                                     ) : (
                                         <>
                                             <Save className="mr-2 h-4 w-4" />
-                                            Save Changes
+                                            Änderungen speichern
                                         </>
                                     )}
                                 </Button>

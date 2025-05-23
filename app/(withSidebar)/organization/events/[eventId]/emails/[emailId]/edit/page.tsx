@@ -7,7 +7,7 @@ import { Email, User, EventInfo } from "@/lib/types-old";
 import { mockEmails } from "@/lib/mock/email-data";
 import { mockEvents } from "@/lib/data";
 
-// Mock data for attendees
+// Mock-Daten für Teilnehmer
 const mockAttendees: User[] = [
   {
     id: "user-1",
@@ -48,52 +48,52 @@ export default function EditEmail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch email data
+    // E-Mail-Daten laden
     const fetchEmail = async () => {
       setIsLoading(true);
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Find the email
+        // E-Mail anhand der ID suchen
         const foundEmail = mockEmails.find(e => e.id === emailId && e.eventId === eventId);
         
         if (foundEmail) {
           setEmail(foundEmail);
         } else {
-          setError("Email not found");
+          setError("E-Mail nicht gefunden");
         }
       } catch (err) {
-        console.error("Error fetching email:", err);
-        setError("Failed to load email. Please try again.");
+        console.error("Fehler beim Laden der E-Mail:", err);
+        setError("E-Mail konnte nicht geladen werden. Bitte versuche es erneut.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Fetch attendees
+    // Teilnehmer:innen laden
     const fetchAttendees = async () => {
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 300));
         setAttendees(mockAttendees);
       } catch (err) {
-        console.error("Error fetching attendees:", err);
-        // Handle error state if needed
+        console.error("Fehler beim Laden der Teilnehmer:innen:", err);
+        // Fehlerstatus kann hier ggf. behandelt werden
       }
     };
 
-    // Fetch event details
+    // Event-Details laden
     const fetchEventDetails = async () => {
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 200));
         const event = mockEvents.find(e => e.id === eventId);
         if (event) {
           setEventDetails(event);
         }
       } catch (err) {
-        console.error("Error fetching event details:", err);
+        console.error("Fehler beim Laden der Event-Details:", err);
       }
     };
 
@@ -102,30 +102,31 @@ export default function EditEmail() {
     fetchEventDetails();
   }, [eventId, emailId]);
 
+  // Speichern der E-Mail
   const handleSaveEmail = async (emailData: Partial<Email>) => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be a PUT request to your API
+      // In einer echten App wäre dies ein PUT-Request an die API
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Update with the new data
+      // Aktualisieren mit den neuen Daten
       const updatedEmail = {
         ...email!,
         ...emailData,
         updatedAt: new Date(),
       };
       
-      console.log("Email updated:", updatedEmail);
-      // Success - navigation back to email list happens in the form component
+      console.log("E-Mail aktualisiert:", updatedEmail);
+      // Erfolg – Navigation zurück zur E-Mail-Liste erfolgt in der Formular-Komponente
     } catch (err) {
-      console.error("Error updating email:", err);
-      throw err; // Rethrow to let the form component handle error display
+      console.error("Fehler beim Aktualisieren der E-Mail:", err);
+      throw err; // Fehler weitergeben, damit das Formular diesen anzeigen kann
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Show loading state
+  // Ladezustand anzeigen
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -134,16 +135,16 @@ export default function EditEmail() {
     );
   }
 
-  // Show error state
+  // Fehlerzustand anzeigen
   if (error || !email) {
     return (
       <div className="py-20 text-center">
-        <p className="text-red-600 text-lg">{error || "Email not found"}</p>
+        <p className="text-red-600 text-lg">{error || "E-Mail nicht gefunden"}</p>
         <button 
           onClick={() => window.history.back()} 
           className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
         >
-          Go Back
+          Zurück
         </button>
       </div>
     );

@@ -14,29 +14,28 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId: string }) {
-    // Convert date string to Date object
+    // Datum-String in Date-Objekt umwandeln
     const eventDate = new Date(event.start);
 
-    // Get days until the event
+    // Tage bis zum Event berechnen
     const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     
-    // Calculate attendance percentage
+    // Prozentuale Auslastung berechnen
     const capacityPercent = Math.min(100, (event.attendeeCount / event.capacity) * 100);
 
-    // Get status display information
+    // Status-Anzeige für das Event bestimmen
     const getStatusDisplay = () => {
-        // Is the event in the past?
+        // Event ist vergangen
         if (eventDate < new Date()) {
             return { text: "Vergangen", variant: "secondary" as const };
         }
-        
-        // Is the event today?
+        // Event ist heute
         if (eventDate.toDateString() === new Date().toDateString()) {
             return { text: "Heute", variant: "destructive" as const };
         }
-        
-        // Is the event tomorrow?
+        // Event ist morgen
         if (daysUntil === 1) return { text: "Morgen", variant: "default" as const };
+        // Event ist in x Tagen
         return { text: `In ${daysUntil} Tagen`, variant: "default" as const };
     };
 
@@ -44,7 +43,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
 
     return (
         <Card className="h-full flex flex-col overflow-hidden group hover:shadow-md transition-all duration-300 border-opacity-50">
-            {/* Image section with overlay gradient */}
+            {/* Bildbereich mit Overlay-Gradient */}
             <div className="relative aspect-video w-full overflow-hidden">
                 <img
                     src={event.image || "/placeholder.svg"}
@@ -53,7 +52,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
 
-                {/* Status badge */}
+                {/* Status-Badge */}
                 <Badge
                     className="absolute top-3 left-3 shadow-sm"
                     variant={status.variant}
@@ -61,15 +60,15 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                     {status.text}
                 </Badge>
 
-                {/* Category badge */}
+                {/* Kategorie-Badge */}
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 ">
-                    <Badge className="shadow-sm flex items-center gap-1.5 backdrop-blur-xs   dark:backdrop-brightness-75 bg-white/50 dark:bg-transparent" variant="outline">
+                    <Badge className="shadow-sm flex items-center gap-1.5 backdrop-blur-xs dark:backdrop-brightness-75 bg-white/50 dark:bg-transparent" variant="outline">
                         <Tag className="h-3 w-3" />
                         {event.category}
                     </Badge>
                 </div>
 
-                {/* Title overlay on image */}
+                {/* Titel-Overlay auf dem Bild */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
                     <h3 className="font-semibold text-lg leading-tight line-clamp-1">{event.title}</h3>
                     <p className="text-sm opacity-90">{event.organization}</p>
@@ -78,7 +77,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
 
             <CardContent className="flex-grow p-4">
                 <div className="space-y-3.5">
-                    {/* Date and time */}
+                    {/* Datum, Uhrzeit und Ort */}
                     <div className="flex w-full gap-4">
                         <div className="flex items-center">
                             <Calendar className="mr-2 h-4 w-4 text-primary" />
@@ -88,14 +87,13 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                             <Clock className="mr-2 h-4 w-4 text-primary" />
                             <span className="text-sm">{eventDate.toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
-
                         <div className="flex items-center">
                             <MapPin className="mr-2 h-4 w-4 text-primary" />
                             <span className="text-sm truncate">{event.location}</span>
                         </div>
                     </div>
 
-                    {/* Attendance */}
+                    {/* Teilnehmeranzahl und Auslastung */}
                     <div className="flex flex-col gap-1">
                         <div className="flex justify-between items-center mb-1">
                             <div className="flex items-center">
@@ -119,7 +117,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                         />
                     </div>
 
-                    {/* Description */}
+                    {/* Event-Beschreibung */}
                     <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
                 </div>
             </CardContent>

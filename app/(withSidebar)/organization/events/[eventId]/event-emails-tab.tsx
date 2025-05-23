@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useEffect, useState } from "react";
 import { Email, EventDetails } from "@/lib/types-old";
 import EmailTable from "@/components/org/events/event-email-table";
@@ -10,13 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import EmailTemplateView from "@/components/org/email-template-view";
 
-// Mock data for emails (instances of email templates sent to recipients)
+// Mock-Daten für E-Mails (Instanzen von E-Mail-Vorlagen, die an Empfänger gesendet wurden)
 const mockEmails: Email[] = [
   {
     id: "email-1",
     eventId: "event-1",
-    subject: "Registration Confirmation",
-    body: "<p>Thank you for registering for our event!</p>",
+    subject: "Anmeldebestätigung",
+    body: "<p>Vielen Dank für Ihre Anmeldung zu unserer Veranstaltung!</p>",
     recipients: ["attendee1@example.com", "attendee2@example.com"],
     status: "sent",
     sentAt: new Date("2023-09-15T14:30:00"),
@@ -28,8 +28,8 @@ const mockEmails: Email[] = [
   {
     id: "email-2",
     eventId: "event-1",
-    subject: "Event Reminder - Tomorrow!",
-    body: "<p>Don't forget about our event tomorrow!</p>",
+    subject: "Veranstaltungserinnerung - Morgen!",
+    body: "<p>Vergessen Sie nicht unsere Veranstaltung morgen!</p>",
     recipients: ["attendee1@example.com", "attendee2@example.com", "attendee3@example.com"],
     status: "scheduled",
     scheduledFor: new Date("2023-09-25T08:00:00"),
@@ -41,8 +41,8 @@ const mockEmails: Email[] = [
   {
     id: "email-3",
     eventId: "event-1",
-    subject: "Event Feedback Request",
-    body: "<p>Please provide your feedback on the event.</p>",
+    subject: "Feedback zur Veranstaltung",
+    body: "<p>Bitte geben Sie uns Ihr Feedback zur Veranstaltung.</p>",
     recipients: ["attendee1@example.com"],
     status: "draft",
     createdAt: new Date("2023-09-21T09:15:00"),
@@ -52,7 +52,7 @@ const mockEmails: Email[] = [
   },
 ];
 
-// Interface for email templates
+// Interface für E-Mail-Vorlagen
 interface EmailTemplate {
   id: string;
   name: string;
@@ -77,18 +77,18 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real app, this would be a fetch request to your API
+    // In einer echten Anwendung würde hier ein API-Request erfolgen
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Mock API call
+        // Mock-API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Filter emails for this event
+        // Filtere E-Mails für dieses Event
         const eventEmails = mockEmails.filter(email => email.eventId === eventId);
         setEmails(eventEmails);
         
-        // Get organization templates
+        // Hole Organisationsvorlagen
         const orgTemplatesData = emailTemplates.map(template => ({
           ...template,
           isSystemTemplate: false,
@@ -97,30 +97,30 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
         }));
         setOrgTemplates(orgTemplatesData);
         
-        // Mock event-specific templates (in a real app, fetch from API)
+        // Mock Event-spezifische Vorlagen (in einer echten App aus der API laden)
         const mockEventTemplates: EmailTemplate[] = [
           {
             id: "event-template-1",
-            name: "Custom Event Welcome",
-            subject: "Welcome to [Event Name] - Special Information",
-            body: `<h2>Welcome to ${eventDetails.metadata.title}!</h2><p>This is a custom template for this specific event.</p>`,
-            description: "Custom welcome email for this event",
+            name: "Individuelle Event-Begrüßung",
+            subject: "Willkommen zu [Event Name] - Wichtige Informationen",
+            body: `<h2>Willkommen zu ${eventDetails.metadata.title}!</h2><p>Dies ist eine individuelle Vorlage für dieses Event.</p>`,
+            description: "Individuelle Begrüßungs-E-Mail für dieses Event",
             isSystemTemplate: false,
             isOrgTemplate: false,
             isEventTemplate: true,
-            createdBy: "Current User",
+            createdBy: "Aktueller Benutzer",
             createdAt: new Date("2023-10-01")
           },
           {
             id: "event-template-2",
-            name: "Modified Registration Template",
-            subject: "Registration Confirmation - [Event Name]",
-            body: `<h2>Thank you for registering!</h2><p>This is a modified organization template.</p>`,
-            description: "Modified from organization template",
+            name: "Angepasste Anmeldevorlage",
+            subject: "Anmeldebestätigung - [Event Name]",
+            body: `<h2>Vielen Dank für Ihre Anmeldung!</h2><p>Dies ist eine angepasste Organisationsvorlage.</p>`,
+            description: "Abgeleitet von Organisationsvorlage",
             isSystemTemplate: false,
             isOrgTemplate: true,
             isEventTemplate: true,
-            createdBy: "Current User",
+            createdBy: "Aktueller Benutzer",
             createdAt: new Date("2023-09-15")
           }
         ];
@@ -128,8 +128,8 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
         
         setError(null);
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data. Please try again.");
+        console.error("Fehler beim Laden der Daten:", err);
+        setError("Daten konnten nicht geladen werden. Bitte versuchen Sie es erneut.");
       } finally {
         setIsLoading(false);
       }
@@ -138,54 +138,56 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
     fetchData();
   }, [eventId, eventDetails.metadata.title]);
 
+  // Löscht eine E-Mail-Instanz
   const handleDeleteEmail = async (emailId: string) => {
     try {
-      // In a real app, this would be a DELETE request to your API
+      // In einer echten App wäre dies ein DELETE-Request an die API
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Update local state
+      // Lokalen Zustand aktualisieren
       setEmails(emails.filter(email => email.id !== emailId));
     } catch (err) {
-      console.error("Error deleting email:", err);
-      alert("Failed to delete email. Please try again.");
+      console.error("Fehler beim Löschen der E-Mail:", err);
+      alert("E-Mail konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.");
     }
   };
 
+  // Sendet eine E-Mail-Instanz
   const handleSendEmail = async (emailId: string) => {
     try {
-      // In a real app, this would be a POST request to your API
+      // In einer echten App wäre dies ein POST-Request an die API
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Update local state
+      // Lokalen Zustand aktualisieren
       setEmails(emails.map(email => 
         email.id === emailId 
           ? { ...email, status: "sent", sentAt: new Date() } 
           : email
       ));
     } catch (err) {
-      console.error("Error sending email:", err);
-      alert("Failed to send email. Please try again.");
+      console.error("Fehler beim Senden der E-Mail:", err);
+      alert("E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
     }
   };
 
-  // Handle duplicate template (create a copy in event templates)
+  // Dupliziert eine Vorlage (erstellt eine Kopie in den Event-Vorlagen)
   const handleDuplicateTemplate = (template: EmailTemplate) => {
-    // In real app, send POST request to create new template based on existing one
+    // In einer echten App: POST-Request zum Erstellen einer neuen Vorlage basierend auf der bestehenden
     const newTemplate: EmailTemplate = {
       ...template,
       id: `copy-${template.id}-${Date.now()}`,
-      name: `Copy of ${template.name}`,
+      name: `Kopie von ${template.name}`,
       isSystemTemplate: false,
       isOrgTemplate: false,
       isEventTemplate: true,
-      createdBy: "Current User",
+      createdBy: "Aktueller Benutzer",
       createdAt: new Date(),
     };
     
     setEventTemplates([...eventTemplates, newTemplate]);
   };
 
-  // Handle delete event template
+  // Löscht eine Event-Vorlage
   const handleDeleteTemplate = (templateId: string) => {
     setEventTemplates(eventTemplates.filter(template => template.id !== templateId));
   };
@@ -196,10 +198,10 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
         <CardHeader className="pb-3">
           <CardTitle className="text-xl flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
-            Event Communications
+            Event-Kommunikation
           </CardTitle>
           <CardDescription>
-            Manage emails and templates for this event
+            Verwalten Sie E-Mails und Vorlagen für dieses Event
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -207,11 +209,11 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
             <TabsList className="mb-4">
               <TabsTrigger value="instances" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                Email Instances
+                E-Mail-Instanzen
               </TabsTrigger>
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Email Templates
+                E-Mail-Vorlagen
               </TabsTrigger>
             </TabsList>
             
@@ -246,16 +248,16 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
               ) : (
                 <>
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-medium">Event Templates</h3>
+                    <h3 className="text-lg font-medium">Event-Vorlagen</h3>
                     <Button asChild>
                       <Link href={`/organization/events/${eventId}/templates/create`}>
                         <Plus className="h-4 w-4 mr-2" />
-                        Create Template
+                        Vorlage erstellen
                       </Link>
                     </Button>
                   </div>
 
-                  {/* Event-specific templates */}
+                  {/* Event-spezifische Vorlagen */}
                   {eventTemplates.length > 0 ? (
                     <div className="grid gap-4 md:grid-cols-2 mb-8">
                       {eventTemplates.map((template) => (
@@ -276,7 +278,7 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
                     </div>
                   ) : (
                     <div className="text-center p-8 mb-6 border rounded-md bg-muted/20">
-                      <p className="text-muted-foreground">No event-specific templates yet</p>
+                      <p className="text-muted-foreground">Noch keine event-spezifischen Vorlagen vorhanden</p>
                       <Button 
                         variant="outline" 
                         size="sm" 
@@ -285,13 +287,13 @@ export default function EventEmailsTab({eventDetails}: {eventDetails: EventDetai
                       >
                         <Link href={`/organization/events/${eventId}/templates/create`}>
                           <Plus className="h-4 w-4 mr-2" />
-                          Create First Template
+                          Erste Vorlage erstellen
                         </Link>
                       </Button>
                     </div>
                   )}
 
-                  <h3 className="text-lg font-medium mb-4">Organization Templates</h3>
+                  <h3 className="text-lg font-medium mb-4">Organisationsvorlagen</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {orgTemplates.map((template) => (
                       <EmailTemplateView

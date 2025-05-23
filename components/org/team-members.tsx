@@ -43,13 +43,13 @@ interface TeamMembersProps {
 }
 
 export default function TeamMembers({ members, orgId }: TeamMembersProps) {
-    // State for the table
+    // Zustand für Sortierung, Filter, Suche und Zeilenauswahl der Tabelle
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [rowSelection, setRowSelection] = useState({});
 
-    // Get initials for avatar fallback
+    // Initialen für Avatar-Fallback generieren
     const getInitials = (name: string) => {
         return name
             .split(' ')
@@ -58,7 +58,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
             .toUpperCase();
     };
 
-    // Define table columns
+    // Tabellenspalten definieren
     const columns: ColumnDef<OrgUser>[] = useMemo(() => [
         {
             accessorKey: "user.name",
@@ -160,7 +160,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         },
     ], []);
 
-    // Custom global filter function for OR logic across columns
+    // Eigene globale Filterfunktion für ODER-Suche über Name und E-Mail
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
         const userName = row.original.user.name.toLowerCase();
         const userEmail = row.original.user.email.toLowerCase();
@@ -169,8 +169,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         return userName.includes(searchTerm) || userEmail.includes(searchTerm);
     };
 
-
-    // Create the table instance
+    // Tabellendaten und -funktionen initialisieren
     const table = useReactTable({
         data: members,
         columns,
@@ -193,19 +192,18 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         }
     });
 
-    // Global filter function for the search input
+    // Globale Filterfunktion für das Suchfeld
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchQuery(value);
 
-        // Using global filter instead of column filters for OR logic
+        // Nutzt globalen Filter für ODER-Suche über Name und E-Mail
         if (value) {
             table.setGlobalFilter(value);
         } else {
             table.resetGlobalFilter();
         }
     };
-
 
     return (
         <div className="flex flex-col space-y-4">
@@ -217,7 +215,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </Button>
             </div>
 
-            {/* Search and Role Filter */}
+            {/* Suche und Rollenfilter */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className="relative flex-1">
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -250,7 +248,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </DropdownMenu>
             </div>
 
-            {/* Shadcn Tanstack Table for Members */}
+            {/* Mitglieder-Tabelle */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -294,7 +292,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Paginierungs-Steuerung */}
             <div className="flex items-center justify-end space-x-2">
                 <Button
                     variant="outline"

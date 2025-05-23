@@ -79,7 +79,7 @@ export default function FileTable({ files }: FileTableProps) {
     const [activeFileType, setActiveFileType] = useState<string | null>(null);
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-    // Map icons to file types
+    // Ordnet Dateitypen Icons zu
     const getFileTypeIcon = (type: string) => {
         switch (type.toLowerCase()) {
             case 'pdf':
@@ -104,20 +104,19 @@ export default function FileTable({ files }: FileTableProps) {
         }
     };
 
-    // Define all unique file types from the data
+    // Alle einzigartigen Dateitypen aus den Daten extrahieren
     const fileTypes = Array.from(new Set(files.map(file => file.type)));
 
-    // Helper function to format file size
+    // Hilfsfunktion zur Formatierung der Dateigröße
     const formatFileSize = (sizeInMB?: number) => {
         if (!sizeInMB) return "N/A";
-        
         if (sizeInMB < 1) {
             return `${Math.round(sizeInMB * 1024)} KB`;
         }
         return `${sizeInMB.toFixed(1)} MB`;
     };
 
-    // Define the columns for the table
+    // Spalten für die Tabelle definieren
     const columns: ColumnDef<EmsFile>[] = [
         {
             id: "select",
@@ -128,14 +127,14 @@ export default function FileTable({ files }: FileTableProps) {
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
                     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
+                    aria-label="Alle auswählen"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
+                    aria-label="Zeile auswählen"
                 />
             ),
             enableSorting: false,
@@ -148,7 +147,7 @@ export default function FileTable({ files }: FileTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    File Name
+                    Dateiname
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -161,7 +160,7 @@ export default function FileTable({ files }: FileTableProps) {
         },
         {
             accessorKey: "type",
-            header: "Type",
+            header: "Typ",
             cell: ({ row }) => (
                 <Badge variant="outline" className="capitalize">
                     {row.original.type}
@@ -179,18 +178,18 @@ export default function FileTable({ files }: FileTableProps) {
         //             variant="ghost"
         //             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         //         >
-        //             Size
+        //             Größe
         //             <ArrowUpDown className="ml-2 h-4 w-4" />
         //         </Button>
         //     ),
         //     cell: ({ row }) => {
-        //         // If the size property exists, format it
+        //         // Falls die Größe vorhanden ist, wird sie formatiert angezeigt
         //         return <div>{row.original.size ? formatFileSize(row.original.size) : "N/A"}</div>;
         //     },
         // },
         {
             accessorKey: "createdBy",
-            header: "Created By",
+            header: "Erstellt von",
             cell: ({ row }) => (
                 <div className="flex items-center space-x-2">
                     <UserIcon className="h-4 w-4" />
@@ -205,13 +204,13 @@ export default function FileTable({ files }: FileTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Created At
+                    Erstellt am
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
                 const date = new Date(row.original.createdAt);
-                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{format(date, "dd.MM.yyyy")}</div>;
             },
             sortingFn: "datetime",
         },
@@ -222,31 +221,31 @@ export default function FileTable({ files }: FileTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Updated At
+                    Aktualisiert am
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
                 const date = new Date(row.original.updatedAt);
-                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{format(date, "dd.MM.yyyy")}</div>;
             },
             sortingFn: "datetime",
         },
         // {
         //     accessorKey: "shared",
-        //     header: "Shared",
+        //     header: "Geteilt",
         //     cell: ({ row }) => (
         //         <div>
         //             {row.original.shared ? 
-        //                 <Badge variant="success" className="bg-green-100 text-green-800">Yes</Badge> : 
-        //                 <Badge variant="outline">No</Badge>
+        //                 <Badge variant="success" className="bg-green-100 text-green-800">Ja</Badge> : 
+        //                 <Badge variant="outline">Nein</Badge>
         //             }
         //         </div>
         //     ),
         // },
         {
             id: "actions",
-            header: "Options",
+            header: "Optionen",
             cell: ({ row }) => {
                 const file = row.original;
 
@@ -254,7 +253,7 @@ export default function FileTable({ files }: FileTableProps) {
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
                             <Link href={`/organization/files/${file.id}`}>
-                                View
+                                Anzeigen
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
                         </Button>
@@ -262,29 +261,29 @@ export default function FileTable({ files }: FileTableProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                     <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Open menu</span>
+                                    <span className="sr-only">Menü öffnen</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem>
                                     <Download className="mr-2 h-4 w-4" />
-                                    <span>Download</span>
+                                    <span>Herunterladen</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <Share2 className="mr-2 h-4 w-4" />
-                                    <span>Share</span>
+                                    <span>Teilen</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                     <Link href={`/organization/files/${file.id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit Info</span>
+                                        <span>Bearbeiten</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-destructive focus:text-destructive">
                                     <Trash className="mr-2 h-4 w-4" />
-                                    <span>Delete File</span>
+                                    <span>Datei löschen</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -294,7 +293,7 @@ export default function FileTable({ files }: FileTableProps) {
         },
     ];
 
-    // Function to toggle file type filter
+    // Filter für Dateityp umschalten
     const toggleFileTypeFilter = (type: string) => {
         if (activeFileType === type) {
             setActiveFileType(null);
@@ -312,12 +311,12 @@ export default function FileTable({ files }: FileTableProps) {
         });
     };
 
-    // Function to check if a filter is active
+    // Prüft, ob ein Filter aktiv ist
     const isFilterActive = (value: string) => {
         return activeFileType === value;
     };
 
-    // Custom global filter function for OR logic across columns
+    // Globale Filterfunktion für ODER-Logik über mehrere Spalten
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
         const fileName = String(row.original.name).toLowerCase();
         const fileType = String(row.original.type).toLowerCase();
@@ -329,19 +328,18 @@ export default function FileTable({ files }: FileTableProps) {
             createdBy.includes(searchTerm);
     };
 
-    // Handle file upload dialog
+    // Dialog zum Hochladen öffnen/schließen
     const openUploadDialog = () => setIsUploadDialogOpen(true);
     const closeUploadDialog = () => setIsUploadDialogOpen(false);
     
     const handleUploadComplete = (uploadedFiles: any[]) => {
-        // In a real application, you would refresh the files list from the server
+        // In einer echten Anwendung würde hier die Dateiliste vom Server aktualisiert werden
         closeUploadDialog();
-        // For now we just close the dialog as we can't modify the files prop directly
-        // We'd either need to lift state up or use a more sophisticated state management approach
-        window.location.reload(); // Temporary solution to refresh the page
+        // Aktuell wird nur der Dialog geschlossen, da files nicht direkt geändert werden kann
+        window.location.reload(); // Temporäre Lösung zum Aktualisieren der Seite
     };
 
-    // Create the table instance
+    // Tabelle initialisieren
     const table = useReactTable({
         data: files,
         columns,
@@ -374,7 +372,7 @@ export default function FileTable({ files }: FileTableProps) {
         },
     });
 
-    // Clear all filters
+    // Alle Filter zurücksetzen
     const clearAllFilters = () => {
         setActiveFileType(null);
         setColumnFilters([]);
@@ -383,25 +381,25 @@ export default function FileTable({ files }: FileTableProps) {
 
     return (
         <div className="space-y-4">
-            {/* Table Controls */}
+            {/* Tabellen-Steuerung */}
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                 <div className="relative w-full max-w-sm">
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search files..."
+                        placeholder="Dateien durchsuchen..."
                         className="pl-8 w-full"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    {/* Filter Menu */}
+                    {/* Filter-Menü */}
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
                                 <FilterIcon className="mr-2 h-4 w-4" />
-                                Filters
+                                Filter
                                 {(columnFilters.length > 0 || searchQuery) && (
                                     <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
                                         {columnFilters.length + (searchQuery ? 1 : 0)}
@@ -411,10 +409,10 @@ export default function FileTable({ files }: FileTableProps) {
                         </PopoverTrigger>
                         <PopoverContent className="w-[220px] p-0" align="end">
                             <Command>
-                                <CommandInput placeholder="Search filters..." />
+                                <CommandInput placeholder="Filter suchen..." />
                                 <CommandList>
-                                    <CommandEmpty>No filters found.</CommandEmpty>
-                                    <CommandGroup heading="File Types">
+                                    <CommandEmpty>Keine Filter gefunden.</CommandEmpty>
+                                    <CommandGroup heading="Dateitypen">
                                         {fileTypes.map((type) => (
                                             <CommandItem
                                                 key={type}
@@ -437,18 +435,18 @@ export default function FileTable({ files }: FileTableProps) {
                                         ))}
                                     </CommandGroup>
 
-                                    {/* Show active filters section if any filters are applied */}
+                                    {/* Aktive Filter anzeigen, falls vorhanden */}
                                     {(activeFileType || searchQuery) && (
                                         <>
                                             <CommandSeparator />
-                                            <CommandGroup heading="Active Filters">
+                                            <CommandGroup heading="Aktive Filter">
                                                 {activeFileType && (
                                                     <CommandItem
                                                         onSelect={() => toggleFileTypeFilter(activeFileType)}
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Type: {activeFileType}
+                                                            Typ: {activeFileType}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
@@ -459,7 +457,7 @@ export default function FileTable({ files }: FileTableProps) {
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Search: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
+                                                            Suche: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
@@ -474,7 +472,7 @@ export default function FileTable({ files }: FileTableProps) {
                                             onSelect={clearAllFilters}
                                             className="justify-center text-center"
                                         >
-                                            Clear All Filters
+                                            Alle Filter entfernen
                                         </CommandItem>
                                     </CommandGroup>
                                 </CommandList>
@@ -482,12 +480,12 @@ export default function FileTable({ files }: FileTableProps) {
                         </PopoverContent>
                     </Popover>
 
-                    {/* Column Visibility Menu */}
+                    {/* Spalten-Sichtbarkeit */}
                     <Popover open={columnsOpen} onOpenChange={setColumnsOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
                                 <LayoutList className="mr-2 h-4 w-4" />
-                                Columns
+                                Spalten
                                 {Object.values(columnVisibility).some(Boolean) && (
                                     <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
                                         {Object.values(columnVisibility).filter(Boolean).length}
@@ -497,10 +495,10 @@ export default function FileTable({ files }: FileTableProps) {
                         </PopoverTrigger>
                         <PopoverContent align="end" className="w-[220px] p-0">
                             <Command>
-                                <CommandInput placeholder="Search columns..." />
+                                <CommandInput placeholder="Spalten suchen..." />
                                 <CommandList>
-                                    <CommandEmpty>No columns found.</CommandEmpty>
-                                    <CommandGroup heading="Toggle columns">
+                                    <CommandEmpty>Keine Spalten gefunden.</CommandEmpty>
+                                    <CommandGroup heading="Spalten ein-/ausblenden">
                                         {table
                                             .getAllColumns()
                                             .filter(column => column.getCanHide())
@@ -525,7 +523,7 @@ export default function FileTable({ files }: FileTableProps) {
                                     <CommandGroup>
                                         <CommandItem
                                             onSelect={() => {
-                                                // Reset to default visibility
+                                                // Sichtbarkeit auf Standard zurücksetzen
                                                 table.setColumnVisibility({
                                                     updatedAt: false,
                                                     shared: false,
@@ -533,7 +531,7 @@ export default function FileTable({ files }: FileTableProps) {
                                             }}
                                             className="justify-center text-center"
                                         >
-                                            Reset to default
+                                            Auf Standard zurücksetzen
                                         </CommandItem>
                                     </CommandGroup>
                                 </CommandList>
@@ -541,21 +539,21 @@ export default function FileTable({ files }: FileTableProps) {
                         </PopoverContent>
                     </Popover>
 
-                    {/* Upload Button */}
+                    {/* Hochladen-Button */}
                     <Button size="sm" className="h-8" onClick={openUploadDialog}>
                         <Upload className="mr-2 h-4 w-4" />
-                        Upload
+                        Hochladen
                     </Button>
                 </div>
             </div>
 
-            {/* Active Filters Display */}
+            {/* Anzeige aktiver Filter */}
             {(activeFileType || searchQuery) && (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Active filters:</span>
+                    <span className="text-sm text-muted-foreground">Aktive Filter:</span>
                     {activeFileType && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Type: {activeFileType}
+                            Typ: {activeFileType}
                             <X
                                 className="h-3 w-3 cursor-pointer"
                                 onClick={() => toggleFileTypeFilter(activeFileType)}
@@ -564,7 +562,7 @@ export default function FileTable({ files }: FileTableProps) {
                     )}
                     {searchQuery && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Search: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
+                            Suche: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
                             <X
                                 className="h-3 w-3 cursor-pointer"
                                 onClick={() => setSearchQuery("")}
@@ -577,19 +575,19 @@ export default function FileTable({ files }: FileTableProps) {
                         className="h-7 px-2 text-xs"
                         onClick={clearAllFilters}
                     >
-                        Clear all
+                        Alle entfernen
                     </Button>
                 </div>
             )}
 
-            {/* Selected Items Count */}
+            {/* Anzeige der Anzahl ausgewählter Elemente */}
             {Object.keys(rowSelection).length > 0 && (
                 <div className="bg-muted text-muted-foreground rounded-md px-4 py-2 text-sm">
-                    {Object.keys(rowSelection).length} item(s) selected
+                    {Object.keys(rowSelection).length} Element(e) ausgewählt
                 </div>
             )}
 
-            {/* Tanstack Table for Files */}
+            {/* Tanstack Tabelle für Dateien */}
             <div className="rounded-md border w-full overflow-auto">
                 <Table className="min-w-full">
                     <TableHeader>
@@ -625,7 +623,7 @@ export default function FileTable({ files }: FileTableProps) {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No files found.
+                                    Keine Dateien gefunden.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -633,10 +631,10 @@ export default function FileTable({ files }: FileTableProps) {
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Paginierungs-Steuerung */}
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    Showing {table.getRowModel().rows.length} of {files.length} files
+                    Zeige {table.getRowModel().rows.length} von {files.length} Dateien
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
@@ -645,12 +643,12 @@ export default function FileTable({ files }: FileTableProps) {
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        Zurück
                     </Button>
                     <div className="text-sm">
-                        Page{" "}
+                        Seite{" "}
                         <strong>
-                            {table.getState().pagination.pageIndex + 1} of{" "}
+                            {table.getState().pagination.pageIndex + 1} von{" "}
                             {table.getPageCount()}
                         </strong>
                     </div>
@@ -660,12 +658,12 @@ export default function FileTable({ files }: FileTableProps) {
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        Weiter
                     </Button>
                 </div>
             </div>
             
-            {/* File Upload Dialog */}
+            {/* Dialog zum Datei-Upload */}
             <FileUploadDialog 
                 isOpen={isUploadDialogOpen}
                 onClose={closeUploadDialog}

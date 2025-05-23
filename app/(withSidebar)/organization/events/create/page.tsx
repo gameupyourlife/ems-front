@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -6,12 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-// UI Components & Icons
+// UI-Komponenten & Icons
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, FunctionSquare, Info, ListTodo, Save } from "lucide-react";
 
-// Custom Forms & Types
+// Eigene Formulare & Typen
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
@@ -29,13 +29,12 @@ import { AgendaEntry, createAgendaEntry } from "@/lib/backend/agenda";
 export default function CreateEventPage() {
   const router = useRouter();
 
-  // ─── 1️⃣ Alle Hooks ganz oben aufrufen ─────────────────────────
 
-  // Auth-Session
+  // Authentifizierungs-Session
   const { data: session, status } = useSession();
   const isLoadingSession = status === "loading";
 
-  // Form-Hook
+  // Formular-Hook
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
@@ -56,24 +55,21 @@ export default function CreateEventPage() {
   const [agendaItems, setAgendaItems] = useState<AgendaEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ─── 2️⃣ Session-Redirect in useEffect ───────────────────────
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/signin");
     }
   }, [status, router]);
 
-  // ─── 3️⃣ Einmalig Werte aus der Session extrahieren ───────────
   const userId = session?.user?.id ?? "";
   const orgId = session?.user?.organization?.id ?? "";
   const token = session?.user?.jwt ?? "";
 
-  // ─── 4️⃣ Frühe Returns *nach* allen Hook-Aufrufen ──────────────
   if (isLoadingSession) {
-    return <div className="py-20 text-center">Lade Session…</div>;
+    return <div className="py-20 text-center">Lade Sitzung…</div>;
   }
   if (status === "unauthenticated") {
-    return null; // wir redirecten ja ohnehin
+    return null; 
   }
   if (!orgId) {
     return (
@@ -83,7 +79,6 @@ export default function CreateEventPage() {
     );
   }
 
-  // ─── 5️⃣ onSubmit greift auf die oben definierten Variablen zu ──
   const onSubmit = form.handleSubmit(async (data) => {
     setIsSubmitting(true);
     try {
@@ -122,54 +117,52 @@ export default function CreateEventPage() {
       toast.success("Event erfolgreich erstellt");
       router.push("/organization/events");
     } catch (err: any) {
-      console.error("CreateEvent Error:", err);
+      console.error("Fehler beim Erstellen des Events:", err);
       toast.error(err.message || "Fehler beim Erstellen des Events");
     } finally {
       setIsSubmitting(false);
     }
   });
 
-  // ─── 6️⃣ JSX ───────────────────────────────────────────────────
   return (
-
     <>
-      <SiteHeader actions={[{
-        label: "Zurück",
-        icon: <ArrowLeft className=" h-4 w-4" />,
-        onClick: () => router.back(),
-        variant: "outline"
-      },
-      {
-        children: (
-          <Button
-            variant="outline"
-            onClick={() => router.push("/organization/events")}
-          >
-            Cancel
-          </Button>
-        )
-      },
-      {
-        children: (
-          <Button
-            disabled={isSubmitting || !form.formState.isValid}
-            onClick={onSubmit}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center">
-                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                Creating...
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <Save className="mr-2 h-4 w-4" />
-                Create Event
-              </span>
-            )}
-          </Button>
-        )
-      }
-
+      <SiteHeader actions={[
+        {
+          label: "Zurück",
+          icon: <ArrowLeft className=" h-4 w-4" />,
+          onClick: () => router.back(),
+          variant: "outline"
+        },
+        {
+          children: (
+            <Button
+              variant="outline"
+              onClick={() => router.push("/organization/events")}
+            >
+              Abbrechen
+            </Button>
+          )
+        },
+        {
+          children: (
+            <Button
+              disabled={isSubmitting || !form.formState.isValid}
+              onClick={onSubmit}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center">
+                  <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                  Wird erstellt...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <Save className="mr-2 h-4 w-4" />
+                  Event erstellen
+                </span>
+              )}
+            </Button>
+          )
+        }
       ]} >
         <BreadcrumbItem>
           <BreadcrumbPage>
@@ -189,11 +182,11 @@ export default function CreateEventPage() {
           <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
             <TabsTrigger value="basic" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
-              Basic
+              Basis
             </TabsTrigger>
             <TabsTrigger value="flows" className="flex items-center gap-2">
               <FunctionSquare className="h-4 w-4" />
-              Flows
+              Abläufe
             </TabsTrigger>
             <TabsTrigger value="agenda" className="flex items-center gap-2">
               <ListTodo className="h-4 w-4" />
@@ -205,7 +198,7 @@ export default function CreateEventPage() {
             <EventBasicInfoForm
               form={form}
               onTabChange={() => setActiveTab("flows")}
-              submitLabel="Next: Flows"
+              submitLabel="Weiter: Abläufe"
             />
           </TabsContent>
           <TabsContent value="flows">
@@ -214,7 +207,7 @@ export default function CreateEventPage() {
               availableFlows={mockFlows}
               onFlowsChange={setSelectedFlows}
               onTabChange={() => setActiveTab("agenda")}
-              submitLabel="Next: Agenda"
+              submitLabel="Weiter: Agenda"
             />
           </TabsContent>
           <TabsContent value="agenda">
@@ -223,7 +216,7 @@ export default function CreateEventPage() {
               onAgendaItemsChange={setAgendaItems}
               onTabChange={() => setActiveTab("basic")}
               isFinalStep
-              submitLabel="Create Event"
+              submitLabel="Event erstellen"
               isSubmitting={isSubmitting}
             />
           </TabsContent>

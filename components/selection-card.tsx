@@ -1,6 +1,4 @@
 import { cn } from "@/lib/utils";
-
-// Selection card component for creating card-based selection UI
 interface SelectionCardProps {
     selected: boolean;
     onClick: () => void;

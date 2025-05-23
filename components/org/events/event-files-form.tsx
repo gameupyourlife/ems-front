@@ -4,7 +4,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-// UI Components
+// UI Komponenten
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,7 +27,7 @@ import {
     Plus, Upload
 } from "lucide-react";
 
-// Types
+// Typen
 import { EmsFile } from "@/lib/types-old";
 
 interface EventFilesFormProps {
@@ -44,22 +44,23 @@ export function EventFilesForm({
   availableFiles,
   onFilesChange,
   onTabChange,
-  submitLabel = "Save Changes",
+  submitLabel = "Änderungen speichern",
   isSubmitting = false
 }: EventFilesFormProps) {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   
-  // Handle file upload dialog open/close
+  // Öffnet den Datei-Upload-Dialog
   const openUploadDialog = () => setIsUploadDialogOpen(true);
+  // Schließt den Datei-Upload-Dialog
   const closeUploadDialog = () => setIsUploadDialogOpen(false);
   
-  // Handle file upload completion
+  // Wird aufgerufen, wenn der Datei-Upload abgeschlossen ist
   const handleUploadComplete = (uploadedFiles: EmsFile[]) => {
     onFilesChange([...uploadedFiles, ...selectedFiles]);
     closeUploadDialog();
   };
 
-  // Handle selecting existing files
+  // Fügt eine Datei zur Auswahl hinzu oder entfernt sie
   const toggleFileSelection = (file: EmsFile) => {
     if (selectedFiles.some(f => f.id === file.id)) {
       onFilesChange(selectedFiles.filter(f => f.id !== file.id));
@@ -73,28 +74,28 @@ export function EventFilesForm({
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          Event Files
+          Event-Dateien
         </CardTitle>
         <CardDescription>
-          Add files that will be associated with this event
+          Füge Dateien hinzu, die mit diesem Event verknüpft werden sollen
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium">Files for this event</h3>
+            <h3 className="text-lg font-medium">Dateien für dieses Event</h3>
             <p className="text-sm text-muted-foreground">
-              Select files to attach to your event 
+              Wähle Dateien aus, die du deinem Event anhängen möchtest
               {selectedFiles.length > 0 && (
                 <Badge variant="outline" className="ml-2">
-                  {selectedFiles.length} selected
+                  {selectedFiles.length} ausgewählt
                 </Badge>
               )}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={openUploadDialog}>
             <Upload className="h-4 w-4 mr-2" />
-            Upload New Files
+            Neue Dateien hochladen
           </Button>
         </div>
         
@@ -105,13 +106,13 @@ export function EventFilesForm({
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <Upload className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium">No files available</h3>
+            <h3 className="text-lg font-medium">Keine Dateien verfügbar</h3>
             <p className="text-sm text-muted-foreground max-w-sm mt-1">
-              Upload new files to associate them with this event
+              Lade neue Dateien hoch, um sie mit diesem Event zu verknüpfen
             </p>
             <Button variant="outline" className="mt-4" onClick={openUploadDialog}>
               <Upload className="h-4 w-4 mr-2" />
-              Upload Files
+              Dateien hochladen
             </Button>
           </div>
         ) : (
@@ -133,7 +134,7 @@ export function EventFilesForm({
                     </div>
                     <div className="flex-1">
                       <p className="font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-muted-foreground">{file.type} • Created {format(new Date(file.createdAt), "MMM dd, yyyy")}</p>
+                      <p className="text-xs text-muted-foreground">{file.type} • Erstellt am {format(new Date(file.createdAt), "dd.MM.yyyy")}</p>
                     </div>
                     {isSelected ? (
                       <div className="h-6 w-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
@@ -162,7 +163,7 @@ export function EventFilesForm({
         </Button>
       </CardFooter>
 
-      {/* File Upload Dialog */}
+      {/* Datei-Upload-Dialog */}
       <FileUploadDialog 
         isOpen={isUploadDialogOpen}
         onClose={closeUploadDialog}

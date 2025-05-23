@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,7 @@ interface FlowTableProps {
 }
 
 export default function FlowTable({ flows }: FlowTableProps) {
+    // Zustand für Sortierung, Filter, Sichtbarkeit, Auswahl und Suche
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -74,17 +75,17 @@ export default function FlowTable({ flows }: FlowTableProps) {
     const [activeTriggerType, setActiveTriggerType] = useState<TriggerType | null>(null);
     const [activeActionType, setActiveActionType] = useState<ActionType | null>(null);
 
-    // Define all unique trigger types from the data
+    // Alle eindeutigen Trigger-Typen aus den Daten extrahieren
     const triggerTypes = Array.from(new Set(
         flows.flatMap(flow => flow.triggers?.map(trigger => trigger.type) || [])
     ));
 
-    // Define all unique action types from the data
+    // Alle eindeutigen Action-Typen aus den Daten extrahieren
     const actionTypes = Array.from(new Set(
         flows.flatMap(flow => flow.actions?.map(action => action.type) || [])
     ));
 
-    // Define the columns for the table
+    // Spalten-Definitionen für die Tabelle
     const columns: ColumnDef<FlowTemplateResponseDto>[] = [
         {
             id: "select",
@@ -95,14 +96,14 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
                     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
+                    aria-label="Alle auswählen"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
+                    aria-label="Zeile auswählen"
                 />
             ),
             enableSorting: false,
@@ -115,7 +116,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Flow Name
+                    Flow-Name
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -125,7 +126,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         },
         {
             accessorKey: "description",
-            header: "Description",
+            header: "Beschreibung",
             cell: ({ row }) => (
                 <div className="max-w-[300px] truncate">
                     {row.original.description}
@@ -134,7 +135,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         },
         {
             accessorKey: "trigger",
-            header: "Triggers",
+            header: "Trigger",
             cell: ({ row }) => {
                 const triggers = row.original.triggers;
 
@@ -157,7 +158,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         },
         {
             accessorKey: "actions",
-            header: "Actions",
+            header: "Aktionen",
             cell: ({ row }) => {
                 const actions = row.original.actions;
 
@@ -185,14 +186,14 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Created At
+                    Erstellt am
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
                 // @ts-ignore
                 const date = new Date(row.original.createdAt || Date.now());
-                return <div className="text-sm">{format(date, "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{format(date, "dd.MM.yyyy")}</div>;
             },
             sortingFn: "datetime",
         },
@@ -203,20 +204,19 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Updated At
+                    Aktualisiert am
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
             cell: ({ row }) => {
-                console.log(row.original.updatedAt)
                 const date = new Date(row.original.updatedAt || Date.now());
-                return <div className="text-sm">{row.original.updatedAt == "0001-01-01T00:00:00" ? "-" : format(date, "MMM dd, yyyy")}</div>;
+                return <div className="text-sm">{row.original.updatedAt == "0001-01-01T00:00:00" ? "-" : format(date, "dd.MM.yyyy")}</div>;
             },
             sortingFn: "datetime",
         },
         {
             id: "actions-col",
-            header: "Options",
+            header: "Optionen",
             cell: ({ row }) => {
                 const flow = row.original;
                 const id = flow.id;
@@ -225,7 +225,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" className="mr-2" asChild>
                             <Link href={`/organization/flows/${id}`}>
-                                Manage
+                                Verwalten
                                 <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
                         </Button>
@@ -233,24 +233,24 @@ export default function FlowTable({ flows }: FlowTableProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                     <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Open menu</span>
+                                    <span className="sr-only">Menü öffnen</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
                                     <Link href={`/organization/flows/${id}`} className="flex cursor-pointer">
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit Flow</span>
+                                        <span>Flow bearbeiten</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <Activity className="mr-2 h-4 w-4" />
-                                    <span>View Logs</span>
+                                    <span>Logs anzeigen</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-destructive focus:text-destructive">
                                     <Trash className="mr-2 h-4 w-4" />
-                                    <span>Delete Flow</span>
+                                    <span>Flow löschen</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -260,7 +260,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         },
     ];
 
-    // Function to toggle trigger type filter
+    // Trigger-Filter umschalten
     const toggleTriggerTypeFilter = (type: TriggerType) => {
         if (activeTriggerType === type) {
             setActiveTriggerType(null);
@@ -278,7 +278,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         });
     };
 
-    // Function to toggle action type filter
+    // Action-Filter umschalten
     const toggleActionTypeFilter = (type: ActionType) => {
         if (activeActionType === type) {
             setActiveActionType(null);
@@ -296,7 +296,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         });
     };
 
-    // Function to check if a filter is active
+    // Prüfen, ob ein Filter aktiv ist
     const isFilterActive = (type: 'triggerType' | 'actionType', value: TriggerType | ActionType) => {
         if (type === 'triggerType') {
             return activeTriggerType === value;
@@ -305,7 +305,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         }
     };
 
-    // Custom global filter function for OR logic across columns
+    // Benutzerdefinierte globale Filterfunktion (OR-Logik über mehrere Spalten)
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
         const flowName = String(row.original.name).toLowerCase();
         const flowDescription = String(row.original.description).toLowerCase();
@@ -315,7 +315,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
             flowDescription.includes(searchTerm);
     };
 
-    // Create the table instance
+    // Tabelle initialisieren
     const table = useReactTable({
         data: flows,
         columns,
@@ -347,7 +347,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
         },
     });
 
-    // Clear all filters
+    // Alle Filter zurücksetzen
     const clearAllFilters = () => {
         setActiveTriggerType(null);
         setActiveActionType(null);
@@ -357,25 +357,25 @@ export default function FlowTable({ flows }: FlowTableProps) {
 
     return (
         <div className="space-y-4">
-            {/* Table Controls */}
+            {/* Tabellen-Steuerung */}
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                 <div className="relative w-full max-w-sm">
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search flows..."
+                        placeholder="Flows durchsuchen..."
                         className="pl-8 w-full"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    {/* Filter Menu */}
+                    {/* Filter-Menü */}
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
                                 <FilterIcon className="mr-2 h-4 w-4" />
-                                Filters
+                                Filter
                                 {(columnFilters.length > 0 || searchQuery) && (
                                     <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
                                         {columnFilters.length + (searchQuery ? 1 : 0)}
@@ -385,10 +385,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         </PopoverTrigger>
                         <PopoverContent className="w-[220px] p-0" align="end">
                             <Command>
-                                <CommandInput placeholder="Search filters..." />
+                                <CommandInput placeholder="Filter suchen..." />
                                 <CommandList>
-                                    <CommandEmpty>No filters found.</CommandEmpty>
-                                    <CommandGroup heading="Trigger Types">
+                                    <CommandEmpty>Keine Filter gefunden.</CommandEmpty>
+                                    <CommandGroup heading="Trigger-Typen">
                                         {triggerTypes.map((type, i) => (
                                             <CommandItem
                                                 key={"trigger" + type + i}
@@ -411,7 +411,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                         ))}
                                     </CommandGroup>
                                     <CommandSeparator />
-                                    <CommandGroup heading="Action Types">
+                                    <CommandGroup heading="Aktionstypen">
                                         {actionTypes.map((type, i) => (
                                             <CommandItem
                                                 key={"action" + type + i}
@@ -434,11 +434,11 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                         ))}
                                     </CommandGroup>
 
-                                    {/* Show active filters section if any filters are applied */}
+                                    {/* Aktive Filter anzeigen, falls vorhanden */}
                                     {(activeTriggerType || activeActionType || searchQuery) && (
                                         <>
                                             <CommandSeparator />
-                                            <CommandGroup heading="Active Filters">
+                                            <CommandGroup heading="Aktive Filter">
                                                 {activeTriggerType && (
                                                     <CommandItem
                                                         onSelect={() => toggleTriggerTypeFilter(activeTriggerType)}
@@ -456,7 +456,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Action: {activeActionType}
+                                                            Aktion: {activeActionType}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
@@ -467,7 +467,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Badge variant="outline" className="flex items-center gap-1">
-                                                            Search: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
+                                                            Suche: {searchQuery.length > 10 ? `${searchQuery.substring(0, 10)}...` : searchQuery}
                                                             <X className="h-3 w-3" />
                                                         </Badge>
                                                     </CommandItem>
@@ -482,7 +482,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                             onSelect={clearAllFilters}
                                             className="justify-center text-center"
                                         >
-                                            Clear All Filters
+                                            Alle Filter zurücksetzen
                                         </CommandItem>
                                     </CommandGroup>
                                 </CommandList>
@@ -490,12 +490,12 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         </PopoverContent>
                     </Popover>
 
-                    {/* Column Visibility Menu */}
+                    {/* Spalten-Sichtbarkeit */}
                     <Popover open={columnsOpen} onOpenChange={setColumnsOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
                                 <LayoutList className="mr-2 h-4 w-4" />
-                                Columns
+                                Spalten
                                 {Object.values(columnVisibility).some(Boolean) && (
                                     <Badge variant="secondary" className="ml-2 rounded-sm px-1 font-normal">
                                         {Object.values(columnVisibility).filter(Boolean).length}
@@ -505,10 +505,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         </PopoverTrigger>
                         <PopoverContent align="end" className="w-[220px] p-0">
                             <Command>
-                                <CommandInput placeholder="Search columns..." />
+                                <CommandInput placeholder="Spalten suchen..." />
                                 <CommandList>
-                                    <CommandEmpty>No columns found.</CommandEmpty>
-                                    <CommandGroup heading="Toggle columns">
+                                    <CommandEmpty>Keine Spalten gefunden.</CommandEmpty>
+                                    <CommandGroup heading="Spalten umschalten">
                                         {table
                                             .getAllColumns()
                                             .filter(column => column.getCanHide())
@@ -533,14 +533,14 @@ export default function FlowTable({ flows }: FlowTableProps) {
                                     <CommandGroup>
                                         <CommandItem
                                             onSelect={() => {
-                                                // Reset to default visibility
+                                                // Sichtbarkeit auf Standard zurücksetzen
                                                 table.setColumnVisibility({
                                                     updatedAt: false,
                                                 });
                                             }}
                                             className="justify-center text-center"
                                         >
-                                            Reset to default
+                                            Auf Standard zurücksetzen
                                         </CommandItem>
                                     </CommandGroup>
                                 </CommandList>
@@ -551,16 +551,16 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     <Button size="sm" className="h-8" asChild>
                         <Link href={`/organization/flows/create`}>
                             <Plus className="mr-2 h-4 w-4" />
-                            Create Flow
+                            Flow erstellen
                         </Link>
                     </Button>
                 </div>
             </div>
 
-            {/* Active Filters Display */}
+            {/* Anzeige der aktiven Filter */}
             {(activeTriggerType || activeActionType || searchQuery) && (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Active filters:</span>
+                    <span className="text-sm text-muted-foreground">Aktive Filter:</span>
                     {activeTriggerType && (
                         <Badge variant="secondary" className="flex items-center gap-1">
                             Trigger: {activeTriggerType}
@@ -572,7 +572,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     )}
                     {activeActionType && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Action: {activeActionType}
+                            Aktion: {activeActionType}
                             <X
                                 className="h-3 w-3 cursor-pointer"
                                 onClick={() => toggleActionTypeFilter(activeActionType)}
@@ -581,7 +581,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                     )}
                     {searchQuery && (
                         <Badge variant="secondary" className="flex items-center gap-1">
-                            Search: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
+                            Suche: {searchQuery.length > 15 ? `${searchQuery.substring(0, 15)}...` : searchQuery}
                             <X
                                 className="h-3 w-3 cursor-pointer"
                                 onClick={() => setSearchQuery("")}
@@ -594,19 +594,19 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         className="h-7 px-2 text-xs"
                         onClick={clearAllFilters}
                     >
-                        Clear all
+                        Alle löschen
                     </Button>
                 </div>
             )}
 
-            {/* Selected Items Count */}
+            {/* Anzeige der Anzahl ausgewählter Elemente */}
             {Object.keys(rowSelection).length > 0 && (
                 <div className="bg-muted text-muted-foreground rounded-md px-4 py-2 text-sm">
-                    {Object.keys(rowSelection).length} item(s) selected
+                    {Object.keys(rowSelection).length} Element(e) ausgewählt
                 </div>
             )}
 
-            {/* Tanstack Table for Flows */}
+            {/* Tanstack Tabelle für Flows */}
             <div className="rounded-md border w-full overflow-auto">
                 <Table className="min-w-full">
                     <TableHeader>
@@ -642,7 +642,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No flows found.
+                                    Keine Flows gefunden.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -650,10 +650,10 @@ export default function FlowTable({ flows }: FlowTableProps) {
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Paginierungs-Steuerung */}
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    Showing {table.getRowModel().rows.length} of {flows.length} flows
+                    Zeige {table.getRowModel().rows.length} von {flows.length} Flows
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
@@ -662,12 +662,12 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        Zurück
                     </Button>
                     <div className="text-sm">
-                        Page{" "}
+                        Seite{" "}
                         <strong>
-                            {table.getState().pagination.pageIndex + 1} of{" "}
+                            {table.getState().pagination.pageIndex + 1} von{" "}
                             {table.getPageCount()}
                         </strong>
                     </div>
@@ -677,7 +677,7 @@ export default function FlowTable({ flows }: FlowTableProps) {
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        Weiter
                     </Button>
                 </div>
             </div>

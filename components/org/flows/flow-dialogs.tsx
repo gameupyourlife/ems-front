@@ -28,42 +28,43 @@ import { cn } from "@/lib/utils";
 import { SelectionCard } from "@/components/selection-card";
 import { Action, ActionType, Flow, Trigger, TriggerType } from "@/lib/backend/types";
 
+// Aktionen-Typen mit Icons und Beschreibungen
 const actionTypes = [
     {
         id: ActionType.SendEmail,
-        name: "Send Email",
-        description: "Send an email notification",
+        name: "E-Mail senden",
+        description: "Versendet eine E-Mail-Benachrichtigung",
         icon: <Mail className="h-5 w-5" />
     },
     {
         id: ActionType.ChangeStatus,
-        name: "Change Status",
-        description: "Update the event status",
+        name: "Status ändern",
+        description: "Aktualisiert den Event-Status",
         icon: <Tag className="h-5 w-5" />
     },
     {
         id: ActionType.ChangeImage,
-        name: "Update Image",
-        description: "Change event image",
+        name: "Bild aktualisieren",
+        description: "Ändert das Event-Bild",
         icon: <Image className="h-5 w-5" />
     },
     {
         id: ActionType.ChangeTitle,
-        name: "Change Title",
-        description: "Update event title",
+        name: "Titel ändern",
+        description: "Aktualisiert den Event-Titel",
         icon: <LayoutList className="h-5 w-5" />
     },
     {
         id: ActionType.ChangeDescription,
-        name: "Change Description",
-        description: "Update event description",
+        name: "Beschreibung ändern",
+        description: "Aktualisiert die Event-Beschreibung",
         icon: <PencilLine className="h-5 w-5" />
     }
 ];
 
 
 
-// Component for adding a new trigger (condition)
+// Komponente zum Hinzufügen eines neuen Triggers (Bedingung)
 export function AddTriggerDialog({
     open,
     onOpenChange,
@@ -81,54 +82,54 @@ export function AddTriggerDialog({
     const [details, setDetails] = useState<any>({});
     const [attendeesValueType, setAttendeesValueType] = useState<string>("absolute");
 
-    // Check if registration trigger already exists
+    // Prüft, ob bereits ein Registrierungstrigger existiert
     const registrationTriggerExists = useMemo(() => {
         return existingFlow?.triggers?.some(t => t.type === TriggerType.Registration && (!itemToEdit || t.id !== itemToEdit.id));
     }, [existingFlow, itemToEdit]);
 
-    // Trigger types with their icons and descriptions
+    // Trigger-Typen mit Icons und Beschreibungen
     const triggerTypes = [
         {
             id: TriggerType.Date,
-            name: "Date & Time",
-            description: "Trigger based on a specific date and time",
+            name: "Datum & Uhrzeit",
+            description: "Löst zu einem bestimmten Datum und Uhrzeit aus",
             icon: <Calendar className="h-5 w-5" />
         },
         {
             id: TriggerType.RelativeDate,
-            name: "Relative Date & Time",
-            description: "Trigger based on a relative date and time",
+            name: "Relatives Datum & Uhrzeit",
+            description: "Löst relativ zum Event-Datum aus",
             icon: <Calendar className="h-5 w-5" />
         },
         {
             id: TriggerType.NumOfAttendees,
-            name: "Attendees Count",
-            description: "Trigger when attendance reaches a certain level",
+            name: "Teilnehmeranzahl",
+            description: "Löst aus, wenn eine bestimmte Teilnehmerzahl erreicht wird",
             icon: <Users className="h-5 w-5" />
         },
         {
             id: TriggerType.Status,
-            name: "Status Change",
-            description: "Trigger when event status changes",
+            name: "Statusänderung",
+            description: "Löst aus, wenn sich der Event-Status ändert",
             icon: <Tag className="h-5 w-5" />
         },
         {
             id: TriggerType.Registration,
-            name: "New Registration",
-            description: "Trigger when someone registers for the event",
+            name: "Neue Registrierung",
+            description: "Löst aus, wenn sich jemand für das Event registriert",
             icon: <Check className="h-5 w-5" />,
             disabled: registrationTriggerExists,
         }
     ];
 
-    // Initialize form when editing an existing trigger
+    // Initialisiert das Formular beim Bearbeiten eines bestehenden Triggers
     useEffect(() => {
         if (open && itemToEdit) {
             setTriggerType(itemToEdit.type);
             setDetails(itemToEdit.details || {});
 
             if (itemToEdit.type === TriggerType.NumOfAttendees && itemToEdit.details) {
-                // Determine value type (percentage or absolute)
+                // Bestimmt den Werttyp (Prozent oder absolut)
                 const isPercentage = itemToEdit.details.value <= 100 &&
                     (itemToEdit.details.valueType === "percentage" ||
                         itemToEdit.details.unit === "%");
@@ -137,27 +138,28 @@ export function AddTriggerDialog({
         }
     }, [open, itemToEdit]);
 
-    // Reset all state when dialog closes
+    // Setzt den Zustand zurück, wenn der Dialog geschlossen wird
     useEffect(() => {
         if (!open && !itemToEdit) {
             setTimeout(() => {
                 setTriggerType(null);
                 setDetails({});
                 setAttendeesValueType("absolute");
-            }, 300); // Small delay to avoid visual glitches during animation
+            }, 300); // Kleine Verzögerung, um visuelle Fehler bei der Animation zu vermeiden
         }
     }, [open, itemToEdit]);
 
+    // Fügt einen neuen Trigger hinzu
     const handleAddTrigger = () => {
         if (triggerType === null) return;
 
         onAdd(triggerType, details);
         onOpenChange(false);
-        // Form will be reset when the dialog closes
+        // Das Formular wird beim Schließen des Dialogs zurückgesetzt
     };
 
+    // Setzt Details zurück, wenn sich der Trigger-Typ ändert
     useEffect(() => {
-        // Reset details when trigger type changes
         setDetails({});
 
         if (triggerType === TriggerType.NumOfAttendees) {

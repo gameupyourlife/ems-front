@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useState } from "react";
 import { notFound, useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ import { useEventDetails } from "@/lib/backend/hooks/events";
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SiteHeader } from "@/components/site-header";
 
-
+// Hauptkomponente für die Event-Detailseite
 export default function EventDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams()
@@ -53,6 +53,7 @@ export default function EventDetailsPage() {
 
   const [activeTab, setActiveTabState] = useState(searchParams.get('tab') || "overview");
 
+  // Ladeanzeige, solange die Eventdaten geladen werden
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
@@ -61,12 +62,14 @@ export default function EventDetailsPage() {
     );
   }
 
+  // Fehleranzeige, falls das Event nicht gefunden wurde
   if (!event) {
     return notFound()
   }
 
   console.log(event);
 
+  // Tab-Wechsel und Aktualisierung der URL-Parameter
   const setActiveTab = (tab: string) => {
     setActiveTabState(tab);
     let params = new URLSearchParams(searchParams.toString());
@@ -74,22 +77,21 @@ export default function EventDetailsPage() {
     router.push(path + '?' + params.toString());
   };
 
-  // Handle event deletion
+  // Event-Löschfunktion (hier nur Dummy, API-Aufruf fehlt)
   const handleDeleteEvent = () => {
-    // In a real app, you would call an API to delete the event
-    toast.success(`Event "${event?.metadata?.title}" deleted successfully`);
+    toast.success(`Event "${event?.metadata?.title}" erfolgreich gelöscht`);
     router.push("/organization/events");
   };
 
-  // Function to get appropriate status badge
+  // Gibt das passende Status-Badge zurück
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'upcoming':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">{status}</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Bevorstehend</Badge>;
       case 'done':
-        return <Badge className="bg-green-500 hover:bg-green-600">{status}</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">Abgeschlossen</Badge>;
       case 'cancelled':
-        return <Badge className="bg-red-500 hover:bg-red-600">{status}</Badge>;
+        return <Badge className="bg-red-500 hover:bg-red-600">Abgesagt</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -97,49 +99,49 @@ export default function EventDetailsPage() {
 
   return (
     <>
-      <SiteHeader actions={[{
-        label: "Zurück",
-        icon: <ArrowLeft className=" h-4 w-4" />,
-        onClick: () => router.back(),
-        variant: "outline"
-      },
-      {
-        children: (
-          <Button variant="default" asChild >
-            <Link href={`/organization/events/${eventId}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Event
-            </Link>
-          </Button>
-        )
-      },
-      {
-        children: (<DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="h-9 w-9">
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/* <DropdownMenuItem onClick={() => toast.success("Event sharing link copied to clipboard")}>
-              <Share className="mr-2 h-4 w-4" />
-              Share Event
-            </DropdownMenuItem> */}
-            {/* <DropdownMenuItem asChild>
-              <Link href={`/organization/events/${eventId}/invite`}>
-                <Mail className="mr-2 h-4 w-4" />
-                Invite attendee
+      <SiteHeader actions={[
+        {
+          label: "Zurück",
+          icon: <ArrowLeft className=" h-4 w-4" />,
+          onClick: () => router.back(),
+          variant: "outline"
+        },
+        {
+          children: (
+            <Button variant="default" asChild >
+              <Link href={`/organization/events/${eventId}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Event bearbeiten
               </Link>
-            </DropdownMenuItem> */}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDeleteEvent} className="text-red-600 focus:text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Event
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>)
-      }
-
+            </Button>
+          )
+        },
+        {
+          children: (<DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="h-9 w-9">
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* <DropdownMenuItem onClick={() => toast.success("Event-Link zum Teilen wurde kopiert")}>
+                <Share className="mr-2 h-4 w-4" />
+                Event teilen
+              </DropdownMenuItem> */}
+              {/* <DropdownMenuItem asChild>
+                <Link href={`/organization/events/${eventId}/invite`}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Teilnehmer einladen
+                </Link>
+              </DropdownMenuItem> */}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleDeleteEvent} className="text-red-600 focus:text-red-600">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Event löschen
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>)
+        }
       ]} >
         <BreadcrumbItem>
           <BreadcrumbPage>
@@ -148,7 +150,7 @@ export default function EventDetailsPage() {
         </BreadcrumbItem>
       </SiteHeader>
       <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-        {/* Header with back button */}
+        {/* Kopfbereich mit Zurück-Button */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
@@ -161,18 +163,16 @@ export default function EventDetailsPage() {
               {getStatusBadge(String(event?.metadata?.status))}
             </div>
             <p className="text-muted-foreground ml-10">
-              {event?.metadata?.organization} • {format(new Date(event?.metadata?.start), "MMMM dd, yyyy")}
+              {event?.metadata?.organization} • {format(new Date(event?.metadata?.start), "dd. MMMM yyyy")}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-
-
-
+            {/* Platz für weitere Aktionen */}
           </div>
         </div>
 
-        {/* Event Hero Section */}
+        {/* Event Hero-Bereich mit Bild und Badges */}
         <div className="relative rounded-lg overflow-hidden h-40 md:h-60">
           <img
             src={event?.metadata?.image || "https://via.placeholder.com/1200x400"}
@@ -188,7 +188,7 @@ export default function EventDetailsPage() {
                 </Badge>
                 <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                   <Users className="mr-1 h-3 w-3" />
-                  {event?.metadata?.attendeeCount} / {event?.metadata?.capacity} attendeeCount
+                  {event?.metadata?.attendeeCount} / {event?.metadata?.capacity} Teilnehmer
                 </Badge>
                 <Badge variant="secondary" className="bg-black/50 hover:bg-black/60 backdrop-blur-sm text-white">
                   <MapPin className="mr-1 h-3 w-3" />
@@ -206,7 +206,7 @@ export default function EventDetailsPage() {
               className="flex items-center gap-2 data-[state=active]:bg-background"
             >
               <CalendarIcon className="h-4 w-4" />
-              <span>Overview</span>
+              <span>Übersicht</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -214,7 +214,7 @@ export default function EventDetailsPage() {
               className="flex items-center gap-2 data-[state=active]:bg-background"
             >
               <FunctionSquare className="h-4 w-4" />
-              <span>Flows</span>
+              <span>Abläufe</span>
             </TabsTrigger>
             <TabsTrigger
               value="agenda"
@@ -228,10 +228,10 @@ export default function EventDetailsPage() {
               className="flex items-center gap-2 data-[state=active]:bg-background"
             >
               <MailsIcon className="h-4 w-4" />
-              <span>Mails</span>
+              <span>E-Mails</span>
             </TabsTrigger>
             <TabsTrigger
-              value="attendeeCount"
+              value="attendees"
               className="flex items-center gap-2 data-[state=active]:bg-background"
             >
               <UsersIcon className="h-4 w-4" />
@@ -239,27 +239,27 @@ export default function EventDetailsPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
+          {/* Übersicht-Tab */}
           <TabsContent value="overview" className="space-y-6">
             <EventOverviewTab eventDetails={event} />
           </TabsContent>
 
-          {/* Flows Tab - IMPROVED VISUALIZATION */}
+          {/* Abläufe-Tab */}
           <TabsContent value="flows" className="space-y-6">
             <EventFlowsTab eventDetails={event} />
           </TabsContent>
 
-          {/* Agenda Tab - IMPROVED TIMELINE */}
+          {/* Agenda-Tab */}
           <TabsContent value="agenda" className="space-y-6">
             <EventAgendaTab eventDetails={event} />
           </TabsContent>
 
-          {/* Attendees Tab */}
+          {/* Teilnehmer-Tab */}
           <TabsContent value="attendees" className="space-y-6">
             <EventAttendeesTab eventDetails={event} />
           </TabsContent>
 
-          {/* emails Tab */}
+          {/* E-Mails-Tab */}
           <TabsContent value="emails" className="space-y-6">
             <EventEmailsTab eventDetails={event} />
           </TabsContent>

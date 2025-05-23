@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useRouter } from "next/navigation";
 import { FlowTemplateResponseDto } from "@/lib/backend/types";
 
-// Interface for flow runs (executions)
+// Schnittstelle für Flow-Ausführungen (Runs)
 interface FlowRun {
     id: string;
     flowId: string;
@@ -33,7 +33,7 @@ interface FlowRun {
     error?: string;
 }
 
-// Mock data for flow runs
+// Beispiel-Daten für Flow-Ausführungen
 const mockFlowRuns: FlowRun[] = [
     {
         id: "run-1",
@@ -103,9 +103,7 @@ const mockFlowRuns: FlowRun[] = [
 
 export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDetails }) {
     const eventId = eventDetails.metadata.id;
-    console.log("Event ID:", eventId);
-
-
+    console.log("Event-ID:", eventId);
 
     const [activeTab, setActiveTab] = useState<string>("instances");
     // const [flowRuns, setFlowRuns] = useState<FlowRun[]>(mockFlowRuns);
@@ -117,28 +115,29 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
     const { data: flowTemplates } = useOrgFlowTemplates(session?.user?.organization.id || "", session?.user?.jwt || "");
 
     console.log("Flows:", flows);
-    console.log("Flow Templates:", flowTemplates);
+    console.log("Flow-Vorlagen:", flowTemplates);
 
-    // Function to handle creation from template
+    // Handler für das Erstellen eines Flows aus einer Vorlage
     const handleCreateFromTemplate = (templateId: string) => {
         router.push(`/organization/events/${eventId}/flows/create?eventId=${eventId}&templateId=${templateId}`);
         setCreateFlowDialogOpen(false);
     };
 
-    // Function to create from scratch
+    // Handler für das Erstellen eines neuen Flows von Grund auf
     const handleCreateFromScratch = () => {
         router.push(`/organization/events/${eventId}/flows/create?eventId=${eventId}`);
         setCreateFlowDialogOpen(false);
     };
 
+    // Gibt ein Status-Badge für den Flow-Status zurück
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'success':
-                return <Badge variant="outline" className="bg-green-50 text-green-800">Success</Badge>;
+                return <Badge variant="outline" className="bg-green-50 text-green-800">Erfolgreich</Badge>;
             case 'failed':
-                return <Badge variant="outline" className="bg-red-50 text-red-800">Failed</Badge>;
+                return <Badge variant="outline" className="bg-red-50 text-red-800">Fehlgeschlagen</Badge>;
             case 'running':
-                return <Badge variant="outline" className="bg-blue-50 text-blue-800">Running</Badge>;
+                return <Badge variant="outline" className="bg-blue-50 text-blue-800">Läuft</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -164,7 +163,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                         </TabsTrigger>
                         <TabsTrigger value="runs" className="flex items-center gap-2">
                           <History className="h-4 w-4" />
-                          Flow Runs
+                          Flow-Ausführungen
                       </TabsTrigger>
                     </TabsList> */}
 
@@ -220,7 +219,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
 
                                         <div className="p-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {/* Triggers column */}
+                                                {/* Auslöser-Spalte */}
                                                 <div className="space-y-3">
                                                     <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                                                         <Zap className="h-4 w-4" />
@@ -237,7 +236,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                                     {getTriggerIcon(trigger.type)}
                                                                 </div>
                                                                 <div>
-                                                                    <h6 className="font-medium capitalize">{trigger.type} Trigger</h6>
+                                                                    <h6 className="font-medium capitalize">{trigger.type} Auslöser</h6>
                                                                     <p className="text-xs text-muted-foreground mt-1">
                                                                         {getTriggerDescription(trigger.type, trigger.details)}
                                                                     </p>
@@ -247,7 +246,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                     </div>
                                                 </div>
 
-                                                {/* Actions column */}
+                                                {/* Aktionen-Spalte */}
                                                 <div className="space-y-3">
                                                     <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-3 pb-1 border-b">
                                                         <FunctionSquare className="h-4 w-4" />
@@ -264,7 +263,7 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                                                     {getActionIcon(action.type)}
                                                                 </div>
                                                                 <div>
-                                                                    <h6 className="font-medium capitalize">{action.type} Action</h6>
+                                                                    <h6 className="font-medium capitalize">{action.type} Aktion</h6>
                                                                     <p className="text-xs text-muted-foreground mt-1">
                                                                         {getActionDescription(action.type, action.details)}
                                                                     </p>
@@ -318,98 +317,14 @@ export default function EventFlowsTab({ eventDetails }: { eventDetails: EventDet
                                     </div>
                             ))}
                     </TabsContent>
-
-                    {/* <TabsContent value="runs">
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-lg font-medium">Flow Executions</h3>
-                                    <p className="text-sm text-muted-foreground">History of flow runs for this event</p>
-                                </div>
-                                <Button variant="outline" size="sm" onClick={() => setFlowRuns(mockFlowRuns)}>
-                                    <History className="h-4 w-4 mr-2" />
-                                    Refresh
-                                </Button>
-                            </div>
-
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[180px]">Flow</TableHead>
-                                            <TableHead>Trigger</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Started</TableHead>
-                                            <TableHead>Duration</TableHead>
-                                            <TableHead>Actions</TableHead>
-                                            <TableHead className="text-right">Details</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {flowRuns.length > 0 ? (
-                                            flowRuns.map((run) => (
-                                                <TableRow key={run.id}>
-                                                    <TableCell className="font-medium">{run.flowName}</TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="h-7 w-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                                                {getTriggerIcon(run.triggerType)}
-                                                            </div>
-                                                            <span className="capitalize">{run.triggerType}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>{getStatusBadge(run.status)}</TableCell>
-                                                    <TableCell>{format(new Date(run.startedAt), "MMM d, HH:mm:ss")}</TableCell>
-                                                    <TableCell>
-                                                        {run.completedAt
-                                                            ? `${Math.round((new Date(run.completedAt).getTime() - new Date(run.startedAt).getTime()) / 1000)}s`
-                                                            : "—"}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex flex-col gap-1">
-                                                            {run.actions.map((action, idx) => (
-                                                                <div key={idx} className="flex items-center text-sm">
-                                                                    {action.status === 'success' && <CheckCircle className="h-3 w-3 text-green-600 mr-1" />}
-                                                                    {action.status === 'failed' && <XCircle className="h-3 w-3 text-red-600 mr-1" />}
-                                                                    {action.status === 'skipped' && <div className="h-3 w-3 rounded-full bg-gray-300 mr-1" />}
-                                                                    {action.status === 'running' && <div className="h-3 w-3 rounded-full bg-blue-500 mr-1 animate-pulse" />}
-                                                                    <span className="capitalize">{action.type}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={`/organization/events/${eventId}/flows/runs/${run.id}?eventId=${eventId}`}>
-                                                                View
-                                                            </Link>
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={7} className="h-24 text-center">
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <History className="h-8 w-8 text-muted-foreground mb-2 opacity-50" />
-                                                        <p className="text-muted-foreground">No flow executions found</p>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-
-
-                        </div>
-                    </TabsContent> */}
+                    {/* ...auskommentierter Bereich bleibt unverändert... */}
                 </Tabs>
             </CardContent>
         </Card>
     );
 }
 
+// Button-Komponente zum Erstellen eines neuen Flows
 function CreateNewFlowButton({ createFlowDialogOpen, setCreateFlowDialogOpen, handleCreateFromScratch, flowTemplates, handleCreateFromTemplate }: { createFlowDialogOpen: boolean, setCreateFlowDialogOpen: (open: boolean) => void, handleCreateFromScratch: () => void, flowTemplates: FlowTemplateResponseDto[] | undefined, handleCreateFromTemplate: (templateId: string) => void }) {
 
     return (

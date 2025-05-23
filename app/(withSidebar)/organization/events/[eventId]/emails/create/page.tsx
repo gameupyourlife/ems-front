@@ -7,7 +7,7 @@ import { Email, User, EventInfo } from "@/lib/types-old";
 import { mockEmails } from "@/lib/mock/email-data";
 import { mockEvents } from "@/lib/data";
 
-// Mock data for attendees
+// Beispielhafte Teilnehmerdaten (Mock-Daten)
 const mockAttendees: User[] = [
   {
     id: "user-1",
@@ -35,8 +35,6 @@ const mockAttendees: User[] = [
   },
 ];
 
-
-
 export default function CreateEmail() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -49,55 +47,55 @@ export default function CreateEmail() {
   const [eventDetails, setEventDetails] = useState<EventInfo | undefined>(undefined);
 
   useEffect(() => {
-    // In a real app, this would be a fetch request to your API
+    // In einer echten Anwendung würde hier ein API-Aufruf erfolgen
     const fetchAttendees = async () => {
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 300));
         setAttendees(mockAttendees);
       } catch (err) {
-        console.error("Error fetching attendees:", err);
-        // Handle error state if needed
+        console.error("Fehler beim Laden der Teilnehmer:", err);
+        // Fehlerstatus kann hier behandelt werden
       }
     };
 
-    // Fetch event details
+    // Event-Details abrufen
     const fetchEventDetails = async () => {
       try {
-        // Mock API call
+        // Simulierter API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 200));
         const event = mockEvents.find(e => e.id === eventId);
         if (event) {
           setEventDetails(event);
         }
       } catch (err) {
-        console.error("Error fetching event details:", err);
+        console.error("Fehler beim Laden der Event-Details:", err);
       }
     };
 
     fetchAttendees();
     fetchEventDetails();
 
-    // If duplicating an email, fetch the original email
+    // Wenn eine E-Mail dupliziert werden soll, lade die Original-E-Mail
     if (duplicateEmailId) {
       const fetchEmailToDuplicate = async () => {
         try {
-          // Mock API call
+          // Simulierter API-Aufruf
           await new Promise(resolve => setTimeout(resolve, 300));
           const email = mockEmails.find(e => e.id === duplicateEmailId);
           if (email) {
             setEmailToDuplicate({
               ...email,
-              id: "", // Remove ID for duplication
-              status: "draft", // Reset status to draft
-              sentAt: undefined, // Clear sent date
-              scheduledFor: undefined, // Clear schedule
-              createdAt: new Date(), // Update creation date
-              updatedAt: new Date(), // Update update date
+              id: "", // ID für Duplikat entfernen
+              status: "draft", // Status auf Entwurf zurücksetzen
+              sentAt: undefined, // Versanddatum entfernen
+              scheduledFor: undefined, // Geplantes Datum entfernen
+              createdAt: new Date(), // Erstellungsdatum aktualisieren
+              updatedAt: new Date(), // Aktualisierungsdatum aktualisieren
             });
           }
         } catch (err) {
-          console.error("Error fetching email to duplicate:", err);
+          console.error("Fehler beim Laden der zu duplizierenden E-Mail:", err);
         }
       };
 
@@ -105,17 +103,18 @@ export default function CreateEmail() {
     }
   }, [eventId, duplicateEmailId]);
 
+  // Speichern der E-Mail (simuliert)
   const handleSaveEmail = async (emailData: Partial<Email>) => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be a POST request to your API
+      // In einer echten Anwendung würde hier ein POST-Request an die API erfolgen
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      console.log("Email saved:", emailData);
-      // Success - navigation back to email list happens in the form component
+      console.log("E-Mail gespeichert:", emailData);
+      // Erfolg - Navigation zurück zur E-Mail-Liste erfolgt in der Formular-Komponente
     } catch (err) {
-      console.error("Error saving email:", err);
-      throw err; // Rethrow to let the form component handle error display
+      console.error("Fehler beim Speichern der E-Mail:", err);
+      throw err; // Fehler weitergeben, damit das Formular die Anzeige übernimmt
     } finally {
       setIsSubmitting(false);
     }
