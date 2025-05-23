@@ -535,4 +535,5 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                 </form>
             </Form>
         </div>
-    </>;
+    </>
+}
