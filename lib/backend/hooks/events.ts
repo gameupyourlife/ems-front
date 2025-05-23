@@ -83,14 +83,14 @@ export function useRegisterAttendee(
   })
 }
 export function useDeleteAttendee(
-  options?: Omit<UseMutationOptions<any, Error, DeleteEvent>, 'mutationFn'>
+  options?: Omit<UseMutationOptions<any, Error, DeleteAttendeeParams>, 'mutationFn'>
 ) {
   const queryClient = useQueryClient()
 
   return useMutation({
    mutationFn: ({ orgId, eventId, userId, token }: DeleteAttendeeParams) =>
       deleteAttendee(orgId, eventId, userId, token),
-    onSuccess: (_data: any, vars: { orgId: any; eventId: any; }) => {
+    onSuccess: (_data: any, vars: DeleteAttendeeParams) => {
       queryClient.invalidateQueries({
         queryKey: ['eventsById', vars.orgId, vars.eventId],
       })

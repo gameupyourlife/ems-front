@@ -1,5 +1,6 @@
 "use client";;
 import { Email, EmsFile, EventDetails, EventInfo, Organization, User } from '../types-old';
+import { AgendaEntry } from './agenda';
 import { Flow } from './types';
 import { guardUUID } from './utils';
 

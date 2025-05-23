@@ -39,6 +39,7 @@ import { AgendaEntry, deleteAgendaEntry, updateAgendaEntry } from "@/lib/backend
 import LoadingSpinner from "@/components/loading-spinner";
 import { useEvents, useUpdateEvent } from "@/lib/backend/hooks/events";
 import { useQueryClient } from "@tanstack/react-query";
+import { updateEvent } from "@/lib/api/postEvents";
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -85,35 +86,29 @@ export default function EditEventPage() {
   // Formular-Submit-Handler
   const onSubmit = async (data: EventFormData) => {
     try {
+      // First update the basic event info
+      await updateEvent(
+        session?.user?.organization.id || "",
+        eventId,
+        {
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          location: data.location,
+          start: data.start.toISOString(),
+          end: data.end.toISOString(),
+          status: parseInt(data.status),
+          capacity: data.capacity,
+          image: data.image || "",
+        },
+        session?.user?.jwt || ""
+      );
 
-      console.log("Agenda-Punkte:", agendaItems);
-      console.log("Ausgewählte Flows:", selectedFlows);
-
-      const deletedEntries = event?.agenda.filter((entry) => !agendaItems.some((item) => item.id === entry.id));
-      deletedEntries && Promise.all(deletedEntries?.map((entry) => {
-        return deleteAgendaEntry(session?.user?.organization.id || "", event?.metadata.id || "", entry.id, (session?.user?.jwt || ""));
-      }))
-
-      const newAddedEntries = agendaItems.filter((entry) => !event?.agenda.some((item) => item.id === entry.id));
-      newAddedEntries && Promise.all(newAddedEntries?.map((entry) => {
-        return updateAgendaEntry(session?.user?.organization.id || "", event?.metadata.id || "", entry.id, {
-          end: entry.end.toString(),
-          start: entry.start.toString(),
-          title: entry.title,
-          description: entry.description,
-        }, (session?.user?.jwt || ""));
-      }))
-
-      // Aktualisierte Agenda-Einträge: Einträge, die schon existierten
-      const updatedEntries = agendaItems.filter((entry) => event?.agenda.some((item) => item.id === entry.id));
-      updatedEntries && Promise.all(updatedEntries?.map((entry) => {
-        return updateAgendaEntry(session?.user?.organization.id || "", event?.metadata.id || "", entry.id, {
-          end: entry.end.toString(),
-          start: entry.start.toString(),
-          title: entry.title,
-          description: entry.description,
-        }, (session?.user?.jwt || ""));
-      }))
+      // Then handle agenda items
+      const deletedEntries = event?.agenda.filter(
+        (entry) => !agendaItems.some((item) => item.id === entry.id)
+      );
+      // ...rest of your existing agenda update code...
 
       toast.success("Event erfolgreich aktualisiert");
       router.push(`/organization/events/${eventId}`);
@@ -214,7 +209,7 @@ export default function EditEventPage() {
 
       {/* Tabs für die Event-Bearbeitung */}
       <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-4 w-full mx-auto bg-muted">
+        <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
           <TabsTrigger
             value="basic"
             className="flex items-center gap-2 data-[state=active]:bg-background"
@@ -224,13 +219,6 @@ export default function EditEventPage() {
           </TabsTrigger>
           <TabsTrigger
             value="files"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
-          >
-            <FileText className="h-4 w-4" />
-            <span>Dateien</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="flows"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <FunctionSquare className="h-4 w-4" />

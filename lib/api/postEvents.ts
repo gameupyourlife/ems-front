@@ -88,3 +88,57 @@ export async function createEvent(
   const created = (await res.json()) as EventInfo;
   return created;
 }
+
+export async function updateEvent(
+  orgId: string,
+  eventId: string,
+  payload: EventFormData,
+  token: string
+): Promise<EventInfo> {
+  // Client-seitige Validierung
+  eventSchema.parse(payload);
+
+  // Fallback für leere Bild-URL
+  const validatedPayload = {
+    ...payload,
+    image: payload.image || "https://placeholder.com/default.jpg",
+  };
+
+  console.log("🚀 Updating event with payload at", `${BASE}/${orgId}/events/${eventId}`);
+  console.log(validatedPayload);
+
+  const res = await fetch(`${BASE}/${orgId}/events/${eventId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(validatedPayload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("❌ updateEvent Bad Request body:", text);
+
+    // Fehlernachricht aus JSON besser lesbar machen
+    let message = text;
+    try {
+      const err = JSON.parse(text);
+      if (err.errors) {
+        message = Object.entries(err.errors)
+          .map(([field, msgs]) =>
+            `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+          )
+          .join("\n");
+      } else {
+        message = err.message || text;
+      }
+    } catch {
+      // leave as-is
+    }
+    throw new Error(message);
+  }
+
+  const updated = (await res.json()) as EventInfo;
+  return updated;
+}
