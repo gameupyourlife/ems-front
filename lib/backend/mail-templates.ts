@@ -1,32 +1,8 @@
+import { CreateMailDto, MailDto } from "./mails";
 import { OrgMail } from "./types";
 import { guardUUID } from "./utils";
 
-export interface MailTemplate {
-    id: string;
-    name: string;
-    subject: string;
-    description?: string;
-    body: string;
-    createdAt?: string;
-    isUserCreated: boolean;
-    organizationName?: string;
-}
 
-export interface CreateMailTemplateDto {
-    name: string;
-    subject: string;
-    body: string;
-    description?: string;
-    recipients: string[];
-}
-
-export interface UpdateMailTemplateDto {
-    name?: string;
-    subject?: string;
-    body?: string;
-    description?: string;
-    recipients?: string[];
-}
 
 /**
  * Fetches all mail templates for an organization
@@ -50,7 +26,7 @@ export async function getMailTemplates(orgId: string, token: string): Promise<Or
     }
 
 
-    const DTOs: MailTemplate[] = await response.json();
+    const DTOs: MailDto[] = await response.json();
 
     const mails: OrgMail[] = DTOs.map((dto) => {
         const mail: OrgMail = {
@@ -59,7 +35,12 @@ export async function getMailTemplates(orgId: string, token: string): Promise<Or
             body: dto.body || "",
             createdAt: dto.createdAt || "",
             description: dto.description || "",
-            organizationName: dto.organizationName || "",
+            createdBy: dto.createdBy || "",
+            updatedBy: dto.updatedBy || "",
+            recipients: dto.recipients || [],
+            scheduledFor: dto.scheduledFor || "",
+            sendToAllParticipants: dto.sendToAllParticipants || false,
+            updatedAt: dto.updatedAt || "",
 
             existsInDB: true,
             id: dto.id || "",
@@ -81,7 +62,7 @@ export async function getMailTemplates(orgId: string, token: string): Promise<Or
 export async function getMailTemplate(orgId: string, templateId: string, token: string): Promise<OrgMail> {
     guardUUID(templateId);
     guardUUID(orgId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/mail-templates/${templateId}`, {
         method: "GET",
         headers: {
@@ -94,7 +75,7 @@ export async function getMailTemplate(orgId: string, templateId: string, token: 
         throw new Error(`Failed to fetch mail template: ${response.statusText}`);
     }
 
-    const dto: MailTemplate = await response.json();
+    const dto: MailDto = await response.json();
 
     const mail: OrgMail = {
         name: dto.name || "Unbenannt",
@@ -102,9 +83,13 @@ export async function getMailTemplate(orgId: string, templateId: string, token: 
         body: dto.body || "No content",
         createdAt: dto.createdAt || "",
         description: dto.description || "",
-        organizationName: dto.organizationName || "",
+        createdBy: dto.createdBy || "",
+        updatedBy: dto.updatedBy || "",
+        recipients: dto.recipients || [],
+        scheduledFor: dto.scheduledFor || "",
+        sendToAllParticipants: dto.sendToAllParticipants || false,
+        updatedAt: dto.updatedAt || "",
 
-        
 
 
         existsInDB: true,
@@ -121,7 +106,7 @@ export async function getMailTemplate(orgId: string, templateId: string, token: 
  * @param template The mail template data
  * @returns A promise that resolves to the created mail template
  */
-export async function createMailTemplate(orgId: string, template: CreateMailTemplateDto, token: string): Promise<MailTemplate> {
+export async function createMailTemplate(orgId: string, template: CreateMailDto, token: string): Promise<MailDto> {
     guardUUID(orgId);
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/mail-templates`, {
@@ -150,9 +135,9 @@ export async function createMailTemplate(orgId: string, template: CreateMailTemp
 export async function updateMailTemplate(
     orgId: string,
     templateId: string,
-    template: UpdateMailTemplateDto,
+    template: CreateMailDto,
     token: string
-): Promise<MailTemplate> {
+): Promise<MailDto> {
     guardUUID(orgId);
     guardUUID(templateId);
 
@@ -181,7 +166,7 @@ export async function updateMailTemplate(
 export async function deleteMailTemplate(orgId: string, templateId: string, token: string): Promise<void> {
     guardUUID(orgId);
     guardUUID(templateId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/mail-templates/${templateId}`, {
         method: "DELETE",
         headers: {

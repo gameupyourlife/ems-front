@@ -2,15 +2,16 @@ export interface OrgMail {
     id: string;
     name: string;
     subject: string;
-    description?: string;
-    recipients: string[];
     body: string;
-    createdAt: string;
-    updatedAt?: string;
-    createdBy?: string;
-    updatedBy?: string;
+    description: string;
+    recipients: string[];
+    scheduledFor: string;
     isUserCreated: boolean;
-    organizationName?: string;
+    sendToAllParticipants: boolean;
+    createdAt: string;
+    updatedAt: string;
+    createdBy: string;
+    updatedBy: string;
 
     existsInDB: boolean;
     isTemplate: true;
@@ -22,15 +23,15 @@ export interface EventMail {
     name: string;
     subject: string;
     body: string;
+    description: string;
     recipients: string[];
-    scheduledFor?: string;
-    createdAt: string;
-    updatedAt?: string;
-    createdBy?: string;
-    updatedBy?: string;
-    eventId: string;
-    
+    scheduledFor: string;
     isUserCreated: boolean;
+    sendToAllParticipants: boolean;
+    createdAt: string;
+    updatedAt: string;
+    createdBy: string;
+    updatedBy: string;
 
     existsInDB: boolean;
     isTemplate: false;

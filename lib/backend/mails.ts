@@ -10,48 +10,46 @@ export enum MailRunStatus {
 }
 
 export interface MailDto {
-    mailId?: string;
-    name?: string;
-    subject?: string;
-    body?: string;
+    id: string;
+    name: string;
+    subject: string;
+    body: string;
+    description?: string;
     recipients?: string[];
     scheduledFor?: string;
+    isUserCreated: boolean;
+    sendToAllParticipants: boolean;
     createdAt: string;
-    updatedAt?: string;
+    updatedAt: string;
     createdBy?: string;
     updatedBy?: string;
-    eventId: string;
 }
 
 export interface CreateMailDto {
     name: string;
     subject: string;
+    description?: string;
     body: string;
-    recipients: string[];
+    recipients?: string;
     scheduledFor?: string;
-    eventId: string;
+    isUserCreated: string;
+    sendToAllParticipants: string;
 }
 
-export interface UpdateMailDto {
-    name?: string;
-    subject?: string;
-    body?: string;
-    recipients?: string[];
-    scheduledFor?: string;
-}
+export type UpdateMailDto = CreateMailDto 
 
 export interface MailRun {
     mailRunId?: string;
     mailId: string;
     status: MailRunStatus;
     timestamp: string;
-    logs?: string;
+    logs?: string[];
 }
 
 export interface CreateMailRunDto {
     mailId: string;
     status: MailRunStatus;
-    logs?: string;
+    logs?: string[];
 }
 
 /**
@@ -86,15 +84,16 @@ export async function getMails(orgId: string, eventId: string, token: string): P
             subject: dto.subject || "",
             body: dto.body || "",
             recipients: dto.recipients || [],
-            scheduledFor: dto.scheduledFor,
+            scheduledFor: dto.scheduledFor || "",
             createdAt: dto.createdAt,
             updatedAt: dto.updatedAt,
-            createdBy: dto.createdBy,
-            updatedBy: dto.updatedBy,
-            eventId: dto.eventId,
+            createdBy: dto.createdBy || "",
+            updatedBy: dto.updatedBy || "",
+            description: dto.description || "",
+            sendToAllParticipants: dto.sendToAllParticipants || false,
 
             existsInDB: true,
-            id: dto.mailId || "",
+            id: dto.id || "",
             isTemplate: false,
             isUserCreated: true,
         }
@@ -115,7 +114,7 @@ export async function getMail(orgId: string, eventId: string, mailId: string, to
     guardUUID(orgId);
     guardUUID(eventId);
     guardUUID(mailId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}`, {
         method: "GET",
         headers: {
@@ -134,15 +133,16 @@ export async function getMail(orgId: string, eventId: string, mailId: string, to
         subject: dto.subject || "",
         body: dto.body || "",
         recipients: dto.recipients || [],
-        scheduledFor: dto.scheduledFor,
+        scheduledFor: dto.scheduledFor || "",
         createdAt: dto.createdAt,
         updatedAt: dto.updatedAt,
-        createdBy: dto.createdBy,
-        updatedBy: dto.updatedBy,
-        eventId: dto.eventId,
+        createdBy: dto.createdBy || "",
+        updatedBy: dto.updatedBy || "",
+        description: dto.description || "",
+        sendToAllParticipants: dto.sendToAllParticipants || false,
 
         existsInDB: true,
-        id: dto.mailId || "",
+        id: dto.id || "",
         isTemplate: false,
         isUserCreated: true,
     }
@@ -160,7 +160,7 @@ export async function getMail(orgId: string, eventId: string, mailId: string, to
 export async function createMail(orgId: string, eventId: string, mail: CreateMailDto, token: string): Promise<MailDto> {
     guardUUID(orgId);
     guardUUID(eventId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails`, {
         method: "POST",
         headers: {
@@ -195,7 +195,7 @@ export async function updateMail(
     guardUUID(orgId);
     guardUUID(eventId);
     guardUUID(mailId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}`, {
         method: "PUT",
         headers: {
@@ -223,7 +223,7 @@ export async function deleteMail(orgId: string, eventId: string, mailId: string,
     guardUUID(orgId);
     guardUUID(eventId);
     guardUUID(mailId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}`, {
         method: "DELETE",
         headers: {
@@ -248,7 +248,7 @@ export async function getMailRuns(orgId: string, eventId: string, mailId: string
     guardUUID(orgId);
     guardUUID(eventId);
     guardUUID(mailId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}/runs`, {
         method: "GET",
         headers: {
@@ -318,7 +318,7 @@ export async function getMailRun(
     guardUUID(eventId);
     guardUUID(mailId);
     guardUUID(runId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}/runs/${runId}`, {
         method: "GET",
         headers: {
@@ -353,7 +353,7 @@ export async function deleteMailRun(
     guardUUID(eventId);
     guardUUID(mailId);
     guardUUID(runId);
-    
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}/runs/${runId}`, {
         method: "DELETE",
         headers: {
