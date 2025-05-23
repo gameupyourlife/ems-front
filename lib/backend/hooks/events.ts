@@ -98,3 +98,20 @@ export function useDeleteAttendee(
     ...options,
   })
 }
+
+export function useUpdateEvent(
+  options?: Omit<UseMutationOptions<any, Error, DeleteEvent>, 'mutationFn'>
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ orgId, eventId, token }: DeleteEvent) =>
+      deleteEvent(orgId, eventId, token),
+    onSuccess: (_data: any, vars: { orgId: any; eventId: any; }) => {
+      queryClient.invalidateQueries({
+        queryKey: ['eventsById', vars.orgId, vars.eventId],
+      })
+    },
+    ...options,
+  })
+}

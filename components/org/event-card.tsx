@@ -21,7 +21,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
     const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     
     // Calculate attendance percentage
-    const capacityPercent = Math.min(100, (event.attendees / event.capacity) * 100);
+    const capacityPercent = Math.min(100, (event.attendeeCount / event.capacity) * 100);
 
     // Get status display information
     const getStatusDisplay = () => {
@@ -100,7 +100,7 @@ export default function OrgEventCard({ event, orgId }: { event: EventInfo, orgId
                         <div className="flex justify-between items-center mb-1">
                             <div className="flex items-center">
                                 <Users className="mr-2 h-4 w-4 text-primary" />
-                                <span className="text-sm">{event.attendees} von {event.capacity}</span>
+                                <span className="text-sm">{event.attendeeCount} von {event.capacity}</span>
                             </div>
                             <span className="text-xs text-muted-foreground">{Math.round(capacityPercent)}%</span>
                         </div>

@@ -539,3 +539,28 @@ export async function getEventEmails(orgId: string, eventId: string, token: stri
 		throw new Error('Failed to fetch event emails');
 	}
 }
+
+export async function updateEvent(orgId: string, eventId: string, token: string): Promise<EventDetails> {
+	guardUUID(orgId);
+	guardUUID(eventId);
+
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': token ? `Bearer ${token}` : '',
+			},
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to update event: ${response.status}`);
+		}
+
+		const eventData = await response.json();
+		return eventData;
+	} catch (err) {
+		console.error('Failed to update event:', err);
+		throw new Error('Failed to update event');
+	}
+}
