@@ -38,17 +38,17 @@ import { Switch } from "./ui/switch";
 
 // Define form schema with validation
 const formSchema = z.object({
-    name: z.string().min(2, "Template name must be at least 2 characters.").max(100),
-    description: z.string().max(200, "Description must not exceed 200 characters.").optional(),
-    subject: z.string().min(2, "Subject line must be at least 2 characters.").max(150, "Subject must not exceed 150 characters."),
-    body: z.string().min(10, "Email body must be at least 10 characters."),
+    name: z.string().min(2, "Name muss mindestens 2 Zeichen lang sein.").max(100),
+    description: z.string().max(200, "Beschreibung darf 200 Zeichen nicht überschreiten.").optional(),
+    subject: z.string().min(2, "Betreffzeile muss mindestens 2 Zeichen lang sein.").max(150, "Betreff darf 150 Zeichen nicht überschreiten."),
+    body: z.string().min(10, "E-Mail-Text muss mindestens 10 Zeichen lang sein."),
     recipients: z.array(z.string()).optional(),
     sendToAllParticipants: z.boolean(),
 }).superRefine((data, ctx) => {
     if (!data.sendToAllParticipants && (!data.recipients || data.recipients.length === 0)) {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "At least one recipient must be selected.",
+            message: "Mindestens ein Empfänger muss ausgewählt werden.",
         });
     }
 });
@@ -228,12 +228,12 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Template Not Found</h2>
+                <h2 className="text-2xl font-bold mb-2">Vorlage nicht gefunden</h2>
                 <p className="text-muted-foreground mb-6">{error.message}</p>
                 <Button variant="outline" asChild>
                     <Link href="/organization/email-templates">
                         <ChevronLeft className="mr-2 h-4 w-4" />
-                        Back to Templates
+                        Zurück zu den Vorlagen
                     </Link>
                 </Button>
             </div>
@@ -322,7 +322,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                     <div className="grid grid-cols-1 gap-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-xl">Template Information</CardTitle>
+                                <CardTitle className="text-xl">Vorlagen-Informationen</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <FormField
@@ -330,12 +330,12 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Template Name</FormLabel>
+                                            <FormLabel>Vorlagenname</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter template name" {...field} />
+                                                <Input placeholder="Gib einen Namen für die Vorlage ein" {...field} />
                                             </FormControl>
                                             <FormDescription>
-                                                A recognizable name for your template
+                                                Ein erkennbarer Name für deine Vorlage
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>
@@ -347,16 +347,16 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                     name="description"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Description</FormLabel>
+                                            <FormLabel>Beschreibung</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Enter a brief description of this template"
+                                                    placeholder="Gib eine kurze Beschreibung dieser Vorlage ein"
                                                     className="resize-none"
                                                     {...field}
                                                 />
                                             </FormControl>
                                             <FormDescription>
-                                                Describe what this template is used for
+                                                Beschreibe, wofür diese Vorlage verwendet wird
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>
@@ -368,7 +368,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                         <Card>
                             <CardHeader className="space-y-1">
                                 <div className="flex justify-between items-center">
-                                    <CardTitle className="text-xl">Email Content</CardTitle>
+                                    <CardTitle className="text-xl">E-Mail-Inhalt</CardTitle>
 
                                 </div>
                             </CardHeader>
@@ -379,9 +379,9 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                         name="subject"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Email Subject Line</FormLabel>
+                                                <FormLabel>E-Mail-Betreffzeile</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter email subject" {...field} />
+                                                    <Input placeholder="Gib den E-Mail-Betreff ein" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -389,21 +389,19 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                     />
                                 </div>
 
-                               
-
                                 {displayRecipientsSelect && <div className="space-y-1 mb-2">
                                     <FormField
                                         control={form.control}
                                         name="recipients"
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
-                                                <FormLabel>Email Recipients</FormLabel>
+                                                <FormLabel>E-Mail-Empfänger</FormLabel>
                                                 <div className="flex flex-col gap-2">
                                                     <div className="relative w-full">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="outline" className="w-full flex justify-between items-center">
-                                                                    <span>Select Recipients</span>
+                                                                    <span>Empfänger auswählen</span>
                                                                     <ChevronLeft className="h-4 w-4 rotate-90" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
@@ -411,7 +409,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                                                 {/* Search input */}
                                                                 <div className="p-4 sticky bg-popover -mx-2 -mt-2 -top-2 border-b z-10">
                                                                     <Input
-                                                                        placeholder="Search by name or email..."
+                                                                        placeholder="Nach Name oder E-Mail suchen..."
                                                                         value={searchQuery}
                                                                         onChange={(e) => setSearchQuery(e.target.value)}
                                                                         className="w-full"
@@ -445,7 +443,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                                                 ))}
                                                                 {filteredMembers?.length === 0 ? (
                                                                     <div className="p-2 text-center text-sm text-muted-foreground">
-                                                                        No members found
+                                                                        Keine Mitglieder gefunden
                                                                     </div>
                                                                 ) : null}
                                                             </DropdownMenuContent>
@@ -473,7 +471,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                                                         }}
                                                                     >
                                                                         <X className="h-3 w-3" />
-                                                                        <span className="sr-only">Remove</span>
+                                                                        <span className="sr-only">Entfernen</span>
                                                                     </Button>
                                                                 </Badge>
                                                             );
@@ -492,7 +490,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                         name="sendToAllParticipants"
                                         render={({ field }) => (
                                             <FormItem className="flex items-center space-x-2">
-                                                <FormLabel>Send to all participants</FormLabel>
+                                                <FormLabel>An alle Teilnehmer senden</FormLabel>
                                                 <FormControl>
                                                     <Switch
                                                         defaultChecked={field.value}
@@ -504,7 +502,7 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                                     />
                                                 </FormControl>
                                                 <FormDescription>
-                                                    If enabled, all participants of the given event will receive this email.
+                                                    Wenn aktiviert, werden alle Teilnehmer des Events diese E-Mail erhalten.
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
@@ -518,10 +516,10 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                                         name="body"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Email Body</FormLabel>
+                                                <FormLabel>E-Mail-Text</FormLabel>
                                                 <FormControl>
                                                     <Textarea
-                                                        placeholder="Enter email body content (Only Text supported)"
+                                                        placeholder="Gib den E-Mail-Text ein (nur Text wird unterstützt)"
                                                         className="min-h-[300px] font-mono"
                                                         {...field}
                                                     />
@@ -538,4 +536,3 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
             </Form>
         </div>
     </>;
-}
