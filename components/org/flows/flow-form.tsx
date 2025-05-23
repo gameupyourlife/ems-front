@@ -592,7 +592,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     <AlertDialogHeader>
                         <AlertDialogTitle>Bist du sicher?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Dies wird diesen {deleteDialog.itemType} dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.
+                            Dies wird diesen {deleteDialog.itemType === 'trigger' ? 'Trigger' : 'Aktion'} dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
