@@ -57,6 +57,22 @@ export default function TeamMembers({ members, orgId, loading, error }: TeamMemb
             .toUpperCase();
     };
 
+    function userRoleToString(role: UserRole) {
+        switch(role) {
+            case UserRole.Admin:
+                return "Admin"
+            case UserRole.EventOrganizer:
+                return "EventOrganizer"
+            case UserRole.Organizer:
+                return "Organizer"
+            case UserRole.Owner:
+                return "Owner"
+            case UserRole.User:
+                return "User"
+        }
+
+    }
+
     // Tabellenspalten definieren
     const columns: ColumnDef<OrgUser>[] = useMemo(() => [
         {
@@ -81,10 +97,10 @@ export default function TeamMembers({ members, orgId, loading, error }: TeamMemb
             id: "role",
             header: "Rolle",
             cell: ({ cell }) => {
-                const role = cell.getValue() as string;
+                const role = cell.getValue() as UserRole;
                 return (
-                    <Badge variant={role === "Admin" ? "default" : "secondary"}>
-                        {role}
+                    <Badge>
+                        {userRoleToString(role)}
                     </Badge>
                 );
             },
@@ -141,6 +157,10 @@ export default function TeamMembers({ members, orgId, loading, error }: TeamMemb
                                 {/* For all UserRole entiries create promote/demote buttons */}
                                 {
                                     Object.values(UserRole).map((role) => {
+                                        // If role is typeof string return
+                                        if (typeof role === 'string') return;
+                                                                                    
+                                            
                                         if ((role as UserRole) < (session?.user?.role as UserRole || 0)) return null;
 
                                         if (role !== member.role) {
@@ -162,7 +182,7 @@ export default function TeamMembers({ members, orgId, loading, error }: TeamMemb
                                                     }}
                                                 >
                                                     <UserIcon className="mr-2 h-4 w-4" />
-                                                    {(role as UserRole) < member.role ? "Befördern" : "Herabstufen"}
+                                                    {(role as UserRole) < member.role ? `Befördern zu ${userRoleToString(role)}` : `Herabstufen zu ${userRoleToString(role)}`}
                                                 </DropdownMenuItem>
                                             );
                                         }
