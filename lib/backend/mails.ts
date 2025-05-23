@@ -9,6 +9,7 @@ export enum MailRunStatus {
     Cancelled = 4,
 }
 
+
 export interface MailDto {
     id: string;
     name: string;
@@ -39,7 +40,7 @@ export interface CreateMailDto {
 export type UpdateMailDto = CreateMailDto 
 
 export interface MailRun {
-    mailRunId?: string;
+    mailRunId: string;
     mailId: string;
     status: MailRunStatus;
     timestamp: string;

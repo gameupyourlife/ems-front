@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail } from "lucide-react";
 import { useMails } from "@/lib/backend/hooks/use-mails";
 import { useSession } from "next-auth/react";
-import { deleteMail } from "@/lib/backend/mails";
+import { createMailRun, deleteMail } from "@/lib/backend/mails";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -27,7 +27,7 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
         emailId,
         session?.user?.jwt || "")
 
-      queryClient.invalidateQueries({queryKey: ["mail"]})
+      queryClient.invalidateQueries({ queryKey: ["mail"] })
       toast.success("Email erfolgreich gelöscht")
 
     } catch (err) {
@@ -37,19 +37,19 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
   };
 
   const handleSendEmail = async (emailId: string) => {
-    toast.error("Mails versenden ist noch nicht implementiert")
-    return;
-    
     try {
-      // In a real app, this would be a POST request to your API
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await createMailRun(
+        session?.user?.organization.id || "",
+        eventId,
+        emailId,
+        {
+          mailId: emailId,
+          status: 0, // 0 = pending
+        },
+        session?.user?.jwt || ""
+      )
 
-      // Update local state
-      // setEmails(emails.map(email =>
-      //   email.id === emailId
-      //     ? { ...email, status: "sent", sentAt: new Date() }
-      //     : email
-      // ));
+      toast.success("Email erfolgreich in die Warteschlange gestellt")
     } catch (err) {
       console.error("Error sending email:", err);
       alert("Failed to send email. Please try again.");

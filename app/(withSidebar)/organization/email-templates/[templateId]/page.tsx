@@ -18,22 +18,6 @@ import { deleteMailTemplate } from "@/lib/backend/mail-templates";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/loading-spinner";
 
-interface EmailTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  body: string;
-  description: string;
-  isSystemTemplate?: boolean;
-  isOrgTemplate?: boolean;
-  isEventTemplate?: boolean;
-  createdBy?: string;
-  updatedBy?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  usageCount?: number;
-}
-
 export default function TemplateDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -240,8 +224,8 @@ export default function TemplateDetailPage() {
 
         </div>
 
-        <div className="space-y-6">
-          <Card>
+        <div className="space-y-6 h-full">
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-lg">Template Details</CardTitle>
             </CardHeader>
