@@ -1,44 +1,33 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import EmailTemplateForm, { EmailTemplateFormData } from "@/components/org/email-template-form";
+"use client";;
+import MailEditor from "@/components/mail-editor";
+import { OrgMail } from "@/lib/backend/types";
 
-export default function CreateTemplate() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /**
-   * Speichert eine neue E-Mail-Vorlage.
-   * @param templateData Die Daten der E-Mail-Vorlage
-   */
-  const handleSaveTemplate = async (templateData: EmailTemplateFormData) => {
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+export default function TemplateEditPage() {
 
-      const newTemplate = {
-        ...templateData,
-        id: `template-${Date.now()}`,
-        isUserCreated: true,
-      };
-
-      console.log("Vorlage erstellt:", newTemplate);
-
-      return Promise.resolve();
-    } catch (error) {
-      console.error("Fehler beim Erstellen der Vorlage:", error);
-      throw error;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const mail : OrgMail = {
+    body: "",
+    existsInDB: false,
+    isTemplate: true,
+    id: "New-mail-template",
+    isUserCreated: true,
+    createdAt: new Date().toString(),
+    name: "",
+    recipients: [],
+    subject: "",
+    createdBy: "",
+    updatedBy: "",
+    description: "",
+    sendToAllParticipants: false,
+    scheduledFor: "",
+    updatedAt: new Date().toString(),
+  }
 
   return (
-    <>
-      <EmailTemplateForm
-        onSave={handleSaveTemplate}
-        isSubmitting={isSubmitting}
-      />
-    </>
+    <MailEditor
+      error={null}
+      isLoading={false}
+      mail={mail}
+    />
   );
 }

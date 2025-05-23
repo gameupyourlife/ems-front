@@ -30,6 +30,8 @@ import { deleteTrigger } from "@/lib/backend/event-flows";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
+import { useMails } from "@/lib/backend/hooks/use-mails";
+import { useMailTemplates } from "@/lib/backend/hooks/use-mail-templates";
 
 
 
@@ -52,7 +54,9 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
     const { data: session } = useSession();
     const queryClient = useQueryClient();
 
-    // State für Dialog-Steuerung
+    const { data: mails } = flow.isTemplate ? useMailTemplates(session?.user?.organization.id || "", session?.user?.jwt || "") : useMails(session?.user?.organization.id || "", flow.eventId || "", session?.user?.jwt || "")
+
+    // State for dialog control
     const [isAddTriggerOpen, setIsAddTriggerOpen] = useState(false);
     const [isAddActionOpen, setIsAddActionOpen] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -579,6 +583,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 itemToEdit={editItemId && editItemType === 'action'
                     ? editedFlow.actions?.find(item => item.id === editItemId)
                     : undefined}
+                mails={mails}
             />
 
             {/* Bestätigungsdialog für das Löschen */}
@@ -587,7 +592,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                     <AlertDialogHeader>
                         <AlertDialogTitle>Bist du sicher?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Dies wird diesen {deleteDialog.itemType} dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.
+                            Dies wird diesen {deleteDialog.itemType === 'trigger' ? 'Trigger' : 'Aktion'} dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
