@@ -48,7 +48,7 @@ export default function EventAgendaTab ({ eventDetails }: { eventDetails: EventD
                   {/* Agenda items */}
                   {eventDetails.agenda.map((step, index) => {
                     const duration = Math.round(
-                      (new Date(step.endTime).getTime() - new Date(step.startTime).getTime()) / (1000 * 60)
+                      (new Date(step.end).getTime() - new Date(step.start).getTime()) / (1000 * 60)
                     );
                     return (
                       <div 
@@ -61,10 +61,10 @@ export default function EventAgendaTab ({ eventDetails }: { eventDetails: EventD
                           {/* Time column */}
                           <div className="w-28 shrink-0 bg-muted/30 flex flex-col items-center justify-center px-3 py-4 border-r">
                             <div className="text-xl font-semibold">
-                              {format(new Date(step.startTime), "h:mm")}
+                              {format(new Date(step.start), "h:mm")}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {format(new Date(step.startTime), "a")}
+                              {format(new Date(step.end), "a")}
                             </div>
                           </div>
                           
@@ -91,8 +91,8 @@ export default function EventAgendaTab ({ eventDetails }: { eventDetails: EventD
                             )}
                             
                             <div className="mt-2 pl-9 flex justify-between text-xs text-muted-foreground">
-                              <span>From {format(new Date(step.startTime), "h:mm a")}</span>
-                              <span>To {format(new Date(step.endTime), "h:mm a")}</span>
+                              <span>From {format(new Date(step.start), "h:mm a")}</span>
+                              <span>To {format(new Date(step.end), "h:mm a")}</span>
                             </div>
                           </div>
                         </div>
