@@ -16,7 +16,6 @@ import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-for
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 import { mockFlows } from "@/lib/data";
-import type { AgendaStep } from "@/lib/types-old";
 import {
   eventBasicInfoSchema as eventFormSchema,
   EventBasicInfoFormData as EventFormData,
@@ -25,6 +24,7 @@ import { createEvent, NewEventPayload } from "@/lib/api/postEvents";
 import { Flow } from "@/lib/backend/types";
 import { SiteHeader } from "@/components/site-header";
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { AgendaEntry, createAgendaEntry } from "@/lib/backend/agenda";
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function CreateEventPage() {
   // Lokaler State
   const [activeTab, setActiveTab] = useState<"basic" | "flows" | "agenda">("basic");
   const [selectedFlows, setSelectedFlows] = useState<Flow[]>([]);
-  const [agendaItems, setAgendaItems] = useState<AgendaStep[]>([]);
+  const [agendaItems, setAgendaItems] = useState<AgendaEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ─── 2️⃣ Session-Redirect in useEffect ───────────────────────
@@ -108,7 +108,17 @@ export default function CreateEventPage() {
         createdBy: userId,
       };
 
-      await createEvent(orgId, payload, token);
+      const eventInfo = await createEvent(orgId, payload, token);
+
+      Promise.all(agendaItems.map((entry) => {
+        return createAgendaEntry(orgId, eventInfo.id, {
+          end: entry.end.toString(),
+          start: entry.start.toString(),
+          title: entry.title,
+          description: entry.description,
+        }, token)
+      }))
+
       toast.success("Event erfolgreich erstellt");
       router.push("/organization/events");
     } catch (err: any) {
