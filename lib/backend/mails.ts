@@ -30,10 +30,10 @@ export interface CreateMailDto {
     subject: string;
     description?: string;
     body: string;
-    recipients?: string;
+    recipients?: string[];
     scheduledFor?: string;
-    isUserCreated: string;
-    sendToAllParticipants: string;
+    isUserCreated: boolean;
+    sendToAllParticipants: boolean;
 }
 
 export type UpdateMailDto = CreateMailDto 

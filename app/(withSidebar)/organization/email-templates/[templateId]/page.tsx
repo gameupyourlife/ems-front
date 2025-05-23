@@ -87,7 +87,7 @@ export default function TemplateDetailPage() {
     );
   }
 
-  if (!isLoading && (error || !template) ) {
+  if (!isLoading && (error || !template)) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
@@ -135,7 +135,7 @@ export default function TemplateDetailPage() {
         </Tooltip >
       ),
     },
-  
+
     {
       children: (
         <Button variant="outline" asChild>
@@ -192,6 +192,34 @@ export default function TemplateDetailPage() {
 
             <CardContent className="space-y-4">
 
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Recipients:</div>
+                <div className="border rounded-md p-3 bg-muted text-sm">
+                  {(template?.recipients?.length || 0) > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      {template?.recipients.map((recipient, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <User className="h-3 w-3" />
+                          </div>
+                          <span>{recipient}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+
+                    template?.sendToAllParticipants ? (
+                      <div className="text-sm text-muted-foreground">Send to all participants</div>
+                    ) : (
+                      // Fallback message if no recipients are specified
+                      <div className="text-sm text-muted-foreground">No recipients specified</div>
+                    )
+                  )}
+
+
+                </div>
+              </div>
+
 
               <div className="space-y-2">
                 <div className="text-sm font-medium">Subject:</div>
@@ -199,7 +227,7 @@ export default function TemplateDetailPage() {
                   {template?.subject}
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="border rounded-md p-3 bg-muted text-sm min-h-52 ">
                   {template?.body}
@@ -209,7 +237,7 @@ export default function TemplateDetailPage() {
 
             </CardContent>
           </Card>
-          
+
         </div>
 
         <div className="space-y-6">
@@ -270,11 +298,11 @@ export default function TemplateDetailPage() {
                 </div>
               </div>
 
-             
+
             </CardContent>
           </Card>
 
-       
+
         </div>
       </div>
     </div>

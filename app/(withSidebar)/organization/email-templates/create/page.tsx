@@ -15,6 +15,12 @@ export default function TemplateEditPage() {
     name: "",
     recipients: [],
     subject: "",
+    createdBy: "",
+    updatedBy: "",
+    description: "",
+    sendToAllParticipants: false,
+    scheduledFor: "",
+    updatedAt: new Date().toString(),
   }
 
   return (
