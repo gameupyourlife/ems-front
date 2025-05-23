@@ -30,6 +30,8 @@ import { deleteTrigger } from "@/lib/backend/event-flows";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
+import { useMails } from "@/lib/backend/hooks/use-mails";
+import { useMailTemplates } from "@/lib/backend/hooks/use-mail-templates";
 
 
 
@@ -50,6 +52,8 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
     const [editedFlow, setEditedFlow] = useState<Flow>(flow);
     const { data: session } = useSession();
     const queryClient = useQueryClient();
+
+    const { data: mails } = flow.isTemplate ? useMailTemplates(session?.user?.organization.id || "", session?.user?.jwt || "") : useMails(session?.user?.organization.id || "", flow.eventId || "", session?.user?.jwt || "")
 
     // State for dialog control
     const [isAddTriggerOpen, setIsAddTriggerOpen] = useState(false);
@@ -582,6 +586,7 @@ export function FlowForm({ flow, isEditing, onSave, isCreating = false }: FlowFo
                 itemToEdit={editItemId && editItemType === 'action'
                     ? editedFlow.actions?.find(item => item.id === editItemId)
                     : undefined}
+                mails={mails}
             />
 
             {/* Delete Confirmation Dialog */}

@@ -37,6 +37,9 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
   };
 
   const handleSendEmail = async (emailId: string) => {
+    toast.error("Mails versenden ist noch nicht implementiert")
+    return;
+    
     try {
       // In a real app, this would be a POST request to your API
       await new Promise(resolve => setTimeout(resolve, 500));
