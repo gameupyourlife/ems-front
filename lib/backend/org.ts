@@ -1,4 +1,4 @@
-import { Organization, OrgUser } from "../types-old";
+import { Organization, OrgUser, UserRole } from "../types-old";
 import { guardUUID } from "./utils";
 
 export async function getMembers(orgId: string, token: string): Promise<OrgUser[]> {
@@ -19,21 +19,22 @@ export async function getMembers(orgId: string, token: string): Promise<OrgUser[
         });
 }
 
-export async function updateMemberRole(orgId: string, userId: string, role: string, token: string) {
-    guardUUID(orgId);
+interface MemberRoleUpdateDto {
+    userId: string,
+    organizationId: string,
+    newRole: UserRole
+}
+
+export async function updateMemberRole(userId: string, dto: MemberRoleUpdateDto, token: string) {
     guardUUID(userId);
 
-    if (!role) {
-        throw new Error("Role is required");
-    }
-
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/members/${userId}`, {
+    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/roles/${userId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify(dto),
     })
         .then((res) => res.json())
         .then((data) => data)

@@ -6,22 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
     SearchIcon,
     FilterIcon,
     UserIcon,
     ClipboardIcon,
-    ShieldIcon,
-    XIcon,
     MoreHorizontal,
-    UserPlusIcon
+    UserPlusIcon,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -35,19 +27,26 @@ import {
     ColumnFiltersState,
     getFilteredRowModel,
 } from "@tanstack/react-table";
-import { OrgUser } from "@/lib/types-old";
+import { OrgUser, UserRole } from "@/lib/types-old";
+import LoadingSpinner from "../loading-spinner";
+import { useSession } from "next-auth/react";
+import { updateMemberRole } from "@/lib/backend/org";
+import { toast } from "sonner";
 
 interface TeamMembersProps {
     members: OrgUser[];
     orgId: string;
+    loading?: boolean;
+    error: Error | null;
 }
 
-export default function TeamMembers({ members, orgId }: TeamMembersProps) {
+export default function TeamMembers({ members, orgId, loading, error }: TeamMembersProps) {
     // Zustand für Sortierung, Filter, Suche und Zeilenauswahl der Tabelle
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [rowSelection, setRowSelection] = useState({});
+    const { data: session } = useSession()
 
     // Initialen für Avatar-Fallback generieren
     const getInitials = (name: string) => {
@@ -61,7 +60,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     // Tabellenspalten definieren
     const columns: ColumnDef<OrgUser>[] = useMemo(() => [
         {
-            accessorKey: "user.name",
+            accessorKey: "fullName",
             header: "Name",
             id: "name",
             cell: ({ row }) => {
@@ -69,10 +68,10 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 return (
                     <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8 border">
-                            <AvatarImage src={member.user.profilePicture} alt={member.user.name} />
-                            <AvatarFallback>{getInitials(member.user.name)}</AvatarFallback>
+                            <AvatarImage src={member?.profilePicture || ""} alt={member.fullName} />
+                            <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
                         </Avatar>
-                        <div className="font-medium">{member.user.name}</div>
+                        <div className="font-medium">{member.fullName}</div>
                     </div>
                 );
             },
@@ -126,32 +125,54 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/user/${member.user.id}`} className="flex cursor-pointer items-center">
+                                    <Link href={`/user/${member.id}`} className="flex cursor-pointer items-center">
                                         <UserIcon className="mr-2 h-4 w-4" />
                                         Profil anzeigen
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(member.email)}>
                                     <ClipboardIcon className="mr-2 h-4 w-4" />
                                     E-Mail kopieren
                                 </DropdownMenuItem>
-                                {member.role !== "Admin" && (
-                                    <DropdownMenuItem>
-                                        <ShieldIcon className="mr-2 h-4 w-4" />
-                                        Zum Admin machen
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                {member.role === "Admin" && (
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
-                                        <ShieldIcon className="mr-2 h-4 w-4 " />
-                                        Admin-Status entfernen
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
+                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(member.id)}>
+                                    <ClipboardIcon className="mr-2 h-4 w-4" />
+                                    ID kopieren
+                                </DropdownMenuItem>
+                                {/* For all UserRole entiries create promote/demote buttons */}
+                                {
+                                    Object.values(UserRole).map((role) => {
+                                        if ((role as UserRole) < (session?.user?.role as UserRole || 0)) return null;
+
+                                        if (role !== member.role) {
+                                            return (
+                                                <DropdownMenuItem key={role} className="flex cursor-pointer items-center"
+                                                    onClick={() => {
+                                                        updateMemberRole(member.id, {
+                                                            userId: member.id,
+                                                            organizationId: orgId,
+                                                            newRole: role as UserRole
+                                                        }, session?.user?.jwt || "")
+                                                            .then(() => {
+                                                                toast.success(`Mitgliedsrolle erfolgreich aktualisiert!`);
+                                                            })
+                                                            .catch((error) => {
+                                                                console.error("Error updating member role:", error);
+                                                                toast.error(`Fehler beim Aktualisieren der Mitgliedsrolle`);
+                                                            });
+                                                    }}
+                                                >
+                                                    <UserIcon className="mr-2 h-4 w-4" />
+                                                    {(role as UserRole) < member.role ? "Befördern" : "Herabstufen"}
+                                                </DropdownMenuItem>
+                                            );
+                                        }
+                                        return null;
+                                    })
+                                }
+                                {/* <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
                                     <XIcon className="mr-2 h-4 w-4" />
                                     Entfernen
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -162,7 +183,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
 
     // Eigene globale Filterfunktion für ODER-Suche über Name und E-Mail
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
-        const userName = row.original.user.name.toLowerCase();
+        const userName = row.original.fullName.toLowerCase();
         const userEmail = row.original.user.email.toLowerCase();
         const searchTerm = filterValue.toLowerCase();
 
@@ -205,6 +226,22 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <p className="text-red-500">Fehler beim Laden der Mitglieder: {error.message}</p>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
@@ -238,10 +275,10 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                         <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue(undefined)}>
                             Alle Rollen
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Admin")}>
+                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue(UserRole.Admin)}>
                             Admin
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Member")}>
+                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue(UserRole.User)}>
                             Mitglied
                         </DropdownMenuItem>
                     </DropdownMenuContent>

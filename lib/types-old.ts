@@ -48,6 +48,15 @@ export interface User {
     jwt?: string;
 }
 
+export enum UserRole
+{
+    Admin,
+    Owner,
+    Organizer,
+    EventOrganizer,
+    User
+}
+
 export interface OrgUser {
     createdAt: string
     email: string
@@ -57,7 +66,7 @@ export interface OrgUser {
     lastName: string
     organization: { id: string, name: string, profilePicture: string }
     profilePicture: string | null
-    role: number
+    role: UserRole
 }
 
 // Condition types

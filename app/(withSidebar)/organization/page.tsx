@@ -20,13 +20,13 @@ export default function Page() {
     // Hole die aktuelle Session
     const { data: session } = useSession()
     const currentOrg = session?.org;
-    if (!currentOrg) return null; // Zeige nichts an, falls keine Organisation vorhanden ist
 
     // Lade Mitglieder und Events der aktuellen Organisation
-    const { data: members } = useMembers(currentOrg?.id || "", session?.user?.jwt || "")
-    let { data: events } = useEvents(currentOrg?.id || "", session?.user?.jwt || "")
+    const { data: members, isLoading: isLoadingMembers, error: errorMembers } = useMembers(session?.user?.organization.id || "", session?.user?.jwt || "")
+    let { data: events } = useEvents(session?.user?.organization.id || "", session?.user?.jwt || "")
     events = events ?? [] // Stelle sicher, dass events ein Array ist
     const router = useRouter();
+
 
     // Filtere nur zukünftige Events (Events mit Startdatum in der Zukunft)
     const currentDate = new Date();
@@ -58,6 +58,8 @@ export default function Page() {
         },
     ];
 
+    console.log("Members: ", members, isLoadingMembers, errorMembers);
+
     return (
         <>
             <SiteHeader actions={quickActions} />
@@ -65,8 +67,8 @@ export default function Page() {
             <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
                 {/* Statistik-Karten */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <StatsCard title="Anzahl Teammitglieder" description="+3 im letzten Monat" value={currentOrg.numOfMembers} />
-                    <StatsCard title="Anzahl Events" description="+2 im letzten Monat" value={currentOrg.numOfEvents} />
+                    <StatsCard title="Anzahl Teammitglieder" description="+3 im letzten Monat" value={currentOrg?.numOfMembers || 0} />
+                    <StatsCard title="Anzahl Events" description="+2 im letzten Monat" value={currentOrg?.numOfEvents || 0} />
                     <StatsCard title="Anstehende Events" description={`Nächstes Event in ${formatDistanceToNow(mockEvents[1].start)}`} value={upcomingEvents.length} />
                     <StatsCard title="Anzahl Teilnehmende" description="Über alle Events" value={mockEvents.reduce((sum, event) => sum + event.attendeeCount, 0)} />
                 </div>
@@ -80,7 +82,7 @@ export default function Page() {
 
                     {/* Mitglieder-Tab - verwendet die TeamMembers-Komponente */}
                     <TabsContent value="members">
-                        <TeamMembers members={members ?? []} orgId={currentOrg.id} />
+                        <TeamMembers error={errorMembers} loading={isLoadingMembers} members={members ?? []} orgId={session?.user?.organization.id || ""} />
                     </TabsContent>
 
                     {/* Events-Tab */}
@@ -108,7 +110,7 @@ export default function Page() {
                         ) : (
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {upcomingEvents.map((event) => (
-                                    <OrgEventCard event={event} key={event.id} orgId={currentOrg.id} />
+                                    <OrgEventCard event={event} key={event.id} orgId={session?.user?.organization.id || ""} />
                                 ))}
                             </div>
                         )}
