@@ -11,7 +11,7 @@ import {
     Users,
     Tag,
     Check,
-    Mail,
+    Mail as MailIcon,
     Clock,
     AlertCircle,
     ChevronRight,
@@ -26,7 +26,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { SelectionCard } from "@/components/selection-card";
-import { Action, ActionType, Flow, Trigger, TriggerType } from "@/lib/backend/types";
+import { Action, ActionType, Flow, Mail, Trigger, TriggerType } from "@/lib/backend/types";
 
 // Aktionen-Typen mit Icons und Beschreibungen
 const actionTypes = [
@@ -34,7 +34,7 @@ const actionTypes = [
         id: ActionType.SendEmail,
         name: "E-Mail senden",
         description: "Versendet eine E-Mail-Benachrichtigung",
-        icon: <Mail className="h-5 w-5" />
+        icon: <MailIcon className="h-5 w-5" />
     },
     {
         id: ActionType.ChangeStatus,
@@ -573,17 +573,18 @@ export function AddActionDialog({
     onOpenChange,
     onAdd,
     existingFlow,
-    itemToEdit
+    itemToEdit,
+    mails
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onAdd: (actionType: ActionType, details: any) => void;
     existingFlow?: Flow;
     itemToEdit?: Action | undefined | null;
+    mails: Mail[] | undefined;
 }) {
     const [actionType, setActionType] = useState<ActionType | null>(null);
     const [details, setDetails] = useState<any>({});
-    const [emailRecipientType, setEmailRecipientType] = useState<string>("specific");
     const [availableTriggerVariables, setAvailableTriggerVariables] = useState<{ id: string, type: TriggerType, label: string, variables?: string[] }[]>([]);
     const [activeTab, setActiveTab] = useState<string>("");
 
@@ -641,19 +642,6 @@ export function AddActionDialog({
             setActionType(itemToEdit.type);
             setDetails(itemToEdit.details || {});
             setActiveTab("config");
-
-            // Set recipient type based on action details
-            if (itemToEdit.type === ActionType.SendEmail) {
-                if (typeof itemToEdit.details?.recipients === 'string') {
-                    if (itemToEdit.details.recipients.includes('trigger.')) {
-                        setEmailRecipientType("registeredUser");
-                    } else if (itemToEdit.details.recipients === 'all.users') {
-                        setEmailRecipientType("allUsers");
-                    } else {
-                        setEmailRecipientType("specific");
-                    }
-                }
-            }
         }
     }, [open, itemToEdit]);
 
@@ -664,7 +652,6 @@ export function AddActionDialog({
             setTimeout(() => {
                 setActionType(null);
                 setDetails({});
-                setEmailRecipientType("specific");
                 setActiveTab("");
             }, 300); // Small delay to avoid visual glitches during animation
         }
@@ -677,12 +664,10 @@ export function AddActionDialog({
             // Reset details when action type changes
             setDetails({});
 
-            // Reset recipient types
-            setEmailRecipientType("specific");
         }
 
         // Set active tab based on action type
-        if (actionType) {
+        if (actionType !== null) {
             setActiveTab("config");
         } else {
             setActiveTab("");
@@ -702,12 +687,7 @@ export function AddActionDialog({
         let finalDetails = { ...details };
 
         if (actionType === ActionType.SendEmail) {
-            if (emailRecipientType === "registeredUser" && details.selectedTriggerId) {
-                finalDetails.recipients = `trigger.${details.selectedTriggerId}.user.email`;
-            } else if (emailRecipientType === "allUsers") {
-                finalDetails.recipients = "all.users";
-            }
-            // For specific emails, use the existing recipients
+            if(!("sendToNewAttendee" in details)) finalDetails.sendToNewAttendee = false;
         }
 
         onAdd(actionType, finalDetails);
@@ -783,113 +763,64 @@ export function AddActionDialog({
 
                         <ScrollArea className="max-h-[calc(100vh-370px)] overflow-auto">
                             {actionType === ActionType.SendEmail && (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="emailSubject">Email Subject</Label>
-                                        <Input
-                                            id="emailSubject"
-                                            value={details.subject || ""}
-                                            onChange={(e) => setDetails({ ...details, subject: e.target.value })}
-                                            placeholder="Enter email subject"
+                                <>
+                                    {existingFlow?.triggers?.some(t => t.type === TriggerType.Registration) && <div className="space-y-2">
+                                        <Label htmlFor="mailId">Neuer Teilnehmer als Empfänger?</Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Wählen Sie diese Option, wenn Sie diese E-Mail an den neuen Teilnehmer senden möchten, der sich für die Veranstaltung registriert hat.
+                                        </p>
+
+                                        <SelectionCard
+                                            selected={details.sendToNewAttendee}
+                                            onClick={() => setDetails({ ...details, sendToNewAttendee: true })}
+                                            title="Ja"
+                                            description="E-Mail an den neuen Teilnehmer senden. Die in der Mail-Vorlage angegebenen Empfänger werden ignoriert."
                                         />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="emailBody">Email Body</Label>
-                                        <Textarea
-                                            id="emailBody"
-                                            value={details.body || ""}
-                                            onChange={(e) => setDetails({ ...details, body: e.target.value })}
-                                            placeholder="Enter email body"
-                                            className="min-h-[120px]"
+                                        <SelectionCard
+                                            selected={!details.sendToNewAttendee}
+                                            onClick={() => setDetails({ ...details, sendToNewAttendee: false })}
+                                            title="Nein"
+                                            description="E-Mail standart Empfänger verwenden"
                                         />
-                                    </div>
+                                    </div>}
+
 
                                     <div className="space-y-2">
-                                        <Label>Recipients</Label>
-                                        <div className={
-                                            cn(
-                                                "grid grid-cols-1 sm:grid-cols-2 gap-2",
-                                                hasRegistrationTrigger && "md:grid-cols-3"
-                                            )
-                                        }>
-                                            <SelectionCard
-                                                selected={emailRecipientType === "specific"}
+                                        <Label htmlFor="mailId">Select Mail Template</Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Choose a mail template to send when this flow runs
+                                        </p>
+
+
+                                        {mails?.map((mail) => (
+                                            <Card
+                                                key={mail.id}
+                                                className={cn(
+                                                    "border cursor-pointer transition-all hover:border-primary/50 hover:shadow-sm",
+                                                    details.mailId === mail.id && "border-primary bg-primary/5"
+                                                )}
                                                 onClick={() => {
-                                                    setEmailRecipientType("specific");
+                                                    setDetails((old: any) => ({ ...old, mailId: mail.id }));
                                                 }}
-                                                title="Email Addresses"
-                                                description="Send to individual emails you specify"
-                                                icon={<Mail className="h-5 w-5" />}
-                                            />
-
-                                            {hasRegistrationTrigger && (
-                                                <SelectionCard
-                                                    selected={emailRecipientType === "registeredUser"}
-                                                    onClick={() => {
-                                                        setEmailRecipientType("registeredUser");
-
-                                                        // If there's only one registration trigger, select it automatically
-                                                        const registrationTriggers = availableTriggerVariables.filter(v => v.type === TriggerType.Registration);
-                                                        if (registrationTriggers.length === 1) {
-                                                            setDetails((prev: any) => ({ ...prev, selectedTriggerId: registrationTriggers[0].id }));
-                                                        }
-                                                    }}
-                                                    title="New Registered User"
-                                                    description="Send to the user who just registered"
-                                                    icon={<Check className="h-5 w-5" />}
-                                                />
-                                            )}
-
-                                            <SelectionCard
-                                                selected={emailRecipientType === "allUsers"}
-                                                onClick={() => {
-                                                    setEmailRecipientType("allUsers");
-                                                }}
-                                                title="All Event Users"
-                                                description="Send to all users registered for the event"
-                                                icon={<Users className="h-5 w-5" />}
-                                            />
-                                        </div>
-
-                                        {/* Details section that appears underneath selected cards */}
-                                        <div className="mt-3">
-                                            {emailRecipientType === "specific" && (
-                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
-                                                    <Label htmlFor="emailRecipients" className="text-sm font-medium mb-2 block">Email addresses</Label>
-                                                    <Input
-                                                        id="emailRecipients"
-                                                        value={details.recipients || ""}
-                                                        onChange={(e) => setDetails({ ...details, recipients: e.target.value })}
-                                                        placeholder="e.g., user@example.com, another@example.com"
-                                                    />
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Enter email addresses separated by commas
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {emailRecipientType === "registeredUser" && availableTriggerVariables.filter(v => v.type === TriggerType.Registration).length > 1 && (
-                                                <div className="px-4 py-3 bg-muted/50 rounded-md border border-primary/20">
-                                                    <Label htmlFor="triggerSelect" className="text-sm font-medium mb-2 block">Select registration trigger</Label>
-                                                    <div className="grid grid-cols-1 gap-2">
-                                                        {availableTriggerVariables
-                                                            .filter(v => v.type === TriggerType.Registration)
-                                                            .map(trigger => (
-                                                                <SelectionCard
-                                                                    key={trigger.id}
-                                                                    selected={details.selectedTriggerId === trigger.id}
-                                                                    onClick={() => setDetails({ ...details, selectedTriggerId: trigger.id })}
-                                                                    title={trigger.label}
-                                                                    description={`Trigger ID: ${trigger.id}`}
-                                                                />
-                                                            ))
-                                                        }
+                                            >
+                                                <CardContent className="p-4 space-y-2">
+                                                    <div className={cn(
+                                                        "p-2 w-10 h-10 rounded-full flex items-center justify-center",
+                                                        "bg-muted"
+                                                    )}>
+                                                        <MailIcon className="h-5 w-5 text-muted-foreground" />
                                                     </div>
-                                                </div>
-                                            )}
-                                        </div>
+                                                    <div>
+                                                        <h3 className="font-medium text-sm">{mail.name}</h3>
+                                                        <p className="text-xs text-muted-foreground">{mail.description}</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                        ))}
                                     </div>
-                                </div>
+
+                                </>
                             )}
 
                             {actionType === ActionType.ChangeStatus && (
@@ -1003,8 +934,7 @@ export function AddActionDialog({
                             <Button
                                 onClick={handleAddAction}
                                 disabled={
-                                    (emailRecipientType === "registeredUser" && !details.selectedTriggerId) ||
-                                    (actionType === ActionType.SendEmail && (!details.subject || !details.body)) ||
+                                    (actionType === ActionType.SendEmail && !details.mailId) ||
                                     (actionType === ActionType.ChangeStatus && !details.newStatus) ||
                                     (actionType === ActionType.ChangeImage && !details.newImage) ||
                                     (actionType === ActionType.ChangeTitle && !details.newTitle) ||

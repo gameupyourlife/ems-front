@@ -1,10 +1,8 @@
 "use client";
 
-// Imports
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { emailTemplates } from "@/lib/mock/email-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,8 +22,6 @@ import {
   Plus,
   Trash,
   Edit,
-  Copy,
-  Eye,
   MoreHorizontal,
   FilterIcon,
   ArrowUpDown,
@@ -73,31 +69,20 @@ import {
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
-
-// Typdefinitionen
-type EmailTemplate = {
-  id: string;
-  name: string;
-  subject: string;
-  body: string;
-  description: string;
-  isUserCreated?: boolean;
-  createdBy?: string;
-  updatedBy?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
+import { useSession } from "next-auth/react";
+import { useMailTemplates } from "@/lib/backend/hooks/use-mail-templates";
+import { OrgMail } from "@/lib/backend/types";
+import { deleteMailTemplate } from "@/lib/backend/mail-templates";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function EmailTemplates() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const queryClient = useQueryClient()
+  const { data: templates, isLoading } = useMailTemplates(session?.user?.organization.id || "", session?.user?.jwt || "")
 
-  // State-Definitionen
-  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [templateToPreview, setTemplateToPreview] = useState<EmailTemplate | null>(null);
-  const [templateToDelete, setTemplateToDelete] = useState<EmailTemplate | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<OrgMail | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -106,123 +91,23 @@ export default function EmailTemplates() {
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [activeTemplateType, setActiveTemplateType] = useState<string | null>(null);
 
-  // Templates laden (Mock)
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        // In einer echten App wäre dies ein API-Aufruf
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Metadaten zu Systemvorlagen hinzufügen
-        const templatesWithMetadata = emailTemplates.map(template => ({
-          ...template,
-          isUserCreated: false, // Systemvorlagen
-          createdBy: "System",
-          updatedBy: "System",
-          createdAt: new Date("2023-01-15"),
-          updatedAt: new Date("2023-01-15")
-        }));
-
-        // Einige benutzerdefinierte Vorlagen mit Metadaten hinzufügen
-        const userTemplates: EmailTemplate[] = [
-          {
-            id: "user-template-1",
-            name: "Mein benutzerdefiniertes Willkommensmail",
-            subject: "Willkommen zu [Event Name] - Wichtige Informationen",
-            body: `<h2>Willkommen zu [Event Name]!</h2>
-              <p>Vielen Dank für Ihre Anmeldung zu unserer Veranstaltung. Wir freuen uns, Sie dabei zu haben!</p>
-              <p>Diese E-Mail enthält alle wichtigen Informationen für Ihr Erlebnis.</p>
-              <h3>Veranstaltungsdetails:</h3>
-              <ul>
-                <li><strong>Datum:</strong> [Event Date]</li>
-                <li><strong>Uhrzeit:</strong> [Start Time] - [End Time]</li>
-                <li><strong>Ort:</strong> [Venue Name]</li>
-              </ul>
-              <h3>Was Sie mitbringen sollten:</h3>
-              <ul>
-                <li>Ihr Ticket (digital oder ausgedruckt)</li>
-                <li>Notizbuch und Stift</li>
-                <li>Visitenkarten zum Netzwerken</li>
-                <li>Voll aufgeladenes Laptop oder Tablet</li>
-              </ul>
-              <p>Wir freuen uns auf Sie!</p>
-              <p>Viele Grüße,<br>Das Event-Team</p>`,
-            description: "Meine angepasste Willkommensmail für Teilnehmer",
-            isUserCreated: true,
-            createdBy: "Jane Doe",
-            updatedBy: "Jane Doe",
-            createdAt: new Date("2023-06-20"),
-            updatedAt: new Date("2023-06-25")
-          },
-          {
-            id: "user-template-2",
-            name: "Danke an Speaker",
-            subject: "Danke für Ihren Vortrag bei [Event Name]",
-            body: `<h2>Danke für Ihren Vortrag bei [Event Name]!</h2>
-              <p>Im Namen aller Teilnehmer und des Organisationsteams möchten wir uns herzlich für Ihren großartigen Vortrag bedanken.</p>
-              <p>Ihre Einblicke waren sehr wertvoll und haben viel positives Feedback erhalten.</p>
-              <p>Wir würden uns freuen, Sie auch bei zukünftigen Events als Speaker begrüßen zu dürfen. Ihre Kontaktdaten wurden an interessierte Teilnehmer weitergegeben.</p>
-              <p>Nochmals vielen Dank für Ihren Beitrag zum Erfolg unserer Veranstaltung!</p>
-              <p>Viele Grüße,<br>Das Event-Team</p>`,
-            description: "Dankesnachricht für Speaker",
-            isUserCreated: true,
-            createdBy: "John Smith",
-            updatedBy: "John Smith",
-            createdAt: new Date("2023-05-10"),
-            updatedAt: new Date("2023-05-10")
-          }
-        ];
-
-        setTemplates([...templatesWithMetadata, ...userTemplates]);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Fehler beim Laden der Vorlagen:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
-
-  // Event-Handler
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handlePreview = (template: EmailTemplate) => {
-    setTemplateToPreview(template);
-    setPreviewDialogOpen(true);
-  };
-
-  const handleDelete = (template: EmailTemplate) => {
+  const handleDelete = (template: OrgMail) => {
     setTemplateToDelete(template);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (templateToDelete) {
-      // Vorlage entfernen
-      setTemplates(templates.filter(t => t.id !== templateToDelete.id));
-      setDeleteDialogOpen(false);
-      toast.success(`Vorlage "${templateToDelete.name}" erfolgreich gelöscht`);
+      try {
+        deleteMailTemplate(session?.user?.organization.id || "", templateToDelete.id, session?.user?.jwt || "")
+        queryClient.invalidateQueries({ queryKey: ["mailTemplates"] })
+        toast.success(`Vorlage "${templateToDelete.name}" erfolgreich gelöscht`);
+      } catch {
+        toast.error("Löschen fehlgeschlagen")
+      } finally {
+        setDeleteDialogOpen(false);
+      }
     }
-  };
-
-  const handleDuplicate = (template: EmailTemplate) => {
-    // Kopie der Vorlage mit neuer ID erstellen
-    const newTemplate: EmailTemplate = {
-      ...template,
-      id: `copy-${template.id}-${Date.now()}`,
-      name: `Kopie von ${template.name}`,
-      isUserCreated: true, // Als benutzerdefiniert markieren
-      createdBy: "Aktueller Benutzer",
-      updatedBy: "Aktueller Benutzer",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    setTemplates([...templates, newTemplate]);
-    toast.success(`Vorlage "${template.name}" erfolgreich dupliziert`);
   };
 
   // Filter-Logik
@@ -272,8 +157,8 @@ export default function EmailTemplates() {
       createdBy.includes(searchTerm);
   };
 
-  // Tabellenspalten definieren
-  const columns: ColumnDef<EmailTemplate>[] = [
+  // Define the columns for the table
+  const columns: ColumnDef<OrgMail>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -392,17 +277,10 @@ export default function EmailTemplates() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handlePreview(template)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  <span>Vorschau</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDuplicate(template)}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  <span>Duplizieren</span>
-                </DropdownMenuItem>
+
+
                 {template.isUserCreated && (
                   <>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href={`/organization/email-templates/${template.id}/edit`} className="flex cursor-pointer">
                         <Edit className="mr-2 h-4 w-4" />
@@ -429,7 +307,7 @@ export default function EmailTemplates() {
 
   // Tabelle initialisieren
   const table = useReactTable({
-    data: templates,
+    data: templates || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -459,13 +337,22 @@ export default function EmailTemplates() {
     },
   });
 
+  if (!templates && !isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-lg text-muted-foreground">Keine Vorlagen gefunden.</p>
+      </div>
+    );
+  }
+
   // Quick Actions für Header
   const quickActions: QuickAction[] = [
     {
-        label: "Vorlage erstellen",
-        onClick: () => router.push("/organization/email-templates/create"),
-        icon: <Plus className="h-4 w-4" />,
+      label: "Vorlage erstellen",
+      onClick: () => router.push("/organization/email-templates/create"),
+      icon: <Plus className="h-4 w-4" />,
     },
+
   ];
 
   // Render
@@ -728,7 +615,7 @@ export default function EmailTemplates() {
               {/* Paginierungs-Steuerung */}
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Zeige {table.getRowModel().rows.length} von {templates.length} Vorlagen
+                  Zeige {table.getRowModel().rows.length} von {templates?.length} Vorlagen
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -760,63 +647,7 @@ export default function EmailTemplates() {
           </div>
         </div>
 
-        {/* Vorschau-Dialog */}
-        <AlertDialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-          <AlertDialogContent className="max-w-3xl max-h-[80vh]">
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {templateToPreview?.name}
-                {templateToPreview && !templateToPreview.isUserCreated && (
-                  <Badge className="ml-2 bg-blue-50 text-blue-800">Systemvorlage</Badge>
-                )}
-                {templateToPreview && templateToPreview.isUserCreated && (
-                  <Badge className="ml-2 bg-green-50 text-green-800">Benutzerdefiniert</Badge>
-                )}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {templateToPreview?.description}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="overflow-y-auto max-h-[50vh]">
-              <div className="space-y-4 py-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-muted-foreground">Betreff</h3>
-                  <div className="text-sm border rounded-md p-3 bg-muted/50">{templateToPreview?.subject}</div>
-                </div>
-
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-muted-foreground">E-Mail-Inhalt</h3>
-                  <div className="border rounded-md p-4 ">
-                    <div
-                      className="prose dark:prose-invert max-w-none text-sm"
-                      dangerouslySetInnerHTML={{ __html: templateToPreview?.body || "" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <AlertDialogFooter>
-              {templateToPreview?.isUserCreated && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="mr-auto"
-                >
-                  <Link href={`/organization/email-templates/${templateToPreview?.id}/edit`}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Vorlage bearbeiten
-                  </Link>
-                </Button>
-              )}
-              <AlertDialogCancel>Schließen</AlertDialogCancel>
-              <Button onClick={() => handleDuplicate(templateToPreview!)}>
-                <Copy className="h-4 w-4 mr-2" />
-                Duplizieren
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        
 
         {/* Lösch-Bestätigungsdialog */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
