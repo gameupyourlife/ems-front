@@ -214,7 +214,7 @@ export default function EventDetailsPage() {
               className="flex items-center gap-2 data-[state=active]:bg-background"
             >
               <FunctionSquare className="h-4 w-4" />
-              <span>Abläufe</span>
+              <span>Flow</span>
             </TabsTrigger>
             <TabsTrigger
               value="agenda"

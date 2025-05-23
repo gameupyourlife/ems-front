@@ -284,6 +284,7 @@ export interface DeleteAttendeeParams {
 }
 
 export interface DeleteEvent{
+    title: any;
     orgId: string
     eventId: string
     token: string

@@ -1,5 +1,5 @@
 "use client";;
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,19 +33,24 @@ import { mockFlows } from "@/lib/data";
 // Formular-Schema
 import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";
 import { Flow } from "@/lib/backend/types";
-import { useEventDetails } from "@/lib/backend/hooks/events";
+import { useDeleteEvent, useEventDetails } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 import { AgendaEntry, deleteAgendaEntry, updateAgendaEntry } from "@/lib/backend/agenda";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useEvents, useUpdateEvent } from "@/lib/backend/hooks/events";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function EditEventPage() {
   const router = useRouter();
   const params = useParams();
   const eventId = params.eventId as string;
-
-  const { data: session } = useSession();
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const token = session?.user?.jwt ?? ""
+  const orgId = session?.user?.organization.id ?? ""
+  const userId = session?.user?.id ?? ""
   const { data: event, isLoading } = useEventDetails(session?.user?.organization.id || "", eventId, session?.user?.jwt || "");
+
 
   // Lokale State-Variablen
   const [activeTab, setActiveTab] = useState("basic");
@@ -69,6 +74,13 @@ export default function EditEventPage() {
       image: event?.metadata.image,
     },
   });
+
+   const { mutate: deleteEvent, status: deleteStatus } = useDeleteEvent({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["eventsByCreator", orgId, userId, token] })
+      },
+    })
+
 
   // Formular-Submit-Handler
   const onSubmit = async (data: EventFormData) => {
@@ -112,21 +124,19 @@ export default function EditEventPage() {
   };
 
   // Event löschen Handler
-  const handleDeleteEvent = async () => {
-    try {
-      console.log("Event wird gelöscht:", eventId);
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast.success(`Event "${event?.metadata.title}" wurde erfolgreich gelöscht`);
-      router.push("/organization/events");
-    } catch (error) {
-      console.error("Fehler beim Löschen des Events:", error);
-      toast.error("Event konnte nicht gelöscht werden. Bitte versuche es erneut.");
-    } finally {
-      setIsDeleteDialogOpen(false);
-    }
-  };
+  const handleDeleteEvent = () => {
+  try {
+    console.log("Event wird gelöscht:", eventId);
+    deleteEvent({ orgId, eventId, token, title: event?.metadata.title });
+    toast.success(`Event "${event?.metadata.title}" wurde erfolgreich gelöscht`);
+    router.push("/organization/events");
+  } catch (error) {
+    console.error("Fehler beim Löschen des Events:", error);
+    toast.error("Event konnte nicht gelöscht werden. Bitte versuche es erneut.");
+  } finally {
+    setIsDeleteDialogOpen(false);
+  }
+};
 
   // Event-Daten in State übernehmen, wenn geladen
   useEffect(() => {
@@ -299,3 +309,5 @@ export default function EditEventPage() {
     </div>
   );
 }
+
+

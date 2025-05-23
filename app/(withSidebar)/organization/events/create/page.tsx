@@ -186,7 +186,7 @@ export default function CreateEventPage() {
             </TabsTrigger>
             <TabsTrigger value="flows" className="flex items-center gap-2">
               <FunctionSquare className="h-4 w-4" />
-              Abläufe
+              Flow
             </TabsTrigger>
             <TabsTrigger value="agenda" className="flex items-center gap-2">
               <ListTodo className="h-4 w-4" />

@@ -68,11 +68,15 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { useEventsByCreator } from "@/lib/backend/hooks/events"
+import { useEventDetails, useEventsByCreator } from "@/lib/backend/hooks/events"
 import { useSession } from "next-auth/react"
-import { useDeleteAttendee } from "@/lib/backend/hooks/events"
+import { useDeleteEvent } from "@/lib/backend/hooks/events"
 import { useQueryClient } from "@tanstack/react-query"
-import router, { useRouter } from "next/navigation"
+import router, { useParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";
 
 export default function EventTable() {
   // --- Zustand für Sortierung, Filter, Auswahl, Sichtbarkeit, Suche ---
@@ -81,17 +85,38 @@ export default function EventTable() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [searchInput, setSearchInput] = useState("")
-
+  
   const queryClient = useQueryClient()
   const { data: session } = useSession()
+  const params = useParams();
   const token = session?.user?.jwt ?? ""
   const orgId = session?.user?.organization.id ?? ""
   const userId = session?.user?.id ?? ""
+  const eventId = params.eventId as string;
+
+  const { data: event } = useEventDetails(orgId || "", eventId, token || "");
+
+  const form = useForm<EventFormData>({
+      resolver: zodResolver(eventFormSchema),
+      defaultValues: {
+        title: event?.metadata.title,
+        description: event?.metadata.description,
+        category: event?.metadata.category?.toString(),
+        location: event?.metadata.location,
+        start: new Date(event?.metadata.start || Date.now()),
+        end: new Date(event?.metadata.end || Date.now() + 3600_000),
+        status: String(event?.metadata.status),
+        capacity: event?.metadata.capacity,
+        image: event?.metadata.image,
+      },
+    });
 
   const { data: rawEvents = [], isLoading, error } = useEventsByCreator(orgId, userId, token)
-  const { mutate: deleteEvent, status: deleteStatus } = useDeleteAttendee({
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["eventsByCreator", orgId, userId] })
+  const { mutate: deleteEvent } = useDeleteEvent({
+    onSuccess: (_data, variables) => {
+      // variables enthält orgId, eventId, title
+      toast.success(`Event "${variables.title}" wurde erfolgreich gelöscht`);
+      queryClient.invalidateQueries({ queryKey: ["eventsByCreator", orgId, userId] });
     },
   })
 
@@ -346,13 +371,15 @@ export default function EventTable() {
               <Edit className="h-4 w-4" /> Event bearbeiten
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href={`/organization/events/${event.id}`} className="flex items-center gap-2">
-              <ShareIcon className="h-4 w-4" /> Event teilen
-            </Link>
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => window.confirm("Bist du sicher, dass du dieses Event löschen möchtest?") && onDelete({ orgId, eventId: event.id, token })} className="text-destructive flex items-center gap-2">
+          <DropdownMenuItem
+            onClick={(e) => e.stopPropagation()}
+            onSelect={() =>
+              window.confirm("Bist du sicher, dass du dieses Event löschen möchtest?") &&
+              onDelete({ orgId, eventId: event.id, token, title: event.title })
+            }
+            className="text-destructive flex items-center gap-2"
+          >
             <TrashIcon className="h-4 w-4" /> Event löschen
           </DropdownMenuItem>
         </DropdownMenuContent>

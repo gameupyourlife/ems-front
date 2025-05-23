@@ -289,7 +289,7 @@ export function EventAgendaForm({
       <CardFooter className="flex justify-between border-t p-6">
         <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("flows")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Zurück: Abläufe
+          Zurück: Flow
         </Button>
         {isFinalStep ? (
           <Button
