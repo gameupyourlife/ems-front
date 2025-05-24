@@ -107,8 +107,8 @@ export default function CreateEventPage() {
 
       Promise.all(agendaItems.map((entry) => {
         return createAgendaEntry(orgId, eventInfo.id, {
-          end: entry.end.toString(),
-          start: entry.start.toString(),
+          end: entry.end.toISOString(),
+          start: entry.start.toISOString(),
           title: entry.title,
           description: entry.description,
         }, token)

@@ -15,6 +15,7 @@ import { ArrowLeftIcon, ArrowRightIcon, Info, Loader2, Save } from "lucide-react
 import type { EventBasicInfoFormData } from "@/lib/form-schemas"
 import { DateTimePicker24h } from "@/components/ui/date-time-picker"
 import { Controller, type UseFormReturn } from "react-hook-form"
+import { useEffect } from "react"
 
 // Kategorien für das Event
 const CATEGORIES = [
@@ -93,6 +94,17 @@ export function EventBasicInfoForm({
   } else if (!isFinalStep && !onTabChange) {
     throw new Error("Die onTabChange-Funktion ist für nicht-letzte Schritte erforderlich.")
   }
+  const startValue = form.watch("start");
+
+  useEffect(() => {
+    if (startValue) {
+      // setze End auf +1h nach Start, aber nur wenn End noch nicht manuell verändert wurde
+      const currentEnd = form.getValues("end");
+      if (!currentEnd || currentEnd <= startValue) {
+        form.setValue("end", new Date(startValue.getTime() + 60 * 60 * 1000));
+      }
+    }
+  }, [startValue]);
 
   return (
     <Card>
@@ -236,7 +248,13 @@ export function EventBasicInfoForm({
                   Enddatum & Uhrzeit <span className="text-red-500">*</span>
                 </Label>
                 <DateTimePicker24h
-                  initialDate={new Date(values?.end || new Date())}
+                  initialDate={
+                    values?.end
+                      ? new Date(values.end)
+                      : values?.start
+                        ? new Date(new Date(values.start).getTime() + 5 * 60 * 60 * 1000)  
+                        : new Date()
+                  }
                   onDateChange={(date) => form.setValue("end", date!)}
                 />
                 {errors.end && <p className="text-sm text-red-500">{errors.end.message}</p>}
