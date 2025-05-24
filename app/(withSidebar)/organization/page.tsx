@@ -12,21 +12,25 @@ import OrgEventCard from "@/components/org/event-card";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { useRouter } from "next/navigation";
-import { useMembers } from "@/lib/backend/hooks/org";
+import { useMembers } from "@/lib/backend/hooks/use-org";
 import { useEvents } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
 
 export default function Page() {
-    // Hole die aktuelle Session
-    const { data: session } = useSession()
-    const currentOrg = session?.org;
-    if (!currentOrg) return null; // Zeige nichts an, falls keine Organisation vorhanden ist
-
-    // Lade Mitglieder und Events der aktuellen Organisation
-    const { data: members } = useMembers(currentOrg?.id || "", session?.user?.jwt || "")
-    let { data: events } = useEvents(currentOrg?.id || "", session?.user?.jwt || "")
-    events = events ?? [] // Stelle sicher, dass events ein Array ist
+    const { data: session } = useSession();
     const router = useRouter();
+    const orgId = session?.user?.organization.id || "";
+    const token = session?.user?.jwt || "";
+
+    // Diese Hooks werden IMMER aufgerufen – Hook-Regel eingehalten ✅
+    const { data: members } = useMembers(orgId, token);
+    let { data: events } = useEvents(orgId, token);
+    events = events ?? [];
+
+    const currentOrg = session?.org;
+    if (!currentOrg) {
+        return <div className="p-8 text-center text-muted-foreground">Organisation nicht gefunden.</div>;
+    }
 
     // Filtere nur zukünftige Events (Events mit Startdatum in der Zukunft)
     const currentDate = new Date();
@@ -67,8 +71,8 @@ export default function Page() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <StatsCard title="Anzahl Teammitglieder" description="+3 im letzten Monat" value={currentOrg.numOfMembers} />
                     <StatsCard title="Anzahl Events" description="+2 im letzten Monat" value={currentOrg.numOfEvents} />
-                    <StatsCard title="Anstehende Events" description={`Nächstes Event in ${formatDistanceToNow(mockEvents[1].start)}`} value={upcomingEvents.length} />
-                    <StatsCard title="Anzahl Teilnehmende" description="Über alle Events" value={mockEvents.reduce((sum, event) => sum + event.attendeeCount, 0)} />
+                    <StatsCard title="Anstehende Events" description={`Nächstes Event in ${formatDistanceToNow(new Date(upcomingEvents[0]?.start || new Date()))}`} value={upcomingEvents.length} />
+                    <StatsCard title="Anzahl Teilnehmende" description="Über alle Events" value={events.reduce((sum, event) => sum + (event.attendeeCount || 0), 0)} />
                 </div>
 
                 {/* Tabs für Mitglieder und Events */}

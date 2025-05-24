@@ -196,6 +196,7 @@ export interface Action {
 
 export interface EventDetails {
     start: Date;
+    end: Date;
     metadata: EventInfo;
     organization: Organization;
     attendees: User[];

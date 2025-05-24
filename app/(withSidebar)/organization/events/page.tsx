@@ -38,16 +38,23 @@ export default function OrganizationEventsPage() {
     )
   }
 
-  const now = new Date()
-  // Zukünftige Events filtern und sortieren
-  const upcoming = events
-    .filter(e => e.start > now)
-    .sort((a, b) => a.start.getTime() - b.start.getTime())
-  // Vergangene Events filtern und sortieren
-  const past = events
-    .filter(e => e.start < now)
-    .sort((a, b) => b.start.getTime() - a.start.getTime())
+  const now = Date.now();
 
+const upcoming = events
+  .filter(e => new Date(e.start).getTime() > now)
+  .sort((a,b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+const ongoing = events
+  .filter(e => {
+    const s = new Date(e.start).getTime();
+    const t = new Date(e.end).getTime();
+    return s <= now && now <= t;
+  })
+  .sort((a,b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+const past = events
+  .filter(e => new Date(e.end).getTime() < now)
+  .sort((a,b) => new Date(b.end).getTime() - new Date(a.end).getTime());
   if (error) {
     return (
       <div className="container mx-auto py-20 text-center">
@@ -83,8 +90,8 @@ export default function OrganizationEventsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Upcoming</CardTitle>
-              <CardDescription>In the future</CardDescription>
+              <CardTitle className="text-xl">Anstehend</CardTitle>
+              <CardDescription>In der Zukunft</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{upcoming.length}</div>
@@ -92,8 +99,8 @@ export default function OrganizationEventsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Past</CardTitle>
-              <CardDescription>Completed</CardDescription>
+              <CardTitle className="text-xl">Vergangen</CardTitle>
+              <CardDescription>Abgeschlossen</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{past.length}</div>

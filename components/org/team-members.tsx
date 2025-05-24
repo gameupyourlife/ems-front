@@ -43,13 +43,11 @@ interface TeamMembersProps {
 }
 
 export default function TeamMembers({ members, orgId }: TeamMembersProps) {
-    // Zustand für Sortierung, Filter, Suche und Zeilenauswahl der Tabelle
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [rowSelection, setRowSelection] = useState({});
 
-    // Initialen für Avatar-Fallback generieren
     const getInitials = (name: string) => {
         return name
             .split(' ')
@@ -58,10 +56,9 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
             .toUpperCase();
     };
 
-    // Tabellenspalten definieren
     const columns: ColumnDef<OrgUser>[] = useMemo(() => [
         {
-            accessorKey: "user.name",
+            accessorKey: "fullName",
             header: "Name",
             id: "name",
             cell: ({ row }) => {
@@ -69,10 +66,9 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 return (
                     <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8 border">
-                            <AvatarImage src={member.user.profilePicture} alt={member.user.name} />
-                            <AvatarFallback>{getInitials(member.user.name)}</AvatarFallback>
+                            <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
                         </Avatar>
-                        <div className="font-medium">{member.user.name}</div>
+                        <div className="font-medium">{member.fullName}</div>
                     </div>
                 );
             },
@@ -91,19 +87,17 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
             },
         },
         {
-            accessorKey: "user.email",
+            accessorKey: "email",
             id: "email",
             header: "E-Mail",
-            cell: ({ cell }) => {
-                return (
-                    <div className="flex items-center text-muted-foreground">
-                        <span>{cell.getValue() as string}</span>
-                    </div>
-                );
-            },
+            cell: ({ cell }) => (
+                <div className="flex items-center text-muted-foreground">
+                    <span>{cell.getValue() as string}</span>
+                </div>
+            ),
         },
         {
-            accessorKey: "user.createdAt",
+            accessorKey: "createdAt",
             id: "joined",
             header: "Beigetreten",
             cell: ({ cell }) => {
@@ -126,7 +120,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/user/${member.user.id}`} className="flex cursor-pointer items-center">
+                                    <Link href={`/user/${member.id}`} className="flex cursor-pointer items-center">
                                         <UserIcon className="mr-2 h-4 w-4" />
                                         Profil anzeigen
                                     </Link>
@@ -135,14 +129,14 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                                     <ClipboardIcon className="mr-2 h-4 w-4" />
                                     E-Mail kopieren
                                 </DropdownMenuItem>
-                                {member.role !== "Admin" && (
+                                {String(member.role) !== "Admin" && (
                                     <DropdownMenuItem>
                                         <ShieldIcon className="mr-2 h-4 w-4" />
                                         Zum Admin machen
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuSeparator />
-                                {member.role === "Admin" && (
+                                {String(member.role) === "Admin" && (
                                     <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
                                         <ShieldIcon className="mr-2 h-4 w-4 " />
                                         Admin-Status entfernen
@@ -160,16 +154,14 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         },
     ], []);
 
-    // Eigene globale Filterfunktion für ODER-Suche über Name und E-Mail
     const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
-        const userName = row.original.user.name.toLowerCase();
-        const userEmail = row.original.user.email.toLowerCase();
+        const userName = row.original.fullName?.toLowerCase() || "";
+        const userEmail = row.original.email?.toLowerCase() || "";
         const searchTerm = filterValue.toLowerCase();
 
         return userName.includes(searchTerm) || userEmail.includes(searchTerm);
     };
 
-    // Tabellendaten und -funktionen initialisieren
     const table = useReactTable({
         data: members,
         columns,
@@ -188,16 +180,14 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
             globalFilter: searchQuery,
         },
         initialState: {
-            pagination: { pageSize: 5 }
+            pagination: { pageSize: 10 }
         }
     });
 
-    // Globale Filterfunktion für das Suchfeld
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchQuery(value);
 
-        // Nutzt globalen Filter für ODER-Suche über Name und E-Mail
         if (value) {
             table.setGlobalFilter(value);
         } else {
@@ -215,7 +205,6 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </Button>
             </div>
 
-            {/* Suche und Rollenfilter */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className="relative flex-1">
                     <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -248,7 +237,6 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </DropdownMenu>
             </div>
 
-            {/* Mitglieder-Tabelle */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -292,7 +280,6 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                 </Table>
             </div>
 
-            {/* Paginierungs-Steuerung */}
             <div className="flex items-center justify-end space-x-2">
                 <Button
                     variant="outline"

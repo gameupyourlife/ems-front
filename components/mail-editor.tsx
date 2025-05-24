@@ -24,7 +24,7 @@ import { Mail } from "@/lib/backend/types";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./loading-spinner";
 import { useParams, useRouter } from "next/navigation";
-import { useMembers } from "@/lib/backend/hooks/org";
+import { useMembers } from "@/lib/backend/hooks/use-org";
 import { useSession } from "next-auth/react";
 import { createMailTemplate, deleteMailTemplate, updateMailTemplate } from "@/lib/backend/mail-templates";
 import { toast } from "sonner";

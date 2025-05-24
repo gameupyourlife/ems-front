@@ -11,8 +11,10 @@ export async function getMembers(orgId: string, token: string): Promise<OrgUser[
             'Authorization': token ? `Bearer ${token}` : '',
         },
     })
-        .then((res) => res.json())
-        .then((data) => data)
+        .then(async (res) => {
+            const text = await res.text();
+            return JSON.parse(text);
+        })
         .catch((err) => {
             console.error(err);
             throw new Error('Failed to fetch members');
