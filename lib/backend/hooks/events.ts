@@ -1,9 +1,9 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { createEvent, deleteAttendee, deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
+import { createEvent, deleteAttendee, deleteEvent, getEventAttendees, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { DeleteAttendeeParams, DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
+import { DeleteAttendeeParams, DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams, User } from '@/lib/types-old';
 import {
     getCompleteEventDetails
 } from '../events';
@@ -148,6 +148,19 @@ export function useDeleteEvent(
         queryKey: ['eventsById', vars.orgId, vars.eventId],
       })
     },
+    ...options,
+  })
+}
+
+export function useGetEventAttendees(
+  orgId: string,
+  eventId: string,
+  token: string,
+  options?: Omit<UseQueryOptions<User[], Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery<User[], Error>({
+    queryKey: ['eventAttendees', orgId, eventId],
+    queryFn: () => getEventAttendees(orgId, eventId, token),
     ...options,
   })
 }

@@ -312,41 +312,40 @@ export async function getEventOrganization(orgId: string, token: string): Promis
  * @param token Auth token
  * @returns List of attendees
  */
-export async function getEventAttendees(orgId: string, eventId: string, token: string): Promise<User[]> {
-	guardUUID(orgId);
-	guardUUID(eventId);
+export async function getEventAttendees(
+  orgId: string,
+  eventId: string,
+  token: string
+): Promise<User[]> {
+  guardUUID(orgId)
+  guardUUID(eventId)
 
-	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/attendees`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': token ? `Bearer ${token}` : '',
-			},
-		});
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ?? ''
+  const res = await fetch(
+    `${base}/orgs/${orgId}/events/${eventId}/attendees`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        Accept:        'application/json',
+      },
+    }
+  )
 
-		if (!response.ok) {
-			if (response.status === 404) return [];
-			throw new Error(`Failed to fetch attendees: ${response.status}`);
-		}
+  if (!res.ok) {
+    if (res.status === 404) return []
+    throw new Error(`Failed to fetch attendees: ${res.status}`)
+  }
 
-		const attendeesData = await response.json();
-
-		// Transform EventAttendeeDto[] to User[]
-		const attendees: User[] = attendeesData.map((attendee: any) => ({
-			id: attendee.userId,
-			name: attendee.userName || '',
-			email: attendee.userEmail || '',
-			createdAt: '',
-			updatedAt: '',
-			profilePicture: attendee.profilePicture || '',
-		}));
-
-		return attendees;
-	} catch (err) {
-		console.error('Failed to fetch event attendees:', err);
-		throw new Error('Failed to fetch event attendees');
-	}
+  const data = await res.json()
+  return data.map((a: any) => ({
+    id:             a.userId,
+    name:           a.userName,
+    email:          a.userEmail,
+    createdAt:      a.registeredAt,
+    updatedAt:      a.registeredAt,
+    profilePicture: a.profilePicture ?? '',
+  }))
 }
 
 /**
