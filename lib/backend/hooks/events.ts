@@ -1,7 +1,7 @@
 // TanStack Query hooks
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { deleteAttendee, deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
+import { createEvent, deleteAttendee, deleteEvent, getEvents, getEventsByCreator, getEventsById, registerAttendee } from '../events';
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { DeleteAttendeeParams, DeleteEvent, EventDetails, EventInfo, RegisterAttendeeParams } from '@/lib/types-old';
 import {
@@ -64,6 +64,25 @@ export function useEventsById(
         queryFn: () => getEventsById(orgId, eventId, token),
         ...options,
     });
+}
+
+export function useCreateEvent(
+  orgId: string,
+  token: string,
+  options?: Omit<UseMutationOptions<any, Error, any>, 'mutationFn'>,
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: any) => {
+      
+      return createEvent(orgId, data, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] })
+    },
+    ...options,
+  })
 }
 
 export function useRegisterAttendee(

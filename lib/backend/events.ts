@@ -98,6 +98,36 @@ export async function getEventsById(orgId: string, eventId: string, token: strin
 	}
 }
 
+export async function createEvent(
+	orgId: string,
+	payload: EventDetails,
+	token: string
+): Promise<EventDetails> {
+	guardUUID(orgId);
+
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': token ? `Bearer ${token}` : '',
+			},
+			body: JSON.stringify(payload),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.message || 'Failed to create event');
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (err) {
+		console.error(err);
+		throw new Error('Failed to create event');
+	}
+}
+
 export async function registerAttendee(
 	orgId: string,
 	eventId: string,

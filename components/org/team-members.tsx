@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useSession } from "next-auth/react"
-import { useUpdateMemberRole } from "@/lib/backend/hooks/use-org"
+import { useUpdateMemberRole, useDeleteMember, useMembers } from "@/lib/backend/hooks/use-org"
 import type { OrgUser } from "@/lib/types-old"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -39,6 +39,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface TeamMembersProps {
@@ -64,12 +75,32 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     newRole: number
   }>({ isOpen: false, member: null, newRole: 0 })
 
-  // Auth
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [candidate, setCandidate] = useState<OrgUser | null>(null)
+  const [confirmText, setConfirmText] = useState("")
+
+  const openDeleteDialog = (m: OrgUser) => {
+    setCandidate(m)
+    setIsDeleteOpen(true)
+    setConfirmText("Test")
+  }
+
+  const handleConfirmDelete = () => {
+    if (!candidate) return
+    deleteMember.mutate({ userId: candidate.id })
+    setIsDeleteOpen(false)
+    setCandidate(null)
+  }
+
   const { data: session } = useSession()
   const token = session?.user?.jwt ?? ""
-
-  // Mutation-Hook
-  const updateRole = useUpdateMemberRole(orgId, token)
+  const { data: membersData, refetch } = useMembers(orgId, token);
+  const updateRole = useUpdateMemberRole(orgId, token, {
+  onSuccess: () => {
+    refetch();
+  },
+});
+  const deleteMember = useDeleteMember(orgId, token)
 
   // Hilfsfunktionen
   const getInitials = (name: string) =>
@@ -119,7 +150,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     () => [
       {
         accessorKey: "fullName",
-        header: "Name",
+        header: "",
         cell: ({ row }) => {
           const m = row.original
           return (
@@ -183,7 +214,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
                     Rolle ändern
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
+                  <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive" onSelect={() => openDeleteDialog(m)}>
                     <XIcon className="mr-2 h-4 w-4" />
                     Benutzer entfernen
                   </DropdownMenuItem>
@@ -222,6 +253,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
   })
 
   return (
+    <>
     <div className="flex flex-col space-y-4">
       {/* Header & Search */}
       <div className="flex items-center justify-between">
@@ -395,5 +427,34 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
         </DialogContent>
       </Dialog>
     </div>
+    {/* Lösch-Bestätigungs-Dialog */}
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{candidate?.fullName} wirklich entfernen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bitte gib zur Sicherheit den Namen des Nutzers ein: <strong>{candidate?.fullName}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <Input
+            className="w-full my-2"
+            placeholder={candidate?.fullName ?? "Name eingeben"}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+          />
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={confirmText !== candidate?.fullName || deleteMember.isPending}
+            >
+              {deleteMember.isPending ? "Lösche..." : "Löschen"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+  </>
   )
 }
