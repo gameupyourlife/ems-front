@@ -219,13 +219,7 @@ export async function deleteEvent(
 
 }
 
-/**
- * Fetches complete event details including metadata, organization, attendees, flows, files, agenda, and emails
- * @param orgId Organization ID
- * @param eventId Event ID
- * @param token Auth token
- * @returns Complete EventDetails object
- */
+
 export async function getCompleteEventDetails(orgId: string, eventId: string, token: string): Promise<EventDetails> {
 	guardUUID(orgId);
 	guardUUID(eventId);

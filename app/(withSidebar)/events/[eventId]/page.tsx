@@ -1,10 +1,8 @@
 "use client"
-
-import React from "react"
 import { useParams, useRouter } from "next/navigation"
 import type { EventInfo } from "@/lib/types-old"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, Users, ArrowLeft } from "lucide-react"
+import { Calendar, Clock, MapPin, Users, ArrowLeft, ListTodo } from "lucide-react"
 import Image from "next/image"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
@@ -18,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { SiteHeader } from "@/components/site-header"
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb"
+import { useAgendaEntries } from "@/lib/backend/hooks/use-agenda"
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
@@ -30,11 +29,7 @@ export default function EventDetailPage() {
   const queryClient = useQueryClient()
 
   // Event-Daten abrufen
-  const {
-    data: eventData,
-    isLoading,
-    error: fetchError,
-  } = useEventsById(orgId, String(eventId), token)
+  const { data: eventData, isLoading, error: fetchError } = useEventsById(orgId, String(eventId), token)
 
   // Registrierung-Hook
   const {
@@ -65,41 +60,27 @@ export default function EventDetailPage() {
 
   // Event-Objekt extrahieren
   const event: EventInfo | null = Array.isArray(eventData)
-    ? (istEventInfo(eventData[0]) ? eventData[0] : null)
-    : (istEventInfo(eventData) ? eventData : null)
+    ? istEventInfo(eventData[0])
+      ? eventData[0]
+      : null
+    : istEventInfo(eventData)
+      ? eventData
+      : null
 
-  // Ladeanzeige
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-20 text-center">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <div className="text-muted-foreground">Lade Event-Details...</div>
-        </div>
-        <Button variant="outline" onClick={() => router.back()} className="mt-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
-        </Button>
-      </div>
-    )
-  }
+  // Agenda-Daten abrufen
+  const {
+    data: agendaEntries = [],
+    isLoading: isLoadingAgenda,
+    error: agendaError,
+  } = useAgendaEntries(orgId, String(eventId), token)
 
-  // Fehleranzeige
-  if (fetchError || !event) {
-    return (
-      <div className="container mx-auto py-20 text-center">
-        <div className="text-red-500 mb-4 font-medium">
-          {fetchError?.message || "Event nicht gefunden"}
-        </div>
-        <Button variant="outline" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
-        </Button>
-      </div>
-    )
-  }
+  // Debug logging
+  console.log("Agenda entries:", agendaEntries)
+  console.log("Agenda loading:", isLoadingAgenda)
+  console.log("Agenda error:", agendaError)
 
   // Hilfsfunktionen für Datums- und Zeitformatierung
-  const formatDate = (date: Date) =>
-    format(new Date(date), "EEEE, d. MMMM yyyy", { locale: de })
+  const formatDate = (date: Date) => format(new Date(date), "EEEE, d. MMMM yyyy", { locale: de })
   const formatTime = (date: Date) => format(new Date(date), "HH:mm", { locale: de })
 
   // Status-Badge für Eventstatus
@@ -124,20 +105,49 @@ export default function EventDetailPage() {
   }
 
   // Prüfen, ob Nutzer angemeldet ist
-  const isRegistered = event.isAttending
+  const isRegistered = event?.isAttending || false
+
+  // Ladeanzeige
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-muted-foreground">Lade Event-Details...</div>
+        </div>
+        <Button variant="outline" onClick={() => router.back()} className="mt-6">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+        </Button>
+      </div>
+    )
+  }
+
+  // Fehleranzeige
+  if (fetchError || !event) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div className="text-red-500 mb-4 font-medium">{fetchError?.message || "Event nicht gefunden"}</div>
+        <Button variant="outline" onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <>
-      <SiteHeader actions={[{
-        label: "Zurück",
-        icon: <ArrowLeft className=" h-4 w-4" />,
-        onClick: () => router.back(),
-        variant: "outline"
-      }]} >
+      <SiteHeader
+        actions={[
+          {
+            label: "Zurück",
+            icon: <ArrowLeft className=" h-4 w-4" />,
+            onClick: () => router.back(),
+            variant: "outline",
+          },
+        ]}
+      >
         <BreadcrumbItem>
-          <BreadcrumbPage>
-            {event.title}
-          </BreadcrumbPage>
+          <BreadcrumbPage>{event.title}</BreadcrumbPage>
         </BreadcrumbItem>
       </SiteHeader>
 
@@ -167,9 +177,7 @@ export default function EventDetailPage() {
                   priority
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Kein Bild verfügbar
-                </div>
+                <div className="flex items-center justify-center h-full text-muted-foreground">Kein Bild verfügbar</div>
               )}
             </div>
 
@@ -248,54 +256,119 @@ export default function EventDetailPage() {
                 </Card>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Agenda Sektion */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <ListTodo className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-semibold">Agenda</h2>
+              </div>
+
+              {isLoadingAgenda ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+                      <span className="text-muted-foreground">Lade Agenda...</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : agendaError ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center py-8 text-red-500">
+                      <ListTodo className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>Fehler beim Laden der Agenda: {agendaError.message}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : agendaEntries && agendaEntries.length > 0 ? (
+                <div className="space-y-4">
+                  {agendaEntries
+                    .filter((item) => item && item.id && item.title && item.start && item.end)
+                    .map((item) => (
+                      <Card key={item.id} className="border-l-4 border-l-primary">
+                        <CardContent className="pt-6">
+                          <div className="flex flex-col md:flex-row md:items-start gap-4">
+                            {/* Zeit */}
+                            <div className="flex-shrink-0">
+                              <div className="flex items-center gap-1 text-sm font-medium text-primary">
+                                <Clock className="h-4 w-4" />
+                                {formatTime(item.start)} - {formatTime(item.end)}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">{formatDate(item.start)}</div>
+                            </div>
+
+                            {/* Inhalt */}
+                            <div className="flex-1 space-y-2">
+                              <h3 className="font-semibold text-lg">{item.title}</h3>
+                              {item.description && <p className="text-muted-foreground">{item.description}</p>}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center py-8 text-muted-foreground">
+                      <ListTodo className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>Keine Agenda-Einträge verfügbar</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
 
-        <div className="space-y-6">
-          {/* Teilnahme-/Abmelde-Karte */}
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
-              {(registerError || unregisterError) && (
-                <p className="text-red-500 mb-2">
-                  Fehler: {registerError?.message || unregisterError?.message}
-                </p>
-              )}
-              <Button
-                className={`
-                  w-full flex justify-center items-center
-                  ${isRegistered
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-primary hover:bg-primary-dark text-primary-foreground"
-                  }
-                `}
-                onClick={() => {
-                  if (isRegistered) {
-                    unregister({ orgId, eventId: String(eventId), userId, token })
-                  } else {
-                    register({ orgId, eventId: String(eventId), userId, profilePicture, token })
-                  }
-                }}
-                disabled={isRegistering || isUnregistering}
-              >
-                {(isRegistering || isUnregistering) ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isRegistered ? "Abmelden…" : "Anmelden…"}
-                  </>
-                ) : (
-                  isRegistered ? "Abmelden" : "Anmelden"
+          <div className="space-y-6">
+            {/* Teilnahme-/Abmelde-Karte */}
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-xl font-semibold mb-4">Teilnehmen</h3>
+                {(registerError || unregisterError) && (
+                  <p className="text-red-500 mb-2">Fehler: {registerError?.message || unregisterError?.message}</p>
                 )}
-              </Button>
-            </CardContent>
-          </Card>
+                <Button
+                  className={`
+                    w-full flex justify-center items-center
+                    ${
+                      isRegistered
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-primary hover:bg-primary-dark text-primary-foreground"
+                    }
+                  `}
+                  onClick={() => {
+                    if (isRegistered) {
+                      unregister({ orgId, eventId: String(eventId), userId, token })
+                    } else {
+                      register({ orgId, eventId: String(eventId), userId, profilePicture, token })
+                    }
+                  }}
+                  disabled={isRegistering || isUnregistering}
+                >
+                  {isRegistering || isUnregistering ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isRegistered ? "Abmelden…" : "Anmelden…"}
+                    </>
+                  ) : isRegistered ? (
+                    "Abmelden"
+                  ) : (
+                    "Anmelden"
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Ersteller-Info */}
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-xl font-semibold mb-4">Ersteller</h3>
-                <p className="text-muted-foreground">
-                  {event.creatorName || "Keine Informationen zum Veranstalter"}
-                </p>
+                <p className="text-muted-foreground">{event.creatorName || "Keine Informationen zum Veranstalter"}</p>
               </CardContent>
             </Card>
 
