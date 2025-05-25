@@ -1,5 +1,5 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { getMembers } from "../org";
+import { useQuery, UseQueryOptions, useMutation, useQueryClient, UseMutationOptions } from "@tanstack/react-query";
+import { getMembers, getOrg, updateMemberRole } from "../org";
 import { OrgUser } from "@/lib/types-old";
 
 /**
@@ -18,4 +18,23 @@ export function useMembers(
         queryFn: () => getMembers(orgId, token),
         ...options,
     });
+}
+
+export function useUpdateMemberRole(
+  orgId: string,
+  token: string,
+  options?: Omit<
+    UseMutationOptions<OrgUser, Error, { userId: string; newRole: number }>,
+    'mutationKey' | 'mutationFn'
+  >
+) {
+  const qc = useQueryClient();
+
+  return useMutation<OrgUser, Error, { userId: string; newRole: number }>({
+    mutationKey: ['updateMemberRole', orgId],
+    mutationFn: ({ userId, newRole }) =>
+      updateMemberRole(orgId, userId, newRole, token),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['members', orgId] }),
+    ...options,
+  });
 }

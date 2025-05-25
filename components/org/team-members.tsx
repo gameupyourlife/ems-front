@@ -1,310 +1,399 @@
-"use client";
+"use client"
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useState, useMemo } from "react"
+import { useSession } from "next-auth/react"
+import { useUpdateMemberRole } from "@/lib/backend/hooks/use-org"
+import type { OrgUser } from "@/lib/types-old"
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+import { SearchIcon, FilterIcon, ShieldIcon, XIcon, MoreHorizontal, UserPlusIcon, ClipboardIcon } from "lucide-react"
+
 import {
-    SearchIcon,
-    FilterIcon,
-    UserIcon,
-    ClipboardIcon,
-    ShieldIcon,
-    XIcon,
-    MoreHorizontal,
-    UserPlusIcon
-} from "lucide-react";
-import Link from "next/link";
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  useReactTable,
+  type SortingState,
+  type ColumnFiltersState,
+} from "@tanstack/react-table"
+
 import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-    getPaginationRowModel,
-    SortingState,
-    getSortedRowModel,
-    ColumnFiltersState,
-    getFilteredRowModel,
-} from "@tanstack/react-table";
-import { OrgUser } from "@/lib/types-old";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface TeamMembersProps {
-    members: OrgUser[];
-    orgId: string;
+  members: OrgUser[]
+  orgId: string
 }
 
 export default function TeamMembers({ members, orgId }: TeamMembersProps) {
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [rowSelection, setRowSelection] = useState({});
+  // Table-State
+  const [sorting, setSorting] = useState<SortingState>([{ id: "fullName", desc: false }])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeRoleFilter, setActiveRoleFilter] = useState<number | null>(null)
 
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map(part => part[0])
-            .join('')
-            .toUpperCase();
-    };
+  const [roleChangeDialog, setRoleChangeDialog] = useState<{
+    isOpen: boolean
+    member: OrgUser | null
+  }>({ isOpen: false, member: null })
+  const [selectedNewRole, setSelectedNewRole] = useState<string>("")
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean
+    member: OrgUser | null
+    newRole: number
+  }>({ isOpen: false, member: null, newRole: 0 })
 
-    const columns: ColumnDef<OrgUser>[] = useMemo(() => [
-        {
-            accessorKey: "fullName",
-            header: "Name",
-            id: "name",
-            cell: ({ row }) => {
-                const member = row.original;
-                return (
-                    <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8 border">
-                            <AvatarFallback>{getInitials(member.fullName)}</AvatarFallback>
-                        </Avatar>
-                        <div className="font-medium">{member.fullName}</div>
-                    </div>
-                );
-            },
-        },
-        {
-            accessorKey: "role",
-            id: "role",
-            header: "Rolle",
-            cell: ({ cell }) => {
-                const role = cell.getValue() as string;
-                return (
-                    <Badge variant={role === "Admin" ? "default" : "secondary"}>
-                        {role}
-                    </Badge>
-                );
-            },
-        },
-        {
-            accessorKey: "email",
-            id: "email",
-            header: "E-Mail",
-            cell: ({ cell }) => (
-                <div className="flex items-center text-muted-foreground">
-                    <span>{cell.getValue() as string}</span>
-                </div>
-            ),
-        },
-        {
-            accessorKey: "createdAt",
-            id: "joined",
-            header: "Beigetreten",
-            cell: ({ cell }) => {
-                const date = new Date(cell.getValue() as string);
-                return <div>{date.toLocaleDateString()}</div>;
-            },
-        },
-        {
-            id: "actions",
-            cell: ({ row }) => {
-                const member = row.original;
-                return (
-                    <div className="flex justify-end">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">Menü öffnen</span>
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                    <Link href={`/user/${member.id}`} className="flex cursor-pointer items-center">
-                                        <UserIcon className="mr-2 h-4 w-4" />
-                                        Profil anzeigen
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <ClipboardIcon className="mr-2 h-4 w-4" />
-                                    E-Mail kopieren
-                                </DropdownMenuItem>
-                                {String(member.role) !== "Admin" && (
-                                    <DropdownMenuItem>
-                                        <ShieldIcon className="mr-2 h-4 w-4" />
-                                        Zum Admin machen
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                {String(member.role) === "Admin" && (
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
-                                        <ShieldIcon className="mr-2 h-4 w-4 " />
-                                        Admin-Status entfernen
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
-                                    <XIcon className="mr-2 h-4 w-4" />
-                                    Entfernen
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                );
-            },
-        },
-    ], []);
+  // Auth
+  const { data: session } = useSession()
+  const token = session?.user?.jwt ?? ""
 
-    const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
-        const userName = row.original.fullName?.toLowerCase() || "";
-        const userEmail = row.original.email?.toLowerCase() || "";
-        const searchTerm = filterValue.toLowerCase();
+  // Mutation-Hook
+  const updateRole = useUpdateMemberRole(orgId, token)
 
-        return userName.includes(searchTerm) || userEmail.includes(searchTerm);
-    };
+  // Hilfsfunktionen
+  const getInitials = (name: string) =>
+    name
+      .split(" ")
+      .map((p) => p[0])
+      .join("")
+      .toUpperCase()
 
-    const table = useReactTable({
-        data: members,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
-        getFilteredRowModel: getFilteredRowModel(),
-        onRowSelectionChange: setRowSelection,
-        globalFilterFn: globalFilterFn,
-        state: {
-            sorting,
-            columnFilters,
-            rowSelection,
-            globalFilter: searchQuery,
-        },
-        initialState: {
-            pagination: { pageSize: 10 }
-        }
-    });
+  const roleLabels: Record<number, string> = {
+    0: "Admin",
+    1: "Owner",
+    2: "Organizer",
+    3: "EventOrganizer",
+    4: "User",
+  }
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearchQuery(value);
+  const handleRoleChange = (member: OrgUser) => {
+    setRoleChangeDialog({ isOpen: true, member })
+    setSelectedNewRole("")
+  }
 
-        if (value) {
-            table.setGlobalFilter(value);
-        } else {
-            table.resetGlobalFilter();
-        }
-    };
+  const handleRoleSelect = () => {
+    if (roleChangeDialog.member && selectedNewRole !== "") {
+      const newRole = Number.parseInt(selectedNewRole)
+      setRoleChangeDialog({ isOpen: false, member: null })
+      setConfirmDialog({
+        isOpen: true,
+        member: roleChangeDialog.member,
+        newRole,
+      })
+    }
+  }
 
-    return (
-        <div className="flex flex-col space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Teammitglieder</h2>
-                <Button size="sm">
-                    <UserPlusIcon className="mr-2 h-4 w-4" />
-                    Mitglied einladen
-                </Button>
+  const confirmRoleChange = () => {
+    if (confirmDialog.member) {
+      updateRole.mutate({
+        userId: confirmDialog.member.id,
+        newRole: confirmDialog.newRole,
+      })
+    }
+    setConfirmDialog({ isOpen: false, member: null, newRole: 0 })
+  }
+
+  // table columns
+  const columns: ColumnDef<OrgUser>[] = useMemo(
+    () => [
+      {
+        accessorKey: "fullName",
+        header: "Name",
+        cell: ({ row }) => {
+          const m = row.original
+          return (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 border">
+                <AvatarFallback>{getInitials(m.fullName)}</AvatarFallback>
+              </Avatar>
+              <div className="font-medium">{m.fullName}</div>
             </div>
-
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="relative flex-1">
-                    <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Mitglieder nach Name oder E-Mail suchen..."
-                        className="pl-8"
-                        value={searchQuery}
-                        onChange={handleSearch}
-                    />
-                </div>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-1.5">
-                            <FilterIcon className="h-4 w-4" />
-                            Nach Rolle filtern
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue(undefined)}>
-                            Alle Rollen
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Admin")}>
-                            Admin
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.getColumn("role")?.setFilterValue("Member")}>
-                            Mitglied
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+          )
+        },
+      },
+      {
+        accessorKey: "role",
+        header: "Rolle",
+        filterFn: (row, columnId, filterValue) => {
+          if (filterValue === undefined || filterValue === null) return true
+          return row.getValue(columnId) === filterValue
+        },
+        cell: ({ cell }) => {
+          const code = Number(cell.getValue())
+          const label = roleLabels[code] ?? "Unknown"
+          const variant = code === 0 ? "default" : "secondary"
+          return <Badge variant={variant}>{label}</Badge>
+        },
+      },
+      {
+        accessorKey: "email",
+        header: "E-Mail",
+        cell: ({ cell }) => <div className="text-muted-foreground">{cell.getValue<string>()}</div>,
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Beigetreten",
+        cell: ({ cell }) => {
+          const d = new Date(cell.getValue<string>())
+          return <div>{d.toLocaleDateString()}</div>
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const m = row.original
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Menü öffnen</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <ClipboardIcon className="mr-2 h-4 w-4" />
+                    E-Mail kopieren
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => handleRoleChange(m)}>
+                    <ShieldIcon className="mr-2 h-4 w-4" />
+                    Rolle ändern
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:text-destructive stroke-destructive">
+                    <XIcon className="mr-2 h-4 w-4" />
+                    Benutzer entfernen
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+          )
+        },
+      },
+    ],
+    [updateRole],
+  )
 
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    Keine Mitglieder gefunden.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+  // custom global filter
+  const globalFilterFn = (row: any, _columnId: string, filterValue: string) => {
+    const term = filterValue.toLowerCase()
+    return row.original.fullName.toLowerCase().includes(term) || row.original.email.toLowerCase().includes(term)
+  }
 
-            <div className="flex items-center justify-end space-x-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Zurück
-                </Button>
-                <div className="text-sm">
-                    Seite{" "}
-                    <strong>
-                        {table.getState().pagination.pageIndex + 1} von{" "}
-                        {table.getPageCount()}
-                    </strong>
-                </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Weiter
-                </Button>
-            </div>
+  const table = useReactTable({
+    data: members,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter: searchQuery,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    globalFilterFn,
+    initialState: { pagination: { pageSize: 10 } },
+  })
+
+  return (
+    <div className="flex flex-col space-y-4">
+      {/* Header & Search */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Teammitglieder</h2>
+      </div>
+
+      <div className="flex gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Name oder E-Mail suchen…"
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => {
+              const v = e.target.value
+              setSearchQuery(v)
+              v ? table.setGlobalFilter(v) : table.resetGlobalFilter()
+            }}
+          />
         </div>
-    );
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <FilterIcon className="h-4 w-4" />
+              {activeRoleFilter !== null ? `Rolle: ${roleLabels[activeRoleFilter]}` : "Nach Rolle"}
+              {activeRoleFilter !== null && (
+                <XIcon
+                  className="h-3 w-3 ml-1 hover:bg-muted rounded-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    table.getColumn("role")?.setFilterValue(undefined)
+                    setActiveRoleFilter(null)
+                  }}
+                />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => {
+                table.getColumn("role")?.setFilterValue(undefined)
+                setActiveRoleFilter(null)
+              }}
+              className={activeRoleFilter === null ? "bg-accent" : ""}
+            >
+              Alle Rollen
+            </DropdownMenuItem>
+            {Object.entries(roleLabels).map(([code, label]) => (
+              <DropdownMenuItem
+                key={code}
+                onClick={() => {
+                  const roleCode = Number(code)
+                  table.getColumn("role")?.setFilterValue(roleCode)
+                  setActiveRoleFilter(roleCode)
+                }}
+                className={activeRoleFilter === Number(code) ? "bg-accent" : ""}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Tabelle */}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((h) => (
+                  <TableHead key={h.id}>
+                    {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() ? "selected" : undefined}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Keine Mitglieder gefunden.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2">
+        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          Zurück
+        </Button>
+        <div className="text-sm">
+          Seite{" "}
+          <strong>
+            {table.getState().pagination.pageIndex + 1} von {table.getPageCount()}
+          </strong>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          Weiter
+        </Button>
+      </div>
+      {/* Role Change Dialog */}
+      <Dialog
+        open={roleChangeDialog.isOpen}
+        onOpenChange={(open) => setRoleChangeDialog({ isOpen: open, member: null })}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rolle ändern</DialogTitle>
+            <DialogDescription>Wählen Sie eine neue Rolle für {roleChangeDialog.member?.fullName}</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={selectedNewRole} onValueChange={setSelectedNewRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Rolle auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Admin</SelectItem>
+                <SelectItem value="1">Owner</SelectItem>
+                <SelectItem value="2">Organizer</SelectItem>
+                <SelectItem value="3">EventOrganizer</SelectItem>
+                <SelectItem value="4">User</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRoleChangeDialog({ isOpen: false, member: null })}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleRoleSelect} disabled={selectedNewRole === ""}>
+              Weiter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) => setConfirmDialog({ isOpen: open, member: null, newRole: 0 })}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rolle ändern bestätigen</DialogTitle>
+            <DialogDescription>
+              Möchten Sie die Rolle von {confirmDialog.member?.fullName} wirklich zu "
+              {roleLabels[confirmDialog.newRole]}" ändern?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDialog({ isOpen: false, member: null, newRole: 0 })}>
+              Abbrechen
+            </Button>
+            <Button onClick={confirmRoleChange} disabled={updateRole.isPending}>
+              {updateRole.isPending ? "Wird geändert..." : "Bestätigen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }

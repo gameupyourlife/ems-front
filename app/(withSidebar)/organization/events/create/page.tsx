@@ -198,7 +198,7 @@ export default function CreateEventPage() {
             <EventBasicInfoForm
               form={form}
               onTabChange={() => setActiveTab("flows")}
-              submitLabel="Weiter: Abläufe"
+              submitLabel="Weiter: Flow"
             />
           </TabsContent>
           <TabsContent value="flows">

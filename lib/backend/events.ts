@@ -220,6 +220,7 @@ export async function getCompleteEventDetails(orgId: string, eventId: string, to
 
 		return {
 			start: new Date(eventInfo.start),
+			end: new Date(eventInfo.end),
 			metadata: eventInfo,
 			organization,
 			attendees,

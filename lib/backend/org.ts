@@ -21,27 +21,54 @@ export async function getMembers(orgId: string, token: string): Promise<OrgUser[
         });
 }
 
-export async function updateMemberRole(orgId: string, userId: string, role: string, token: string) {
-    guardUUID(orgId);
+export async function updateMemberRole(
+  orgId: string,
+  userId: string,
+  newRole: number,
+  token: string
+): Promise<OrgUser> {
+  guardUUID(userId);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/users/roles/${userId}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: JSON.stringify({ userId, orgId, newRole }),
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Failed to update member role: ${err}`);
+  }
+
+  return res.json();
+}
+
+
+
+export async function deleteMember(userId: string, token: string): Promise<void> {
     guardUUID(userId);
 
-    if (!role) {
-        throw new Error("Role is required");
-    }
-
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/members/${userId}`, {
-        method: 'PATCH',
+    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
+        method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({ role }),
     })
-        .then((res) => res.json())
-        .then((data) => data)
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error('Failed to delete member');
+            }
+        })
         .catch((err) => {
             console.error(err);
-            throw new Error('Failed to update member role');
+            throw new Error('Failed to delete member');
         });
 }
 
