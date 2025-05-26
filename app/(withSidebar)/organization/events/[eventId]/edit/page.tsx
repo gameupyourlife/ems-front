@@ -1,5 +1,5 @@
 "use client";;
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Icons
-import { ArrowLeftIcon, FileText, FunctionSquare, Info, ListTodo, Save, Trash2 } from "lucide-react";
+import { ArrowLeftIcon, Info, ListTodo, Save, Trash2 } from "lucide-react";
 
 // Eigene Komponenten
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
@@ -35,9 +35,8 @@ import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventF
 import { Flow } from "@/lib/backend/types";
 import { useDeleteEvent, useEventDetails } from "@/lib/backend/hooks/events";
 import { useSession } from "next-auth/react";
-import { AgendaEntry, deleteAgendaEntry, updateAgendaEntry } from "@/lib/backend/agenda";
+import { AgendaEntry } from "@/lib/backend/agenda";
 import LoadingSpinner from "@/components/loading-spinner";
-import { useEvents, useUpdateEvent } from "@/lib/backend/hooks/events";
 import { useQueryClient } from "@tanstack/react-query";
 import { updateEvent } from "@/lib/api/postEvents";
 
@@ -209,24 +208,24 @@ export default function EditEventPage() {
 
       {/* Tabs für die Event-Bearbeitung */}
       <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
+        <TabsList className="flex w-full mx-auto bg-muted">
           <TabsTrigger
             value="basic"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
+            className="flex items-center grow gap-2 data-[state=active]:bg-background"
           >
             <Info className="h-4 w-4" />
             <span>Basisdaten</span>
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="files"
             className="flex items-center gap-2 data-[state=active]:bg-background"
           >
             <FunctionSquare className="h-4 w-4" />
             <span>Flows</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger
             value="agenda"
-            className="flex items-center gap-2 data-[state=active]:bg-background"
+            className="flex items-center grow gap-2 data-[state=active]:bg-background"
           >
             <ListTodo className="h-4 w-4" />
             <span>Agenda</span>

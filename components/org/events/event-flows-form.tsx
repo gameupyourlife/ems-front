@@ -7,32 +7,32 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Icons
 import {
-    ArrowLeftIcon,
-    Check,
-    FunctionSquare,
-    Plus,
-    Calendar,
-    Users,
-    Tag,
-    Mail,
-    Zap,
-    FileText,
-    LayoutList,
-    PencilLine,
-    Bell,
-    Image
+  ArrowLeftIcon,
+  Check,
+  FunctionSquare,
+  Plus,
+  Calendar,
+  Users,
+  Tag,
+  Mail,
+  Zap,
+  FileText,
+  LayoutList,
+  PencilLine,
+  Bell,
+  Image
 } from "lucide-react";
 
 // Typen
@@ -313,9 +313,9 @@ export function EventFlowsForm({
         )}
       </CardContent>
       <CardFooter className="flex justify-between border-t p-6">
-        <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("files")}>
+        <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("basic")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Zurück: Dateien
+          Zurück: Informationen
         </Button>
         <Button variant="default" type="button" onClick={() => onTabChange && onTabChange("agenda")}>
           Weiter: Agenda

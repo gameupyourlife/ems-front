@@ -356,7 +356,7 @@ export function EventBasicInfoForm({
         ) : (
           <Button
             onClick={() => {
-              onTabChange && onTabChange("files")
+              onTabChange && onTabChange("agenda")
             }}
             type="button"
           >

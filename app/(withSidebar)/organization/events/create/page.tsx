@@ -9,7 +9,7 @@ import { toast } from "sonner";
 // UI-Komponenten & Icons
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, FunctionSquare, Info, ListTodo, Save } from "lucide-react";
+import { ArrowLeft, Info, ListTodo, Save } from "lucide-react";
 
 // Eigene Formulare & Typen
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
@@ -176,19 +176,19 @@ export default function CreateEventPage() {
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as any)}
-          className="space-y-6"
+          className="space-y-6 flex"
           defaultValue="basic"
         >
-          <TabsList className="grid grid-cols-3 w-full mx-auto bg-muted">
-            <TabsTrigger value="basic" className="flex items-center gap-2">
+          <TabsList className="flex w-full mx-auto bg-muted">
+            <TabsTrigger value="basic" className="flex grow items-center gap-2">
               <Info className="h-4 w-4" />
               Basis
             </TabsTrigger>
-            <TabsTrigger value="flows" className="flex items-center gap-2">
+            {/* <TabsTrigger value="flows" className="flex items-center gap-2">
               <FunctionSquare className="h-4 w-4" />
               Flow
-            </TabsTrigger>
-            <TabsTrigger value="agenda" className="flex items-center gap-2">
+            </TabsTrigger> */}
+            <TabsTrigger value="agenda" className="flex grow items-center gap-2">
               <ListTodo className="h-4 w-4" />
               Agenda
             </TabsTrigger>
@@ -197,8 +197,8 @@ export default function CreateEventPage() {
           <TabsContent value="basic">
             <EventBasicInfoForm
               form={form}
-              onTabChange={() => setActiveTab("flows")}
-              submitLabel="Weiter: Flow"
+              onTabChange={() => setActiveTab("agenda")}
+              submitLabel="Weiter: Agenda"
             />
           </TabsContent>
           <TabsContent value="flows">
