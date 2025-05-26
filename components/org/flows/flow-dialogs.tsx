@@ -26,7 +26,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { SelectionCard } from "@/components/selection-card";
-import { Action, ActionType, Flow, Mail, Trigger, TriggerType } from "@/lib/backend/types";
+import { Action, ActionType, EventStatus, Flow, Mail, Trigger, TriggerType } from "@/lib/backend/types";
 
 // Aktionen-Typen mit Icons und Beschreibungen
 const actionTypes = [
@@ -474,36 +474,20 @@ export function AddTriggerDialog({
                                         <div className="space-y-2">
                                             <Label htmlFor="statusValue">Wenn Status ändert zu</Label>
                                             <div className="grid grid-cols-3 gap-2">
-                                                <SelectionCard
-                                                    selected={details.status === "active"}
-                                                    onClick={() => setDetails({ ...details, status: "active" })}
-                                                    title="Aktiv"
-                                                    description="Live-Event"
-                                                />
-                                                <SelectionCard
-                                                    selected={details.status === "cancelled"}
-                                                    onClick={() => setDetails({ ...details, status: "cancelled" })}
-                                                    title="Abgesagt"
-                                                    description="Event findet nicht statt"
-                                                />
-                                                <SelectionCard
-                                                    selected={details.status === "completed"}
-                                                    onClick={() => setDetails({ ...details, status: "completed" })}
-                                                    title="Abgeschlossen"
-                                                    description="Event ist beendet"
-                                                />
-                                                <SelectionCard
-                                                    selected={details.status === "archived"}
-                                                    onClick={() => setDetails({ ...details, status: "archived" })}
-                                                    title="Archiviert"
-                                                    description="Für Referenz gespeichert"
-                                                />
-                                                <SelectionCard
-                                                    selected={details.status === "draft"}
-                                                    onClick={() => setDetails({ ...details, status: "draft" })}
-                                                    title="Entwurf"
-                                                    description="In Bearbeitung"
-                                                />
+                                         
+                                                {Array.from(Object.values(EventStatus)).map((status) => (
+                                                    typeof status === "string" && (
+                                                        <SelectionCard
+                                                            key={status}
+                                                            selected={details.newStatus === status}
+                                                            onClick={() => setDetails({ ...details, status: status })}
+                                                            title={status.charAt(0).toUpperCase() + status.slice(1)}
+
+                                                            // description={`Event-Status auf ${status} ändern`}
+                                                        />
+                                                    )
+                                                ))}
+                                                            
                                             </div>
                                             <p className="text-xs text-muted-foreground">
                                                 Dieser Flow wird ausgelöst, wenn sich der Event-Status zu Ihrem ausgewählten Wert ändert
@@ -679,7 +663,7 @@ export function AddActionDialog({
         let finalDetails = { ...details };
 
         if (actionType === ActionType.SendEmail) {
-            if(!("sendToNewAttendee" in details)) finalDetails.sendToNewAttendee = false;
+            if (!("sendToNewAttendee" in details)) finalDetails.sendToNewAttendee = false;
         }
 
         onAdd(actionType, finalDetails);
@@ -820,36 +804,19 @@ export function AddActionDialog({
                                     <div className="space-y-2">
                                         <Label htmlFor="statusValue">Event-Status ändern zu</Label>
                                         <div className="grid grid-cols-3 gap-2">
-                                            <SelectionCard
-                                                selected={details.newStatus === "active"}
-                                                onClick={() => setDetails({ ...details, newStatus: "active" })}
-                                                title="Aktiv"
-                                                description="Live-Event"
-                                            />
-                                            <SelectionCard
-                                                selected={details.newStatus === "cancelled"}
-                                                onClick={() => setDetails({ ...details, newStatus: "cancelled" })}
-                                                title="Abgesagt"
-                                                description="Event findet nicht statt"
-                                            />
-                                            <SelectionCard
-                                                selected={details.newStatus === "completed"}
-                                                onClick={() => setDetails({ ...details, newStatus: "completed" })}
-                                                title="Abgeschlossen"
-                                                description="Event ist beendet"
-                                            />
-                                            <SelectionCard
-                                                selected={details.newStatus === "archived"}
-                                                onClick={() => setDetails({ ...details, newStatus: "archived" })}
-                                                title="Archiviert"
-                                                description="Für Referenz gespeichert"
-                                            />
-                                            <SelectionCard
-                                                selected={details.newStatus === "draft"}
-                                                onClick={() => setDetails({ ...details, newStatus: "draft" })}
-                                                title="Entwurf"
-                                                description="In Bearbeitung"
-                                            />
+
+                                            {Array.from(Object.values(EventStatus)).map((status) => (
+                                                typeof status === "string" && (
+                                                    <SelectionCard
+                                                        key={status}
+                                                        selected={details.newStatus === status}
+                                                        onClick={() => setDetails({ ...details, newStatus: status })}
+                                                        title={status.charAt(0).toUpperCase() + status.slice(1)}
+
+                                                        description={`Event-Status auf ${status} ändern`}
+                                                    />
+                                                )
+                                            ))}
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             Der Event-Status wird auf diesen Wert aktualisiert, wenn der Flow ausgeführt wird

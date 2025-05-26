@@ -12,7 +12,7 @@ export interface EventInfo {
     attendeeCount: number,
     capacity: number,
     image: string,
-    status: number,
+    status: EventStatus,
     start: Date,
     end: Date,
     createdAt: Date,

@@ -25,6 +25,17 @@ export enum UserRole {
     User
 }
 
+export enum EventStatus
+{
+    Geplant,
+    Aktiv,
+    Abgeschlossen,
+    Abgesagt,
+    Verschoben,
+    Verspätet,
+    Archiviert
+}
+
 export interface EventMail {
     id: string;
     name: string;
