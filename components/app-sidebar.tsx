@@ -109,10 +109,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
 
-    console.log("AppSidebar session", session);
     // Check if user is admin in current organization
     const isAdmin = (session?.user?.role ?? UserRole.User) < UserRole.User;
-    console.log("AppSidebar isAdmin", session?.user?.role, UserRole.User, isAdmin);
 
     return (
         <Sidebar collapsible="offcanvas" {...props}>
