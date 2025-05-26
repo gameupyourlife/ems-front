@@ -1,13 +1,15 @@
 "use client";
 
 import {
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserRole } from "@/lib/backend/types";
 import { LucideIcon, PlusCircleIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -18,9 +20,14 @@ export function NavAdmin({
     title: string
     url: string
     icon?: LucideIcon
+    access?: UserRole
   }[]
 }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const role = session?.user?.role || UserRole.User
+
+
 
   return (
     <SidebarGroup>
@@ -50,7 +57,9 @@ export function NavAdmin({
         <SidebarMenu>
           {items.map((item) => {
             const isActive = pathname === item.url
+            const hasAccess = item.access ? role <= item.access : false
 
+            if(!hasAccess) return null
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton

@@ -17,6 +17,13 @@ export interface OrgMail {
     isTemplate: true;
 }
 
+export enum UserRole {
+    Admin,
+    Owner,
+    Organizer,
+    EventOrganizer,
+    User
+}
 
 export interface EventMail {
     id: string;

@@ -20,6 +20,7 @@ import {
 import { NavAdmin } from "./nav-admin";
 import { TeamSwitcher } from "./team-switcher";
 import { useSession } from "next-auth/react";
+import { UserRole } from "@/lib/backend/types";
 
 const data = {
     navMain: [
@@ -45,21 +46,25 @@ const data = {
             icon: BuildingIcon,
             isActive: true,
             url: "/organization",
+            access: UserRole.Owner,
         },
         {
             title: "Events",
             icon: CalendarIcon,
             url: "/organization/events",
+            access: UserRole.EventOrganizer,
         },
         {
             title: "Flows",
             icon: FunctionSquareIcon,
             url: "/organization/flows",
+            access: UserRole.Organizer,
         },
         {
             title: "Mails",
             url: "/organization/email-templates",
             icon: MailsIcon,
+            access: UserRole.Organizer,
         },
     ],
     navSecondary: [
@@ -101,8 +106,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
 
+    console.log("AppSidebar session", session);
     // Check if user is admin in current organization
-    const isAdmin = session?.user?.orgRole?.toLowerCase() === "0";
+    const isAdmin = (session?.user?.role || UserRole.User) < UserRole.User;
 
     return (
         <Sidebar collapsible="offcanvas" {...props}>
