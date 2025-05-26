@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { LucideIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function NavSecondary({
   items,
@@ -19,19 +20,20 @@ export function NavSecondary({
     title: string
     url: string
     icon: LucideIcon
+    isDisabled?: boolean
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const router = useRouter()
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+            <SidebarMenuItem key={item.title} >
+              <SidebarMenuButton onClick={() => router.push(item.url)} disabled={item.isDisabled}>
+                <item.icon />
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

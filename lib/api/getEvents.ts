@@ -1,4 +1,5 @@
 import type { EventInfo } from "@/lib/types-old";
+import { EventStatus } from "../backend/types";
 
 const BASE =
   process.env.NEXT_PUBLIC_API_URL
@@ -39,9 +40,9 @@ export async function getEventById(orgId: string, eventId: string): Promise<Even
     category:      e.category,
     description:   e.description,
     location:      e.location,
-    attendees:     e.attendeeCount,
+    attendeeCount:     e.attendeeCount,
     capacity:      e.capacity,
-    status:        e.status,
+    status:        e.status as EventStatus,
     image:         e.image ?? "/placeholder.svg",
     creatorName:   e.creatorName ?? "Unbekannt",
     start:         new Date(e.start),
@@ -51,5 +52,6 @@ export async function getEventById(orgId: string, eventId: string): Promise<Even
     createdBy:     e.createdBy ?? "",
     updatedBy:     e.updatedBy ?? "",
     organization:  e.organization ?? "",
+    isAttending: false, // Default value, can be updated later
   };
 }

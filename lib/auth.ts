@@ -5,6 +5,7 @@ import { getUser, logInUser } from "./backend/auth";
 import { ZodError } from "zod";
 import { Organization } from "./types-old";
 import { getOrgsOfUser } from "./backend/org";
+import { UserRole } from "./backend/types";
 
 declare module "next-auth" {
     /**
@@ -22,8 +23,8 @@ declare module "next-auth" {
         updatedAt: string;
         profilePicture: string;
         jwt: string;
-        role: string;
-        orgRole: string;
+        role: UserRole;
+        // orgRole: number;
         orgId: string;
 
         firstName: string;

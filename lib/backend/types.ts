@@ -17,6 +17,24 @@ export interface OrgMail {
     isTemplate: true;
 }
 
+export enum UserRole {
+    Admin,
+    Owner,
+    Organizer,
+    EventOrganizer,
+    User
+}
+
+export enum EventStatus
+{
+    Geplant,
+    Aktiv,
+    Abgeschlossen,
+    Abgesagt,
+    Verschoben,
+    Verspätet,
+    Archiviert
+}
 
 export interface EventMail {
     id: string;

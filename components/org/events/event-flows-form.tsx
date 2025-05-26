@@ -7,36 +7,22 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Icons
-import {
-    ArrowLeftIcon,
-    Check,
-    FunctionSquare,
-    Plus,
-    Calendar,
-    Users,
-    Tag,
-    Mail,
-    Zap,
-    FileText,
-    LayoutList,
-    PencilLine,
-    Bell,
-    Image
-} from "lucide-react";
+import { ArrowLeftIcon, Check, FunctionSquare, Plus, Zap } from "lucide-react";
 
 // Typen
-import { Flow } from "@/lib/types-old";
+import { Action, Flow, Trigger } from "@/lib/backend/types";
+import { getActionDescription, getActionIcon, getTriggerDescription, getTriggerIcon } from "@/lib/flows/utils";
 
 interface EventFlowsFormProps {
   selectedFlows: Flow[];
@@ -66,92 +52,11 @@ export function EventFlowsForm({
     }
   };
 
-  // Gibt das passende Icon für einen Trigger-Typ zurück
-  const getTriggerIcon = (type: string) => {
-    switch (type) {
-      case 'date':
-        return <Calendar className="h-4 w-4" />;
-      case 'numOfAttendees':
-        return <Users className="h-4 w-4" />;
-      case 'status':
-        return <Tag className="h-4 w-4" />;
-      case 'registration':
-        return <Check className="h-4 w-4" />;
-      default:
-        return <FunctionSquare className="h-4 w-4" />;
-    }
-  };
 
-  // Gibt das passende Icon für einen Aktions-Typ zurück
-  const getActionIcon = (type: string) => {
-    switch (type) {
-      case 'email':
-        return <Mail className="h-4 w-4" />;
-      case 'notification':
-        return <Bell className="h-4 w-4" />;
-      case 'statusChange':
-        return <Tag className="h-4 w-4" />;
-      case 'fileShare':
-        return <FileText className="h-4 w-4" />;
-      case 'imageChange':
-        return <Image className="h-4 w-4" />;
-      case 'titleChange':
-        return <LayoutList className="h-4 w-4" />;
-      case 'descriptionChange':
-        return <PencilLine className="h-4 w-4" />;
-      default:
-        return <FunctionSquare className="h-4 w-4" />;
-    }
-  };
 
-  // Gibt eine verständliche Beschreibung für einen Trigger zurück
-  const getTriggerDescription = (type: string, details: any) => {
-    switch (type) {
-      case 'date':
-        return details?.reference ? 
-          `${details.amount} ${details.unit} ${details.direction} Event ${details.reference}` : 
-          'Zu einem bestimmten Datum';
-      case 'numOfAttendees':
-        return details?.operator ? 
-          `Wenn Teilnehmerzahl ${details.operator} ${details.value}${details.valueType === 'percentage' ? '%' : ''}` :
-          'Wenn eine bestimmte Teilnehmerzahl erreicht wird';
-      case 'status':
-        return details?.status ? 
-          `Wenn der Event-Status auf ${details.status} wechselt` :
-          'Wenn sich der Event-Status ändert';
-      case 'registration':
-        return 'Wenn sich jemand für das Event registriert';
-      default:
-        return 'Wenn ausgelöst';
-    }
-  };
 
-  // Gibt eine verständliche Beschreibung für eine Aktion zurück
-  const getActionDescription = (type: string, details: any) => {
-    switch (type) {
-      case 'email':
-        return details?.subject ? 
-          `E-Mail senden: "${details.subject}"` :
-          'E-Mail-Benachrichtigung senden';
-      case 'notification':
-        return 'In-App-Benachrichtigung senden';
-      case 'statusChange':
-        return details?.newStatus ? 
-          `Event-Status auf ${details.newStatus} ändern` :
-          'Event-Status aktualisieren';
-      case 'fileShare':
-        return 'Dateien mit Teilnehmern teilen';
-      case 'titleChange':
-        return details?.newTitle ? 
-          `Titel ändern zu "${details.newTitle}"` :
-          'Event-Titel ändern';
-      case 'descriptionChange':
-        return 'Event-Beschreibung aktualisieren';
-      default:
-        return 'Aktion ausführen';
-    }
-  };
 
+  
   return (
     <Card>
       <CardHeader>
@@ -231,10 +136,10 @@ export function EventFlowsForm({
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="bg-background">
-                          {flow.trigger.length} {flow.trigger.length === 1 ? 'Trigger' : 'Trigger'}
+                          {flow.triggers?.length} {flow.triggers?.length === 1 ? 'Trigger' : 'Trigger'}
                         </Badge>
                         <Badge variant="outline" className="bg-background">
-                          {flow.actions.length} {flow.actions.length === 1 ? 'Aktion' : 'Aktionen'}
+                          {flow.actions?.length} {flow.actions?.length === 1 ? 'Aktion' : 'Aktionen'}
                         </Badge>
                         {isSelected ? (
                           <div className="ml-2 h-6 w-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground shrink-0">
@@ -258,7 +163,7 @@ export function EventFlowsForm({
                           </h5>
                           
                           <div className="space-y-2">
-                            {flow.trigger.map((trigger) => (
+                            {flow.triggers?.map((trigger : Trigger) => (
                               <div 
                                 key={trigger.id} 
                                 className="flex items-start gap-3 p-2 border rounded-md bg-muted/20"
@@ -285,7 +190,7 @@ export function EventFlowsForm({
                           </h5>
                           
                           <div className="space-y-2">
-                            {flow.actions.map((action) => (
+                            {flow.actions?.map((action : Action) => (
                               <div 
                                 key={action.id} 
                                 className="flex items-start gap-3 p-2 border rounded-md bg-muted/20"
@@ -313,9 +218,9 @@ export function EventFlowsForm({
         )}
       </CardContent>
       <CardFooter className="flex justify-between border-t p-6">
-        <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("files")}>
+        <Button variant="outline" type="button" onClick={() => onTabChange && onTabChange("basic")}>
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Zurück: Dateien
+          Zurück: Informationen
         </Button>
         <Button variant="default" type="button" onClick={() => onTabChange && onTabChange("agenda")}>
           Weiter: Agenda
