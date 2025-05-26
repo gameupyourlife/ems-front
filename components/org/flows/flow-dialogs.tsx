@@ -474,20 +474,20 @@ export function AddTriggerDialog({
                                         <div className="space-y-2">
                                             <Label htmlFor="statusValue">Wenn Status ändert zu</Label>
                                             <div className="grid grid-cols-3 gap-2">
-                                         
-                                                {Array.from(Object.values(EventStatus)).map((status) => (
+
+                                                {Array.from(Object.values(EventStatus)).map((status, i) => (
                                                     typeof status === "string" && (
                                                         <SelectionCard
                                                             key={status}
-                                                            selected={details.newStatus === status}
-                                                            onClick={() => setDetails({ ...details, status: status })}
+                                                            selected={details.newStatus === i}
+                                                            onClick={() => setDetails({ ...details, status: i })}
                                                             title={status.charAt(0).toUpperCase() + status.slice(1)}
 
-                                                            // description={`Event-Status auf ${status} ändern`}
+                                                        // description={`Event-Status auf ${status} ändern`}
                                                         />
                                                     )
                                                 ))}
-                                                            
+
                                             </div>
                                             <p className="text-xs text-muted-foreground">
                                                 Dieser Flow wird ausgelöst, wenn sich der Event-Status zu Ihrem ausgewählten Wert ändert
@@ -805,12 +805,12 @@ export function AddActionDialog({
                                         <Label htmlFor="statusValue">Event-Status ändern zu</Label>
                                         <div className="grid grid-cols-3 gap-2">
 
-                                            {Array.from(Object.values(EventStatus)).map((status) => (
+                                            {Array.from(Object.values(EventStatus)).map((status, i) => (
                                                 typeof status === "string" && (
                                                     <SelectionCard
                                                         key={status}
-                                                        selected={details.newStatus === status}
-                                                        onClick={() => setDetails({ ...details, newStatus: status })}
+                                                        selected={details.newStatus === i}
+                                                        onClick={() => setDetails({ ...details, newStatus: i })}
                                                         title={status.charAt(0).toUpperCase() + status.slice(1)}
 
                                                         description={`Event-Status auf ${status} ändern`}
