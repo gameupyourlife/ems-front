@@ -25,7 +25,7 @@ export function NavAdmin({
 }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const role = session?.user?.role || UserRole.User
+  const role = session?.user?.role ?? UserRole.User
 
 
 
