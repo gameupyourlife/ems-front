@@ -82,7 +82,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
   const openDeleteDialog = (m: OrgUser) => {
     setCandidate(m)
     setIsDeleteOpen(true)
-    setConfirmText("Test")
+    setConfirmText("")
   }
 
   const handleConfirmDelete = () => {

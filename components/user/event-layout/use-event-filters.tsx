@@ -38,7 +38,12 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     dateRange: { start: null, end: null },
     location: "",
   })
-  const uniqueCategories = Array.from(new Set(events.map((e) => e.category).filter(Boolean)));
+  const uniqueCategories = Array.from(new Set(events.map((e) => e.category).filter(Boolean))).map((cat) =>
+    typeof cat === "string" ? cat : String(cat),
+  )
+  const getAvailableCategories = () => {
+    return uniqueCategories
+  }
   const [locationInput, setLocationInput] = useState(initialFilters?.location || "")
   const [singleDateInput, setSingleDateInput] = useState(
     initialFilters?.singleDate ? format(initialFilters.singleDate, "dd.MM.yyyy") : "",
@@ -73,9 +78,10 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
 
     // Kategorie-Filter
     if (selectedFilters.category.length > 0) {
-      filtered = filtered.filter((event) =>
-        selectedFilters.category.some((cat) => event.category.toString().toLowerCase().includes(cat.toLowerCase())),
-      )
+      filtered = filtered.filter((event) => {
+        const eventCategory = typeof event.category === "string" ? event.category : String(event.category)
+        return selectedFilters.category.some((selectedCat) => eventCategory.toLowerCase() === selectedCat.toLowerCase())
+      })
     }
 
     // Datums-Filter
@@ -334,5 +340,6 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
     clearAllFilters,
     handleApplyFilters,
     applyFilters,
+    getAvailableCategories,
   }
 }

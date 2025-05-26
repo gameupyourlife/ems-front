@@ -2,10 +2,9 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Grid, List, Search, X } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import EventCard from "@/components/event-card"
 import type { EventInfo } from "@/lib/types-old"
 import ActiveFilters from "./active-filters"
@@ -50,6 +49,7 @@ export default function EventLayout({
   const [searchQuery, setSearchQuery] = useState("")
   const [currentView, setCurrentView] = useState<"grid" | "list">(initialView)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [showPastEvents, setShowPastEvents] = useState(false)
 
   const {
     selectedFilters,
@@ -113,6 +113,11 @@ export default function EventLayout({
     }
   }
 
+  const isEventPast = (event: EventInfo) => {
+    if (!event || !event.start) return false
+    return new Date(event.end || event.start) < new Date()
+  }
+
   const handleTabChange = (value: string) => {
     if (value === "single" || value === "range") {
       setActiveTab(value)
@@ -122,6 +127,9 @@ export default function EventLayout({
       }))
     }
   }
+
+  // Sichere Filterung der Events
+  const safeFilteredEvents = filteredEvents.filter((event) => event && typeof event === "object")
 
   return (
     <div className="flex flex-col gap-4 w-full mb-6 px-4">
@@ -139,7 +147,7 @@ export default function EventLayout({
         <Button type="submit">Suchen</Button>
       </form>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ">
           <FilterDropdown
             isOpen={isDropdownOpen}
             setIsOpen={setIsDropdownOpen}
@@ -153,9 +161,9 @@ export default function EventLayout({
             setStartDateInput={setStartDateInput}
             endDateInput={endDateInput}
             setEndDateInput={setEndDateInput}
-            singleDateError={singleDateError}
-            startDateError={startDateError}
-            endDateError={endDateError}
+            singleDateError={singleDateError ?? ""}
+            startDateError={startDateError ?? ""}
+            endDateError={endDateError ?? ""}
             activeTab={activeTab}
             handleTabChange={handleTabChangeFromHook}
             validateAndSetSingleDate={validateAndSetSingleDate}
@@ -165,55 +173,32 @@ export default function EventLayout({
             handleApplyFilters={handleApplyFilters}
             clearAllFilters={clearAllFilters}
             availableCategories={
-              filteredEvents.length > 0
-                ? Array.from(
-                    new Set(
-                      filteredEvents.flatMap((event) =>
-                        typeof event.category === "string"
-                          ? [event.category.toLowerCase()]
-                          : Array.isArray(event.category)
-                            ? (event.category as string[]).map((c) => c.toLowerCase())
-                            : [],
-                      ),
-                    ),
+              events && events.length > 0
+                ? Array.from(new Set(events.map((e) => e.category).filter(Boolean))).map((cat) =>
+                    typeof cat === "string" ? cat : String(cat),
                   )
-                : events
-                  ? Array.from(
-                      new Set(
-                        events.flatMap((event) =>
-                          typeof event.category === "string"
-                            ? [event.category.toLowerCase()]
-                            : Array.isArray(event.category)
-                              ? (event.category as string[]).map((c) => c.toLowerCase())
-                              : [],
-                        ),
-                      ),
-                    )
-                  : []
+                : []
             }
           />
 
-          <ToggleGroup
-            type="single"
-            value={currentView}
-            onValueChange={handleViewChange}
-            className="flex border rounded-md h-9"
+          <Button
+            variant={showPastEvents ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowPastEvents(!showPastEvents)}
+            className="flex items-center gap-2"
           >
-            <ToggleGroupItem
-              value="grid"
-              aria-label="Rasteransicht"
-              className="px-4 flex items-center justify-center rounded-md"
-            >
-              <Grid className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="list"
-              aria-label="Listenansicht"
-              className="px-4 flex items-center justify-center rounded-md"
-            >
-              <List className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
+            {showPastEvents ? "Vergangene ausblenden" : "Vergangene anzeigen"}
+            {(() => {
+              const pastEventsCount = safeFilteredEvents.filter((event) => isEventPast(event)).length
+              return (
+                pastEventsCount > 0 && (
+                  <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-xs">
+                    {pastEventsCount}
+                  </span>
+                )
+              )
+            })()}
+          </Button>
         </div>
 
         {/* Aktive Filteranzahl anzeigen, falls Filter aktiv sind */}
@@ -243,7 +228,16 @@ export default function EventLayout({
 
       {/* Anzahl der Ergebnisse */}
       <div className="text-sm text-muted-foreground mt-2">
-        {filteredEvents.length} {filteredEvents.length === 1 ? "Event gefunden" : "Events gefunden"}
+        {(() => {
+          const upcomingCount = safeFilteredEvents.filter((event) => !isEventPast(event)).length
+          const pastCount = safeFilteredEvents.filter((event) => isEventPast(event)).length
+
+          if (showPastEvents) {
+            return `${upcomingCount} anstehende und ${pastCount} vergangene Events`
+          } else {
+            return `${upcomingCount} ${upcomingCount === 1 ? "anstehendes Event" : "anstehende Events"}`
+          }
+        })()}
       </div>
 
       {/* Event Raster-/Listenansicht */}
@@ -254,26 +248,39 @@ export default function EventLayout({
             : "flex flex-col gap-4"
         } mt-4`}
       >
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event, idx) => (
-            <EventCard key={idx} event={event} />
-          )) /* <EventCard key={event.id} event={event} /> */
-        ) : isLoading ? (
-          <div className="col-span-full flex justify-center items-center py-8">
-            <LoadingSpinner />
-          </div>
-        ) : error ? (
-          <div className="col-span-full text-center py-8">
-            <p className="text-red-500">Fehler beim Laden der Events: {error.message}</p>
-          </div>
-        ) : (
-          <div className="col-span-full text-center py-8">
-            <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
-            <Button variant="link" onClick={clearAllFilters} className="mt-2">
-              Alle Filter zurücksetzen
-            </Button>
-          </div>
-        )}
+        {(() => {
+          const upcomingEvents = safeFilteredEvents.filter((event) => !isEventPast(event))
+          const pastEvents = safeFilteredEvents.filter((event) => isEventPast(event))
+          const eventsToShow = showPastEvents ? [...upcomingEvents, ...pastEvents] : upcomingEvents
+
+          return eventsToShow.length > 0 ? (
+            eventsToShow
+              .map((event, idx) => {
+                // Zusätzliche Sicherheitsüberprüfung vor dem Rendern
+                if (!event || typeof event !== "object") {
+                  console.warn("Invalid event object:", event)
+                  return null
+                }
+                return <EventCard key={event.id || idx} event={event} isPast={isEventPast(event)} />
+              })
+              .filter(Boolean) // Entfernt null-Werte
+          ) : isLoading ? (
+            <div className="col-span-full flex justify-center items-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : error ? (
+            <div className="col-span-full text-center py-8">
+              <p className="text-red-500">Fehler beim Laden der Events: {error.message}</p>
+            </div>
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-muted-foreground">Keine Events gefunden, die den Kriterien entsprechen.</p>
+              <Button variant="link" onClick={clearAllFilters} className="mt-2">
+                Alle Filter zurücksetzen
+              </Button>
+            </div>
+          )
+        })()}
       </div>
     </div>
   )

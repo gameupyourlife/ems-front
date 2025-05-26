@@ -107,6 +107,9 @@ export default function EventDetailPage() {
   // Prüfen, ob Nutzer angemeldet ist
   const isRegistered = event?.isAttending || false
 
+  // Prüfen, ob das Event bereits vorbei ist
+  const isEventPassed = event ? new Date() > new Date(event.start) : false
+
   // Ladeanzeige
   if (isLoading) {
     return (
@@ -198,35 +201,46 @@ export default function EventDetailPage() {
             {/* Event-Details */}
             <div>
               <h2 className="text-2xl font-semibold mb-4">Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Datum */}
+
+              {/* Datum und Zeit - Zwei separate Karten */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Startdatum und -zeit */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
                       <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <h3 className="font-medium">Datum</h3>
+                        <h3 className="font-medium">Start</h3>
                         <p>{formatDate(event.start)}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{formatTime(event.start)}</span>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Uhrzeit */}
+                {/* Enddatum und -zeit */}
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
-                      <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <h3 className="font-medium">Uhrzeit</h3>
-                        <p>
-                          {formatTime(event.start)} - {formatTime(event.end)}
-                        </p>
+                        <h3 className="font-medium">Ende</h3>
+                        <p>{formatDate(event.end)}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">{formatTime(event.end)}</span>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+              </div>
 
+              {/* Weitere Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Ort */}
                 <Card>
                   <CardContent className="pt-6">
@@ -338,29 +352,40 @@ export default function EventDetailPage() {
                     ${
                       isRegistered
                         ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-primary hover:bg-primary-dark text-primary-foreground"
+                        : isEventPassed
+                          ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                          : "bg-primary hover:bg-primary-dark text-primary-foreground"
                     }
                   `}
                   onClick={() => {
+                    if (isEventPassed) return
                     if (isRegistered) {
                       unregister({ orgId, eventId: String(eventId), userId, token })
                     } else {
                       register({ orgId, eventId: String(eventId), userId, profilePicture, token })
                     }
                   }}
-                  disabled={isRegistering || isUnregistering}
+                  disabled={isRegistering || isUnregistering || isEventPassed}
                 >
                   {isRegistering || isUnregistering ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       {isRegistered ? "Abmelden…" : "Anmelden…"}
                     </>
+                  ) : isEventPassed ? (
+                    "Event beendet"
                   ) : isRegistered ? (
                     "Abmelden"
                   ) : (
                     "Anmelden"
                   )}
                 </Button>
+
+                {isEventPassed && (
+                  <p className="text-sm text-muted-foreground mt-2 text-center">
+                    Anmeldungen sind nicht mehr möglich, da das Event bereits begonnen hat.
+                  </p>
+                )}
               </CardContent>
             </Card>
 
