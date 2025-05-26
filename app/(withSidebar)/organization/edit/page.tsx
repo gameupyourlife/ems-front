@@ -1,22 +1,13 @@
-"use client"
-
+"use client";
 // React & externe Libraries importieren
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { SiteHeader } from "@/components/site-header";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,7 +40,6 @@ export default function Page() {
     const { data: session, update } = useSession()
     const currentOrg = session?.org;
 
-    if (!currentOrg) return null;
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -64,12 +54,25 @@ export default function Page() {
     const form = useForm<OrganizationFormValues>({
         resolver: zodResolver(organizationSchema),
         defaultValues: {
-            name: currentOrg.name,
-            description: currentOrg.description,
-            address: currentOrg.address,
-            website: currentOrg.website || "",
+            name: currentOrg?.name,
+            description: currentOrg?.description,
+            address: currentOrg?.address,
+            website: currentOrg?.website || "",
         },
     });
+
+
+    useEffect(() => {
+        // Setze die Formulardaten, wenn die Organisation geladen ist
+        currentOrg && form.reset({
+            name: currentOrg?.name,
+            description: currentOrg?.description,
+            address: currentOrg?.address,
+            website: currentOrg?.website || "",
+        });
+    }, [currentOrg, form]);
+
+    if (!currentOrg) return null;
 
     // Formular-Submit-Handler
     const onSubmit = async (data: OrganizationFormValues) => {
@@ -80,6 +83,7 @@ export default function Page() {
             const updatedOrg = {
                 ...currentOrg,
                 ...data,
+                id: session?.user?.organization.id || "",
                 updatedAt: new Date().toISOString(),
             };
 
@@ -157,7 +161,7 @@ export default function Page() {
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="website"
                                     render={({ field }) => (
@@ -172,7 +176,7 @@ export default function Page() {
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
                             </CardContent>
                             <CardFooter className="flex justify-between border-t p-6">
                                 {/* Zusätzliche Metainformationen */}
