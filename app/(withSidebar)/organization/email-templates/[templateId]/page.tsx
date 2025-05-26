@@ -47,19 +47,7 @@ export default function TemplateDetailPage() {
 
   // ToDo: Implement the duplication logic
   const handleDuplicateTemplate = async () => {
-    toast.error("Fehler beim Duplizieren des Templates")
-    return;
-
-
-    try {
-      // In einer echten App wäre dies ein POST-Request
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const newTemplateId = `copy-${templateId}`;
-      router.push(`/organization/email-templates/${newTemplateId}`);
-    } catch (err) {
-      console.error("Error duplicating template:", err);
-      // Show error toast or notification here
-    }
+    router.push(`/organization/email-templates/create?templateIdToDuplicate=${templateId}`);
   };
 
   if (isLoading) {

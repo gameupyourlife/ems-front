@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ChevronLeft, Save, TrashIcon, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, Copy, Save, TrashIcon, X } from "lucide-react";
 import {
     Form,
     FormControl,
@@ -23,12 +23,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Mail } from "@/lib/backend/types";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./loading-spinner";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMembers } from "@/lib/backend/hooks/use-org";
 import { useSession } from "next-auth/react";
-import { createMailTemplate, deleteMailTemplate, updateMailTemplate } from "@/lib/backend/mail-templates";
+import { createMailTemplate, deleteMailTemplate, getMailTemplate, updateMailTemplate } from "@/lib/backend/mail-templates";
 import { toast } from "sonner";
-import { createMail, deleteMail, updateMail } from "@/lib/backend/mails";
+import { createMail, deleteMail, getMail, updateMail } from "@/lib/backend/mails";
 import { ConfirmationButton } from "./ui/confirmation-button";
 import { useQueryClient } from "@tanstack/react-query";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -60,10 +60,17 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const eventId = params.eventId as string;
     const { data: session } = useSession()
     const { data: members } = useMembers(session?.user?.organization.id || "", session?.user?.jwt || "")
     const queryClient = useQueryClient()
+
+    const templateIdToCopy = searchParams.get("templateIdToCopy");
+    const templateIdToDuplicate = searchParams.get("templateIdToDuplicate");
+    const mailIdToDuplicate = searchParams.get("mailIdToDuplicate");
+
+  
 
 
 
@@ -87,7 +94,8 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
             description: (mail && "description" in mail) ? mail.description : "",
             subject: mail?.subject || "",
             recipients: mail?.recipients || [],
-            body: mail?.body || "Your email content here..."
+            body: mail?.body || "Your email content here...",
+            sendToAllParticipants: mail?.sendToAllParticipants || false,
         },
     });
 
@@ -103,6 +111,60 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
         }
     }, [mail])
 
+      // If a templateIdToCopy is provided, fetch the template details
+      useEffect(() => {
+        if (templateIdToCopy || templateIdToDuplicate ) {
+            // Fetch the template details and set it as the current mail
+            const fetchTemplate = async () => {
+                try {
+                    const data = await getMailTemplate(
+                        session?.user?.organization.id || "",
+                        templateIdToCopy || templateIdToDuplicate || "",
+                        session?.user?.jwt || ""
+                    );
+
+                    form.reset({
+                        name: templateIdToDuplicate ? "Kopie von " + data.name : data.name,
+                        description: data.description || "",
+                        subject: data.subject,
+                        recipients: data.recipients || [],
+                        body: data.body,
+                        sendToAllParticipants: data.sendToAllParticipants || false,
+                    });
+                } catch (err) {
+                    console.error("Error fetching template:", err);
+                }
+            };
+            fetchTemplate();
+        } 
+         else if (mailIdToDuplicate) {
+            // Fetch the template details to duplicate
+            const fetchTemplate = async () => {
+                try {
+                    const data = await getMail(
+                        session?.user?.organization.id || "",
+                        eventId,
+                        mailIdToDuplicate,
+                        session?.user?.jwt || ""
+                    );
+
+                    form.reset({
+                        name: "Kopie von " + data.name,
+                        description: data.description || "",
+                        subject: data.subject,
+                        recipients: data.recipients || [],
+                        body: data.body,
+                        sendToAllParticipants: data.sendToAllParticipants || false,
+                    });
+                } catch (err) {
+                    console.error("Error fetching template:", err);
+                }
+            };
+            fetchTemplate();
+        }
+
+
+    }, [templateIdToCopy, session?.user?.jwt, form, templateIdToDuplicate, mailIdToDuplicate]);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSaving(true);
@@ -216,6 +278,49 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
 
     }
 
+    const handleDuplicate = async () => {
+        if (!mail) return;
+
+        setIsSaving(true);
+        try {
+            // Create a new mail/template with the same details but different ID
+            if (mail.isTemplate) {
+                const res = await createMailTemplate(session?.user?.organization.id || "", {
+                    body: mail.body,
+                    description: mail.description,
+                    name: `${mail.name} (Kopie)`,
+                    recipients: mail.recipients,
+                    subject: mail.subject,
+                    isUserCreated: mail.isUserCreated,
+                    sendToAllParticipants: mail.sendToAllParticipants,
+                }, session?.user?.jwt || "")
+
+                queryClient.invalidateQueries({ queryKey: ["mailTemplates"] })
+                toast.success("Mail Template erfolgreich dupliziert")
+                router.push(`/organization/email-templates/${res.id}`)
+            } else {
+                const res = await createMail(session?.user?.organization.id || "", eventId, {
+                    body: mail.body,
+                    description: mail.description,
+                    name: `${mail.name} (Kopie)`,
+                    recipients: mail.recipients,
+                    subject: mail.subject,
+                    isUserCreated: mail.isUserCreated,
+                    sendToAllParticipants: mail.sendToAllParticipants,
+                }, session?.user?.jwt || "")
+
+                queryClient.invalidateQueries({ queryKey: ["mails"] })
+                toast.success("Mail erfolgreich dupliziert")
+                router.push(`/organization/events/${eventId}?tabs=emails`)
+            }
+        } catch (err) {
+            console.error("Error duplicating template:", err);
+            toast.error("Fehler beim duplizieren")
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
@@ -305,6 +410,27 @@ export default function MailEditor({ mail, isLoading, error }: { mail: Mail | un
                         }
                     </ConfirmationButton>}
                 </>
+            )
+        },
+        {
+            children: (
+                <Button
+                    onClick={handleDuplicate}
+                    disabled={isSaving}
+                    variant="outline"
+                >
+                    {isSaving ? (
+                        <>
+                            <LoadingSpinner className="border-background" />
+                            Dupliziere...
+                        </>
+                    ) : (
+                        <>
+                            <Copy className="h-4 w-4" />
+                            Duplizieren
+                        </>
+                    )}
+                </Button>
             )
         },
     ]

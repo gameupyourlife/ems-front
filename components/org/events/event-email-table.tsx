@@ -265,7 +265,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 )} */}
                                 
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/organization/events/${eventId}/emails/create?duplicate=${email.id}`} className="flex cursor-pointer">
+                                    <Link href={`/organization/events/${eventId}/emails/create?mailIdToDuplicate=${email.id}`} className="flex cursor-pointer">
                                         <Copy className="mr-2 h-4 w-4" />
                                         <span>Duplizieren</span>
                                     </Link>

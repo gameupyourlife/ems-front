@@ -507,7 +507,7 @@ export async function getEventEmails(orgId: string, eventId: string, token: stri
 	guardUUID(eventId);
 
 	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/emails`, {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/events/${eventId}/mails`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

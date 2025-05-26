@@ -5,7 +5,17 @@ import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Calendar, Edit, Copy, Trash, User, Clock, AlertTriangle } from "lucide-react";
+import {
+  ChevronLeft,
+  Calendar,
+  Edit,
+  Copy,
+  Trash,
+  User,
+  Clock,
+  AlertTriangle,
+  SendIcon,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { QuickAction } from "@/components/dynamic-quick-actions";
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
@@ -15,9 +25,8 @@ import { useSession } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/loading-spinner";
-import { useMail, useMailRuns } from "@/lib/backend/hooks/use-mails";
-import { deleteMail, deleteMailRun } from "@/lib/backend/mails";
-import EmailRunsTable from "@/components/org/events/email-runs-table";
+import { useMail } from "@/lib/backend/hooks/use-mails";
+import { deleteMail, sendMail } from "@/lib/backend/mails";
 
 export default function MailDetailPage() {
   const params = useParams();
@@ -28,8 +37,6 @@ export default function MailDetailPage() {
   const { data: session } = useSession();
   const queryClient = useQueryClient()
   const { data: email, isLoading, error } = useMail(session?.user?.organization.id || "", eventId, emailId, session?.user?.jwt || "")
-
-  const { data: mailRuns } = useMailRuns(session?.user?.organization.id || "", eventId, emailId, session?.user?.jwt || "")
 
 
   const handleDeleteMail = async () => {
@@ -47,38 +54,10 @@ export default function MailDetailPage() {
       toast.error("Löschen fehlgeschlagen")
     }
   };
-  const handleDeleteMailRun = async (mailRunId : string) => {
-    if (!email) {
-      toast.error("Keine Mail, die gelöscht werden könnte gefunden")
-      return;
-    }
-    try {
-      deleteMailRun(session?.user?.organization.id || "", eventId, email.id, mailRunId, session?.user?.jwt || "")
-      queryClient.invalidateQueries({ queryKey: ["mailRuns"] })
-      toast.success(`Mail Run erfolgreich gelöscht`);
-    } catch (err) {
-      console.error("Error deleting Mail:", err);
-      toast.error("Löschen fehlgeschlagen")
-    }
-  };
 
-  // ToDo: Implement the duplication logic
+
   const handleDuplicateMail = async () => {
-    toast.error("Fehler beim Duplizieren des Mails")
-    return;
-
-
-    try {
-      // In a real app, this would be a POST request to your API
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Redirect to the duplicated Mail (in a real app, you'd use the new ID)
-      const newMailId = `copy-${emailId}`;
-      router.push(`/organization/email-Mails/${newMailId}`);
-    } catch (err) {
-      console.error("Error duplicating Mail:", err);
-      // Show error toast or notification here
-    }
+    router.push(`/organization/events/${eventId}/emails/create?mailIdToDuplicate=${emailId}`);
   };
 
   if (isLoading) {
@@ -96,7 +75,7 @@ export default function MailDetailPage() {
         <h2 className="text-2xl font-bold mb-2">Mail Not Found</h2>
         <p className="text-muted-foreground mb-6">{error?.message || "The requested Mail could not be found."}</p>
         <Button variant="outline" asChild>
-          <Link href="/organization/email-Mails">
+          <Link href={`/organization/events/${eventId}/emails`}>
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Mails
           </Link>
@@ -111,7 +90,7 @@ export default function MailDetailPage() {
         <Tooltip delayDuration={500}>
           <TooltipTrigger asChild>
             <Button variant="outline" size="icon" asChild >
-              <Link href="/organization/email-Mails">
+              <Link href={`/organization/events/${eventId}/emails`}>
                 <ChevronLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -136,6 +115,42 @@ export default function MailDetailPage() {
           </TooltipContent>
         </Tooltip >
       ),
+    },
+    {
+      // Send Mail manually
+      children: (
+        <Button variant="outline" asChild onClick={async () => {
+          try {
+
+            toast.promise(
+              sendMail(session?.user?.organization.id || "", eventId, emailId, session?.user?.jwt || ""),
+              {
+                loading: "Sende Mail...",
+                success: (res) => {
+                  if (res) {
+                    return `Mail erfolgreich gesendet`;
+                  }
+                  return "Fehler beim Senden der Mail";
+                },
+                error: "Fehler beim Senden der Mail",
+              }
+            );
+
+          }
+
+          catch (error) {
+            console.error("Error sending Mail:", error);
+            toast.error("Fehler beim Senden der Mail");
+          }
+        }
+        } >
+          <span className="flex items-center">
+            <SendIcon className="mr-2 h-4 w-4" />
+            <span className="">Manuell senden</span>
+          </span>
+        </Button>
+
+      )
     },
 
     {
@@ -303,18 +318,7 @@ export default function MailDetailPage() {
 
             </CardContent>
           </Card>
-
-
         </div>
-
-        <div className="space-y-6 md:col-span-3">
-          <EmailRunsTable
-            eventId={eventId}
-            mailRuns={mailRuns || []}
-            onDeleteEmailRun={handleDeleteMailRun}
-          />
-        </div>
-
       </div>
     </div>
   </>;

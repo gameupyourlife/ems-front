@@ -63,7 +63,7 @@ export async function getMails(orgId: string, eventId: string, token: string): P
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/emails`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -162,7 +162,7 @@ export async function createMail(orgId: string, eventId: string, mail: CreateMai
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/emails`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
