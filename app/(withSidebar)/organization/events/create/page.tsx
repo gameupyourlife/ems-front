@@ -15,7 +15,6 @@ import { ArrowLeft, Info, ListTodo, Save } from "lucide-react";
 import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-form";
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
-import { mockFlows } from "@/lib/data";
 import {
   eventBasicInfoSchema as eventFormSchema,
   EventBasicInfoFormData as EventFormData,
@@ -204,7 +203,7 @@ export default function CreateEventPage() {
           <TabsContent value="flows">
             <EventFlowsForm
               selectedFlows={selectedFlows}
-              availableFlows={mockFlows}
+              availableFlows={[]}
               onFlowsChange={setSelectedFlows}
               onTabChange={() => setActiveTab("agenda")}
               submitLabel="Weiter: Agenda"

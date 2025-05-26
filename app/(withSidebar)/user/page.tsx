@@ -283,10 +283,7 @@ export default function ProfileEditPage() {
                                 <p className="text-muted-foreground text-sm mb-3">{user.email}</p>
                                 <div className="flex flex-wrap gap-2 mb-4 justify-center">
                                     <Badge variant="secondary" className="rounded-full px-3">
-                                        {user.role}
-                                    </Badge>
-                                    <Badge variant="secondary" className="rounded-full px-3">
-                                        {user.orgRole}
+                                        {user.role == 0 ? "Administrator" : user.role == 1 ? "Besitzer" : user.role == 2 ? "Organisator" : user.role == 3 ? "Event Organisator" : "Benutzer"}
                                     </Badge>
                                 </div>
                                 <div className="w-full pt-4 border-t ">

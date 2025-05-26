@@ -1,5 +1,5 @@
 import { EmptyObject } from "react-hook-form";
-import { Flow } from "./backend/types";
+import { EventStatus, Flow } from "./backend/types";
 import { AgendaEntry } from "./backend/agenda";
 
 export interface EventInfo {
@@ -264,16 +264,6 @@ export interface AgendaItem {
     id: string;
     title: string;
     description?: string;
-}
-
-export enum EventStatus {
-    SCHEDULED = "SCHEDULED",
-    ONGOING = "ONGOING",
-    COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED",
-    POSTPONED = "POSTPONED",
-    DELAYED = "DELAYED",
-    ARCHIVED = "ARCHIVED",
 }
 
 export interface RegisterAttendeeParams {

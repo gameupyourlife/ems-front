@@ -28,7 +28,6 @@ import { EventBasicInfoForm } from "@/components/org/events/event-basic-info-for
 import { EventFlowsForm } from "@/components/org/events/event-flows-form";
 import { EventAgendaForm } from "@/components/org/events/event-agenda-form";
 
-import { mockFlows } from "@/lib/data";
 
 // Formular-Schema
 import { EventBasicInfoFormData as EventFormData, eventBasicInfoSchema as eventFormSchema } from "@/lib/form-schemas";
@@ -244,7 +243,7 @@ export default function EditEventPage() {
         <TabsContent value="flows">
           <EventFlowsForm
             selectedFlows={selectedFlows}
-            availableFlows={mockFlows}
+            availableFlows={[]}
             onFlowsChange={setSelectedFlows}
             onTabChange={setActiveTab}
             eventId={eventId}
