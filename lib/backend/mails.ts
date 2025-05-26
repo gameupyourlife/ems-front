@@ -63,7 +63,7 @@ export async function getMails(orgId: string, eventId: string, token: string): P
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/emails`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -79,6 +79,7 @@ export async function getMails(orgId: string, eventId: string, token: string): P
 
     const DTOs: MailDto[] = await response.json();
 
+    console.log("Fetched mails:", DTOs);
     const mails: EventMail[] = DTOs.map((dto) => {
         const mail: EventMail = {
             name: dto.name || "Unbenannt",
@@ -162,7 +163,7 @@ export async function createMail(orgId: string, eventId: string, mail: CreateMai
     guardUUID(orgId);
     guardUUID(eventId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/emails`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
