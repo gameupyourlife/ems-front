@@ -77,12 +77,15 @@ const data = {
             title: "Dokumentation",
             url: "/docs",
             icon: HelpCircleIcon,
+            isDisabled: true, // Placeholder for future search functionality
         },
         {
             title: "Suche",
             url: "#",
             icon: SearchIcon,
+            isDisabled: true, // Placeholder for future search functionality
         },
+        
     ],
     myEvents: [
         {
