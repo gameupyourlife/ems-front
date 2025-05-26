@@ -273,24 +273,22 @@ export async function getMailRuns(orgId: string, eventId: string, mailId: string
  * @param mailRun The mail run data
  * @returns A promise that resolves to the created mail run
  */
-export async function createMailRun(
+export async function sendMail(
     orgId: string,
     eventId: string,
     mailId: string,
-    mailRun: CreateMailRunDto,
     token: string
-): Promise<MailRun> {
+): Promise<any> {
     guardUUID(orgId);
     guardUUID(eventId);
     guardUUID(mailId);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}/runs`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/org/${orgId}/events/${eventId}/mails/${mailId}/send`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(mailRun),
     });
 
     if (!response.ok) {

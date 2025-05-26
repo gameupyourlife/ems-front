@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail } from "lucide-react";
 import { useMails } from "@/lib/backend/hooks/use-mails";
 import { useSession } from "next-auth/react";
-import { createMailRun, deleteMail } from "@/lib/backend/mails";
+import { sendMail, deleteMail } from "@/lib/backend/mails";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -40,18 +40,17 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
   // Sendet eine E-Mail-Instanz
   const handleSendEmail = async (emailId: string) => {
     try {
-      await createMailRun(
+      const res = await sendMail(
         session?.user?.organization.id || "",
         eventId,
         emailId,
-        {
-          mailId: emailId,
-          status: 0, // 0 = pending
-        },
         session?.user?.jwt || ""
       )
 
-      toast.success("Email erfolgreich in die Warteschlange gestellt")
+      if(res)
+        toast.success("Email erfolgreich in die Warteschlange gestellt")
+      else
+        toast.error("Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.");
     } catch (err) {
       console.error("Fehler beim Senden der E-Mail:", err);
       alert("E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
