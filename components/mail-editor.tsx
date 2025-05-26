@@ -49,6 +49,7 @@ const formSchema = z.object({
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Mindestens ein Empfänger muss ausgewählt werden.",
+            path: ["recipients"],
         });
     }
 });

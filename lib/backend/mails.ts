@@ -79,6 +79,7 @@ export async function getMails(orgId: string, eventId: string, token: string): P
 
     const DTOs: MailDto[] = await response.json();
 
+    console.log("Fetched mails:", DTOs);
     const mails: EventMail[] = DTOs.map((dto) => {
         const mail: EventMail = {
             name: dto.name || "Unbenannt",

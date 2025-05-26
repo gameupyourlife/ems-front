@@ -1,7 +1,6 @@
-"use client";
+"use client";;
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,15 +11,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import {
-    FilterIcon,
-    MoreHorizontal,
-    ChevronRight,
-    Trash,
-    ArrowUpDown,
-    Mail as MailIcon,
-    Copy,
-} from "lucide-react";
+import { MoreHorizontal, ChevronRight, Trash, ArrowUpDown, Mail as MailIcon, Copy } from "lucide-react";
 import Link from "next/link";
 import {
     ColumnDef,
@@ -39,20 +30,6 @@ import {
 
 import { format } from "date-fns";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger
-} from "@/components/ui/popover";
-import {
-    Command,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
-} from "@/components/ui/command";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -63,6 +40,18 @@ import {
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Mail } from "@/lib/backend/types";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { useSession } from "next-auth/react";
+import { useMailTemplates } from "@/lib/backend/hooks/use-mail-templates";
+import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 interface EmailTableProps {
     emails: Mail[];
@@ -81,22 +70,11 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
     const [emailToDelete, setEmailToDelete] = useState<string | null>(null);
     const [sendDialogOpen, setSendDialogOpen] = useState(false);
     const [emailToSend, setEmailToSend] = useState<string | null>(null);
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-    // Gibt das passende Badge für den Status zurück
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'draft':
-                return <Badge variant="outline" className="bg-gray-100 text-gray-800">Entwurf</Badge>;
-            case 'scheduled':
-                return <Badge variant="outline" className="bg-blue-50 text-blue-800">Geplant</Badge>;
-            case 'sent':
-                return <Badge variant="outline" className="bg-green-50 text-green-800">Gesendet</Badge>;
-            case 'failed':
-                return <Badge variant="outline" className="bg-red-50 text-red-800">Fehlgeschlagen</Badge>;
-            default:
-                return <Badge variant="outline">{status}</Badge>;
-        }
-    };
+    const router = useRouter();
+    const { data: session } = useSession();
+    const { data: mailTemplates, isLoading: isLoadingTemplates } = useMailTemplates(session?.user?.organization.id || "", session?.user?.jwt || "");
 
     // Define the columns for the table
     const columns: ColumnDef<Mail>[] = [
@@ -137,35 +115,36 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                 <div className="font-medium">{row.original.subject}</div>
             ),
         },
-        {
-            accessorKey: "recipients",
-            header: "Empfänger",
-            cell: ({ row }) => {
-                const recipients = row.original.recipients;
-                const count = recipients.length;
-                
-                return (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger className="cursor-default">
-                                <div className="max-w-[150px] truncate">
-                                    {count === 1 
-                                        ? recipients[0] 
-                                        : `${recipients[0]} ${count > 1 ? `+ ${count - 1} weitere` : ""}`}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <div className="max-w-[300px] space-y-1 text-xs">
-                                    {recipients.map((recipient, index) => (
-                                        <div key={index}>{recipient}</div>
-                                    ))}
-                                </div>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                );
-            },
-        },
+        // {
+        //     accessorKey: "recipients",
+        //     header: "Empfänger",
+        //     cell: ({ row }) => {
+        //         const recipients = row.original.recipients;
+        //         console.log("row.original", row.original)
+        //         const count = recipients.length;
+
+        //         return (
+        //             <TooltipProvider>
+        //                 <Tooltip>
+        //                     <TooltipTrigger className="cursor-default">
+        //                         <div className="max-w-[150px] truncate">
+        //                             {count === 1
+        //                                 ? recipients[0]
+        //                                 : `${recipients[0]} ${count > 1 ? `+ ${count - 1} weitere` : ""}`}
+        //                         </div>
+        //                     </TooltipTrigger>
+        //                     <TooltipContent>
+        //                         <div className="max-w-[300px] space-y-1 text-xs">
+        //                             {recipients.map((recipient, index) => (
+        //                                 <div key={index}>{recipient}</div>
+        //                             ))}
+        //                         </div>
+        //                     </TooltipContent>
+        //                 </Tooltip>
+        //             </TooltipProvider>
+        //         );
+        //     },
+        // },
         // {
         //     accessorKey: "status",
         //     header: "Status",
@@ -217,7 +196,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
             header: "Aktionen",
             cell: ({ row }) => {
                 const email = row.original;
-                
+
                 return (
                     <div className="flex justify-end">
                         {/* {email.status === "draft" && (
@@ -234,10 +213,10 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 <span className="sr-only">Senden</span>
                             </Button>
                         )} */}
-                        
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-8 w-8"
                             asChild
                         >
@@ -246,7 +225,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 <span className="sr-only">Anzeigen</span>
                             </Link>
                         </Button>
-                        
+
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -263,17 +242,17 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                         </Link>
                                     </DropdownMenuItem>
                                 )} */}
-                                
+
                                 <DropdownMenuItem asChild>
                                     <Link href={`/organization/events/${eventId}/emails/create?mailIdToDuplicate=${email.id}`} className="flex cursor-pointer">
                                         <Copy className="mr-2 h-4 w-4" />
                                         <span>Duplizieren</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                
+
                                 <DropdownMenuSeparator />
-                                
-                                <DropdownMenuItem 
+
+                                <DropdownMenuItem
                                     className="text-red-600 focus:text-red-600"
                                     onClick={() => {
                                         setEmailToDelete(email.id);
@@ -317,7 +296,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchQuery(value);
-        
+
         // Filtert die Betreff-Spalte
         table.getColumn("subject")?.setFilterValue(value);
     };
@@ -340,6 +319,12 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
         setEmailToSend(null);
     };
 
+    // Redirect to create email page
+    const handleCreateNew = () => {
+        window.location.href = `/organization/events/${eventId}/emails/create`;
+        setIsCreateDialogOpen(false);
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -350,8 +335,8 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                         onChange={handleSearch}
                         className="max-w-sm"
                     />
-                    
-                    <Popover>
+
+                    {/* <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="h-9 gap-1">
                                 <FilterIcon className="h-4 w-4" />
@@ -374,7 +359,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Checkbox 
+                                                <Checkbox
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("draft")}
                                                 />
                                                 <span>Entwurf</span>
@@ -391,7 +376,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Checkbox 
+                                                <Checkbox
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("scheduled")}
                                                 />
                                                 <span>Geplant</span>
@@ -408,7 +393,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Checkbox 
+                                                <Checkbox
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("sent")}
                                                 />
                                                 <span>Gesendet</span>
@@ -425,7 +410,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Checkbox 
+                                                <Checkbox
                                                     checked={(table.getColumn("status")?.getFilterValue() as string[] || []).includes("failed")}
                                                 />
                                                 <span>Fehlgeschlagen</span>
@@ -445,15 +430,81 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                 </CommandList>
                             </Command>
                         </PopoverContent>
-                    </Popover>
+                    </Popover> */}
                 </div>
-                
-                <Button asChild>
-                    <Link href={`/organization/events/${eventId}/emails/create`}>
-                        <MailIcon className="mr-2 h-4 w-4" />
-                        Create Email
-                    </Link>
-                </Button>
+
+                <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+                    setIsCreateDialogOpen(open);
+                }}>
+                    <DialogTrigger asChild>
+                        <Button>
+                            <MailIcon className="mr-2 h-4 w-4" />
+                            E-Mail erstellen
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-xl">
+                        <DialogHeader>
+                            <DialogTitle>Neue E-Mail erstellen</DialogTitle>
+                            <DialogDescription>
+                                Wähle aus, wie du deine E-Mail erstellen möchtest
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 gap-4 py-4">
+                            <Button
+                                onClick={handleCreateNew}
+                                variant="outline"
+                                className="flex items-start justify-start gap-3 h-auto p-4 text-left"
+                            >
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                    <MailIcon className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="font-medium">Von Grund auf neu erstellen</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Beginne mit einer leeren E-Mail und erstelle sie selbst
+                                    </p>
+                                </div>
+                            </Button>
+
+                            {mailTemplates && mailTemplates.length > 0 ? (
+                                <>
+                                    <Separator />
+                                    <div className="text-sm font-medium">Oder nutze eine Vorlage:</div>
+                                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                                        {mailTemplates.map((template) => (
+                                            <Button
+                                                key={template.id}
+                                                onClick={() => {
+                                                    router.push(`/organization/events/${eventId}/emails/create?templateIdToCopy=${template.id}`);
+                                                }}
+                                                variant="outline"
+                                                className="flex items-start justify-start gap-3 h-auto p-4 text-left w-full"
+                                            >
+                                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                                    <Copy className="h-5 w-5 text-blue-600" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-medium">{template.name}</h3>
+                                                    <p className="text-sm text-muted-foreground mt-1">
+                                                        {template.description || "Keine Beschreibung verfügbar"}
+                                                    </p>
+                                                </div>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : isLoadingTemplates ? (
+                                <div className="py-4 text-center text-muted-foreground">
+                                    Vorlagen werden geladen...
+                                </div>
+                            ) : (
+                                <div className="py-4 text-center text-muted-foreground">
+                                    Keine Vorlagen verfügbar
+                                </div>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="rounded-md border">
@@ -494,8 +545,8 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                                     {emails.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center p-4 text-muted-foreground">
                                             <MailIcon className="h-8 w-8 mb-2 opacity-50" />
-                                            <p>No emails yet</p>
-                                            <p className="text-sm">Create your first email for this event</p>
+                                            <p>Noch keine E-Mails</p>
+                                            <p className="text-sm">Erstelle deine erste E-Mail für diese Veranstaltung</p>
                                         </div>
                                     ) : (
                                         <p>Keine Ergebnisse gefunden</p>
@@ -512,7 +563,7 @@ export default function EmailTable({ emails, eventId, onDeleteEmail, onSendEmail
                     {table.getFilteredSelectedRowModel().rows.length} von{" "}
                     {table.getFilteredRowModel().rows.length} Zeile(n) ausgewählt.
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                     <Button
                         variant="outline"
