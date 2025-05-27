@@ -419,7 +419,7 @@ export function EventAgendaForm({
             </div>
 
             {timeConflicts.length > 0 && (
-              <Alert variant="warning" className="border-amber-500">
+              <Alert className="border-amber-500">
                 <AlertCircle className="h-4 w-4 text-amber-500" />
                 <AlertTitle>Zeitüberschneidungen gefunden</AlertTitle>
                 <AlertDescription>
