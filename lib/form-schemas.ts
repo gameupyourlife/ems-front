@@ -1,64 +1,87 @@
 import { z } from "zod";
 
-// Common date validation
-const dateSchema = z.string().refine(
-  (val) => {
-    const date = new Date(val);
-    return !isNaN(date.getTime());
-  },
-  { message: "Please enter a valid date and time" }
+// Improved date validation with more specific error messages
+const dateSchema = z.date({
+  required_error: "Datum ist erforderlich",
+  invalid_type_error: "Bitte geben Sie ein gültiges Datum ein",
+}).refine(
+  (date) => !isNaN(date.getTime()),
+  { message: "Bitte geben Sie ein gültiges Datum und Uhrzeit ein" }
 );
 
-// Event Basic Info Schema
+// Current date for validation
+const currentDate = new Date();
+
+// Event Basic Info Schema with improved validation
 export const eventBasicInfoSchema = z.object({
-  title: z.string().min(3, "Der Titel muss mindestens 3 Zeichen lang sein"),
-  description: z.string().min(10, "Die Beschreibung muss mindestens 10 Zeichen lang sein"),
-  category: z.string().min(1, "Bitte wählen Sie eine Kategorie aus"),
-  capacity: z.coerce.number().int().min(1, "Die Kapazität muss mindestens 1 sein"),
-  location: z.string().min(3, "Der Ort muss mindestens 3 Zeichen lang sein"),
-  start: z.date(),
-  end: z.date(),
+  title: z
+    .string({ required_error: "Titel ist erforderlich" })
+    .min(3, "Der Titel muss mindestens 3 Zeichen lang sein")
+    .max(100, "Der Titel darf maximal 100 Zeichen lang sein"),
+  description: z
+    .string({ required_error: "Beschreibung ist erforderlich" })
+    .min(10, "Die Beschreibung muss mindestens 10 Zeichen lang sein"),
+  category: z
+    .string({ required_error: "Kategorie ist erforderlich" })
+    .min(1, "Bitte wählen Sie eine Kategorie aus"),
+  capacity: z
+    .coerce.number({ required_error: "Kapazität ist erforderlich" })
+    .int("Die Kapazität muss eine ganze Zahl sein")
+    .min(1, "Die Kapazität muss mindestens 1 sein")
+    .max(100000, "Die Kapazität darf maximal 100.000 sein"),
+  location: z
+    .string({ required_error: "Ort ist erforderlich" })
+    .min(3, "Der Ort muss mindestens 3 Zeichen lang sein"),
+  start: dateSchema.refine(
+    (date) => date > currentDate,
+    { message: "Das Startdatum darf nicht in der Vergangenheit liegen" }
+  ),
+  end: dateSchema,
   image: z.string().optional(),
   status: z.string().optional().default("bevorstehend"),
 }).refine(
   (data) => {
-    // Check if date combinations are valid
     return data.end > data.start;
   },
   {
-    message: "End time must be after start time",
+    message: "Das Enddatum muss nach dem Startdatum liegen",
     path: ["end"]
   }
 );
 
 export type EventBasicInfoFormData = z.infer<typeof eventBasicInfoSchema>;
 
-// Event Files Schema
+// Event Files Schema with improved validation
 export const eventFilesSchema = z.object({
   files: z.array(
     z.object({
       id: z.string().optional(),
-      name: z.string(),
-      type: z.string(),
-      url: z.string(),
+      name: z.string().min(1, "Dateiname ist erforderlich"),
+      type: z.string().min(1, "Dateityp ist erforderlich"),
+      url: z.string().url("Bitte geben Sie eine gültige URL ein"),
     })
-  )
+  ).optional().default([])
 });
 
 export type EventFilesFormData = z.infer<typeof eventFilesSchema>;
 
-// Flow schema for automation
+// Flow schema for automation with better feedback
 export const flowSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  name: z.string({ required_error: "Name ist erforderlich" })
+    .min(3, "Name muss mindestens 3 Zeichen lang sein"),
+  description: z.string({ required_error: "Beschreibung ist erforderlich" })
+    .min(10, "Beschreibung muss mindestens 10 Zeichen lang sein"),
   trigger: z.array(
     z.object({
       id: z.string().optional(),
-      type: z.enum(["date", "numOfAttendees", "status", "registration"]),
+      type: z.enum(["date", "numOfAttendees", "status", "registration"], {
+        required_error: "Triggertyp ist erforderlich",
+        invalid_type_error: "Ungültiger Triggertyp",
+      }),
       details: z.any(),
     })
-  ).min(1, "At least one trigger is required"),
+  ).min(1, "Mindestens ein Auslöser ist erforderlich"),
   actions: z.array(
     z.object({
       id: z.string().optional(),
@@ -70,17 +93,23 @@ export const flowSchema = z.object({
         "imageChange",
         "titleChange",
         "descriptionChange"
-      ]),
+      ], {
+        required_error: "Aktionstyp ist erforderlich",
+        invalid_type_error: "Ungültiger Aktionstyp",
+      }),
       details: z.any(),
     })
-  ).min(1, "At least one action is required"),
+  ).min(1, "Mindestens eine Aktion ist erforderlich"),
 });
 
 export type FlowFormData = z.infer<typeof flowSchema>;
 
-// Event Agenda Step Schema
+// Event Agenda Step Schema with improved validation
 export const agendaStepSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
+  id: z.string().optional(),
+  title: z
+    .string({ required_error: "Titel ist erforderlich" })
+    .min(3, "Titel muss mindestens 3 Zeichen lang sein"),
   description: z.string().optional(),
   start: dateSchema,
   end: dateSchema,
@@ -91,8 +120,8 @@ export const agendaStepSchema = z.object({
     return end > start;
   },
   {
-    message: "End time must be after start time",
-    path: ["endTime"]
+    message: "Die Endzeit muss nach der Startzeit liegen",
+    path: ["end"]
   }
 );
 
@@ -108,13 +137,23 @@ export const eventFullSchema = z.object({
 
 export type EventFullFormData = z.infer<typeof eventFullSchema>;
 
+// Event Creation Schema combines all steps into a single schema
+export const eventCreationSchema = z.object({
+  basic: eventBasicInfoSchema,
+  agenda: z.array(agendaStepSchema).min(1, "Mindestens ein Agenda-Eintrag ist erforderlich")
+    .optional().default([]),
+  flows: z.array(flowSchema).optional().default([]),
+});
 
+export type EventCreationFormData = z.infer<typeof eventCreationSchema>;
+
+// Auth schemas
 export const signInSchema = z.object({
-  email: z.string({ required_error: "Email is required" })
-    .min(1, "Email is required")
-    .email("Invalid email"),
-  password: z.string({ required_error: "Password is required" })
-    .min(1, "Password is required")
-    .min(8, "Password must be more than 8 characters")
-    .max(32, "Password must be less than 32 characters"),
-})
+  email: z.string({ required_error: "Email ist erforderlich" })
+    .min(1, "Email ist erforderlich")
+    .email("Ungültige Email-Adresse"),
+  password: z.string({ required_error: "Passwort ist erforderlich" })
+    .min(1, "Passwort ist erforderlich")
+    .min(8, "Passwort muss mindestens 8 Zeichen lang sein")
+    .max(32, "Passwort darf maximal 32 Zeichen lang sein"),
+});
