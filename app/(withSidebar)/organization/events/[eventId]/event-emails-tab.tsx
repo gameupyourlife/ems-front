@@ -29,11 +29,11 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
         session?.user?.jwt || "")
 
       queryClient.invalidateQueries({ queryKey: ["mail"] })
-      toast.success("Email erfolgreich gelöscht")
+      toast.success("E-Mail erfolgreich gelöscht")
 
     } catch (err) {
       console.error("Fehler beim Löschen der E-Mail:", err);
-      alert("E-Mail konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.");
+      toast.error("E-Mail konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.");
     }
   };
 
@@ -48,12 +48,12 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
       )
 
       if(res)
-        toast.success("Email erfolgreich in die Warteschlange gestellt")
+        toast.success("E-Mail erfolgreich in die Warteschlange gestellt")
       else
         toast.error("Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.");
     } catch (err) {
       console.error("Fehler beim Senden der E-Mail:", err);
-      alert("E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
+      toast.error("E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
     }
   };
 
@@ -64,10 +64,10 @@ export default function EventEmailsTab({ eventDetails }: { eventDetails: EventDe
         <CardHeader className="pb-3">
           <CardTitle className="text-xl flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
-            Event-Kommunikation
+            Veranstaltungs-Kommunikation
           </CardTitle>
           <CardDescription>
-            Verwalten Sie E-Mails und Vorlagen für dieses Event
+            Verwalten Sie E-Mails und Vorlagen für diese Veranstaltung
           </CardDescription>
         </CardHeader>
         <CardContent>
