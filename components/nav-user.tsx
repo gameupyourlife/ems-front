@@ -22,7 +22,7 @@ import {
 import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { logOutActionPleaseCallThisOneToUnsetSession } from "@/lib/actions/auth";
 
 export function NavUser() {
@@ -117,7 +117,7 @@ export function NavUser() {
 
             <form action={logOutActionPleaseCallThisOneToUnsetSession}>
               <DropdownMenuItem asChild >
-                <button type="submit" className="w-full" >
+                <button type="button" className="w-full" onClick={() => signOut()} >
                   <LogOutIcon className="mr-2 h-4 w-4" />
                   Abmelden
                 </button>
