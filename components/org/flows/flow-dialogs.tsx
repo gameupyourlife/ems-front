@@ -302,14 +302,14 @@ export function AddTriggerDialog({
                                                     <Label htmlFor="eventDateReference">Referenzpunkt</Label>
                                                     <div className="grid grid-cols-2 gap-2">
                                                         <SelectionCard
-                                                            selected={details.reference === "start"}
-                                                            onClick={() => setDetails({ ...details, reference: "start" })}
+                                                            selected={details.valueRelativeTo === "event.start"}
+                                                            onClick={() => setDetails({ ...details, valueRelativeTo: "event.start" })}
                                                             title="Event-Startdatum"
                                                             description="Verwendet das Startdatum des Events"
                                                         />
                                                         <SelectionCard
-                                                            selected={details.reference === "end"}
-                                                            onClick={() => setDetails({ ...details, reference: "end" })}
+                                                            selected={details.valueRelativeTo === "event.end"}
+                                                            onClick={() => setDetails({ ...details, valueRelativeTo: "event.end" })}
                                                             title="Event-Enddatum"
                                                             description="Verwendet das Enddatum des Events"
                                                         />
@@ -319,14 +319,14 @@ export function AddTriggerDialog({
                                                     <Label htmlFor="timeDirection">Zeitpunkt</Label>
                                                     <div className="grid grid-cols-2 gap-2">
                                                         <SelectionCard
-                                                            selected={details.direction === "before"}
-                                                            onClick={() => setDetails({ ...details, direction: "before" })}
+                                                            selected={details.valueRelativeOperator === "before"}
+                                                            onClick={() => setDetails({ ...details, valueRelativeOperator: "before" })}
                                                             title="Vor"
                                                             description="Auslösen vor diesem Datum"
                                                         />
                                                         <SelectionCard
-                                                            selected={details.direction === "after"}
-                                                            onClick={() => setDetails({ ...details, direction: "after" })}
+                                                            selected={details.valueRelativeOperator === "after"}
+                                                            onClick={() => setDetails({ ...details, valueRelativeOperator: "after" })}
                                                             title="Nach"
                                                             description="Auslösen nach diesem Datum"
                                                         />
@@ -339,38 +339,45 @@ export function AddTriggerDialog({
                                                             id="timeAmount"
                                                             type="number"
                                                             min="1"
-                                                            value={details.amount || ""}
-                                                            onChange={(e) => setDetails({ ...details, amount: parseInt(e.target.value) })}
+                                                            value={details.value || ""}
+                                                            onChange={(e) => setDetails({ ...details, value: parseInt(e.target.value) })}
                                                         />
                                                     </div>
                                                     <div className="flex-1 space-y-2">
                                                         <Label htmlFor="timeUnit">Einheit</Label>
                                                         <div className="grid grid-cols-2 gap-1">
                                                             <SelectionCard
-                                                                selected={details.unit === "minutes"}
-                                                                onClick={() => setDetails({ ...details, unit: "minutes" })}
+                                                                selected={details.valueType === "minutes"}
+                                                                onClick={() => setDetails({ ...details, valueType: "minutes" })}
                                                                 title="Minuten"
                                                                 size="sm"
                                                                 className="flex items-center"
                                                             />
                                                             <SelectionCard
-                                                                selected={details.unit === "hours"}
-                                                                onClick={() => setDetails({ ...details, unit: "hours" })}
+                                                                selected={details.valueType === "hours"}
+                                                                onClick={() => setDetails({ ...details, valueType: "hours" })}
                                                                 title="Stunden"
                                                                 size="sm"
                                                                 className="flex items-center"
                                                             />
                                                             <SelectionCard
-                                                                selected={details.unit === "days"}
-                                                                onClick={() => setDetails({ ...details, unit: "days" })}
+                                                                selected={details.valueType === "days"}
+                                                                onClick={() => setDetails({ ...details, valueType: "days" })}
                                                                 title="Tage"
                                                                 size="sm"
                                                                 className="flex items-center"
                                                             />
                                                             <SelectionCard
-                                                                selected={details.unit === "weeks"}
-                                                                onClick={() => setDetails({ ...details, unit: "weeks" })}
+                                                                selected={details.valueType === "weeks"}
+                                                                onClick={() => setDetails({ ...details, valueType: "weeks" })}
                                                                 title="Wochen"
+                                                                size="sm"
+                                                                className="flex items-center"
+                                                            />
+                                                            <SelectionCard
+                                                                selected={details.valueType === "months"}
+                                                                onClick={() => setDetails({ ...details, valueType: "months" })}
+                                                                title="Monate"
                                                                 size="sm"
                                                                 className="flex items-center"
                                                             />
@@ -417,20 +424,20 @@ export function AddTriggerDialog({
                                             <Label htmlFor="attendeesOperator">Bedingung</Label>
                                             <div className="grid grid-cols-3 gap-2">
                                                 <SelectionCard
-                                                    selected={details.operator === "equals"}
-                                                    onClick={() => setDetails({ ...details, operator: "equals" })}
+                                                    selected={details.operator === "equalTo"}
+                                                    onClick={() => setDetails({ ...details, operator: "equalTo" })}
                                                     title="Gleich"
                                                     description="Exakt übereinstimmend"
                                                 />
                                                 <SelectionCard
-                                                    selected={details.operator === "less"}
-                                                    onClick={() => setDetails({ ...details, operator: "less" })}
+                                                    selected={details.operator === "lessThan"}
+                                                    onClick={() => setDetails({ ...details, operator: "lessThan" })}
                                                     title="Weniger als"
                                                     description="Niedriger als Wert"
                                                 />
                                                 <SelectionCard
-                                                    selected={details.operator === "greater"}
-                                                    onClick={() => setDetails({ ...details, operator: "greater" })}
+                                                    selected={details.operator === "greaterThan"}
+                                                    onClick={() => setDetails({ ...details, operator: "greaterThan" })}
                                                     title="Größer als"
                                                     description="Höher als Wert"
                                                 />
@@ -453,7 +460,11 @@ export function AddTriggerDialog({
                                                     min={attendeesValueType === "absolute" ? "0" : "0"}
                                                     max={attendeesValueType === "percentage" ? "100" : undefined}
                                                     value={details.value || ""}
-                                                    onChange={(e) => setDetails({ ...details, value: parseInt(e.target.value) })}
+                                                    onChange={(e) => setDetails({
+                                                        ...details,
+                                                        value: parseInt(e.target.value),
+                                                        valueType: attendeesValueType
+                                                    })}
                                                     className="flex-1"
                                                 />
                                                 {attendeesValueType === "percentage" && (
@@ -472,25 +483,38 @@ export function AddTriggerDialog({
                                 {triggerType === TriggerType.Status && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="statusValue">Wenn Status ändert zu</Label>
+                                            <Label htmlFor="statusValue">Status Bedingung</Label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <SelectionCard
+                                                    selected={details.operator === "is"}
+                                                    onClick={() => setDetails({ ...details, operator: "is" })}
+                                                    title="Ist"
+                                                    description="Status ist genau dieser Wert"
+                                                />
+                                                <SelectionCard
+                                                    selected={details.operator === "isNot"}
+                                                    onClick={() => setDetails({ ...details, operator: "isNot" })}
+                                                    title="Ist nicht"
+                                                    description="Status ist nicht dieser Wert"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="statusValue">Wenn Status</Label>
                                             <div className="grid grid-cols-3 gap-2">
-
                                                 {Array.from(Object.values(EventStatus)).map((status, i) => (
                                                     typeof status === "string" && (
                                                         <SelectionCard
                                                             key={status}
-                                                            selected={details.newStatus === i}
-                                                            onClick={() => setDetails({ ...details, status: i })}
+                                                            selected={details.value === i}
+                                                            onClick={() => setDetails({ ...details, value: i })}
                                                             title={status.charAt(0).toUpperCase() + status.slice(1)}
-
-                                                        // description={`Event-Status auf ${status} ändern`}
                                                         />
                                                     )
                                                 ))}
-
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                Dieser Flow wird ausgelöst, wenn sich der Event-Status zu Ihrem ausgewählten Wert ändert
+                                                Dieser Flow wird ausgelöst, wenn der Event-Status der angegebenen Bedingung entspricht
                                             </p>
                                         </div>
                                     </div>
@@ -804,15 +828,13 @@ export function AddActionDialog({
                                     <div className="space-y-2">
                                         <Label htmlFor="statusValue">Event-Status ändern zu</Label>
                                         <div className="grid grid-cols-3 gap-2">
-
                                             {Array.from(Object.values(EventStatus)).map((status, i) => (
                                                 typeof status === "string" && (
                                                     <SelectionCard
                                                         key={status}
-                                                        selected={details.newStatus === i}
-                                                        onClick={() => setDetails({ ...details, newStatus: i })}
+                                                        selected={details.newStatus === status}
+                                                        onClick={() => setDetails({ ...details, newStatus: status })}
                                                         title={status.charAt(0).toUpperCase() + status.slice(1)}
-
                                                         description={`Event-Status auf ${status} ändern`}
                                                     />
                                                 )
@@ -824,7 +846,6 @@ export function AddActionDialog({
                                     </div>
                                 </div>
                             )}
-
 
                             {actionType === ActionType.ChangeImage && (
                                 <div className="space-y-4">
