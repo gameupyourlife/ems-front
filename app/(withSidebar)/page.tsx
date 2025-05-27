@@ -128,7 +128,7 @@ export default function DashboardPage() {
                 Willkommen zurück, <span className="text-primary">{name}</span>!
               </h1>
               <p className="text-muted-foreground text-xl max-w-3xl mx-auto md:mx-0 leading-relaxed">
-                Hier finden Sie alle Informationen zu Ihren Veranstaltungen und können neue Events erstellen.
+                Hier finden Sie alle Informationen zu Ihren Veranstaltungen.
               </p>
             </div>
           </div>
