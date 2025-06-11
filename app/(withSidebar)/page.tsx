@@ -89,6 +89,7 @@ export default function DashboardPage() {
         year: "numeric",
       })
     } catch (error) {
+      console.error("Fehler beim Formatieren des Datums:", error)
       return "Datum nicht verfügbar"
     }
   }
@@ -193,9 +194,11 @@ export default function DashboardPage() {
                       </div>
                       <h3 className="text-2xl font-bold">{nextAttendingEvent.title}</h3>
                     </div>
-                    <Button size="lg" className="lg:w-auto w-full">
-                      Details anzeigen
-                    </Button>
+                    <Link href={`/events/${nextAttendingEvent.id}`} passHref>
+                      <Button size="lg" className="lg:w-auto w-full">
+                        Details anzeigen
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <CardContent className="p-6">

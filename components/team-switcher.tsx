@@ -1,5 +1,5 @@
 "use client";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -7,7 +7,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -33,14 +32,15 @@ export function TeamSwitcher() {
         try {
             const newOrg = userOrgs.find((org) => org.id === orgId);
             if (!newOrg) {
-                toast.error("Fehler beim Wechseln der organization");
+                toast.error("Fehler beim Wechseln der Organisation");
                 return;
             }
 
             // Update the session with the new organization
             await update({ org: newOrg, user: { ...session.user, orgId: newOrg.id } });
         } catch (error) {
-            toast.error("Fehler beim Wechseln der organization");
+            console.error("Fehler:", error);
+            toast.error("Fehler beim Wechseln der Organisation");
         }
     };
 
@@ -79,13 +79,6 @@ export function TeamSwitcher() {
                                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                             </DropdownMenuItem>
                         ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 p-2">
-                            <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                                <Plus className="size-4" />
-                            </div>
-                            <div className="font-medium text-muted-foreground">organization erstellen</div>
-                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

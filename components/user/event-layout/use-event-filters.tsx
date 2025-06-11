@@ -17,7 +17,7 @@ interface UseEventFiltersProps {
     }
     location: string
   }
-  onFilterChange?: (filters: any) => void
+  onFilterChange?: (filters: unknown) => void
 }
 
 export function useEventFilters({ events, searchQuery, initialFilters, onFilterChange }: UseEventFiltersProps) {
@@ -141,16 +141,23 @@ export function useEventFilters({ events, searchQuery, initialFilters, onFilterC
 
   // Datum im Format TT.MM.JJJJ validieren
   const validateDate = (dateString: string): Date | null => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const date = new Date(dateString)
+      return isNaN(date.getTime()) ? null : date
+    }
+
     if (!/^\d{2}\.\d{2}\.\d{4}$/.test(dateString)) {
       return null
     }
-
     const [tag, monat, jahr] = dateString.split(".").map(Number)
     const date = new Date(jahr, monat - 1, tag)
-    if (date.getFullYear() !== jahr || date.getMonth() !== monat - 1 || date.getDate() !== tag) {
+    if (
+      date.getFullYear() !== jahr ||
+      date.getMonth() !== monat - 1 ||
+      date.getDate() !== tag
+    ) {
       return null
     }
-
     return date
   }
 

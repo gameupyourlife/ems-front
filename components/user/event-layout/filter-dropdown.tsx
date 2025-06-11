@@ -60,7 +60,6 @@ export default function FilterDropdown({
   validateAndSetSingleDate,
   validateAndSetStartDate,
   validateAndSetEndDate,
-  validateDateRange,
   handleApplyFilters,
   clearAllFilters,
   availableCategories,

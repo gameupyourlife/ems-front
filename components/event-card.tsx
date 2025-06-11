@@ -12,8 +12,8 @@ export default function EventCard({ event, isPast = false }: { event: EventInfo;
   }
 
   return (
-    <div className={isPast ? "opacity-60" : ""}>
-      <Card className="pt-0 flex flex-col overflow-hidden">
+    <div className={`${isPast ? "opacity-60" : ""} h-full flex flex-col`}>
+      <Card className="pt-0 flex flex-col flex-1 overflow-hidden">
         <div className="relative top-0 aspect-video w-full overflow-hidden ">
           <img
             src={event.image?? "/placeholder.svg?height=200&width=400"}
@@ -58,7 +58,7 @@ export default function EventCard({ event, isPast = false }: { event: EventInfo;
             </p>
           </div>
         </CardContent>
-        <CardFooter className="pt-0">
+        <CardFooter className="pt-0 mt-auto">
           <Button variant="outline" className="w-full" asChild disabled={isPast}>
             <Link href={`/events/${event.id || ""}`} className="w-full">
               {"Details anzeigen"}

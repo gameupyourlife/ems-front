@@ -10,10 +10,8 @@ import {
     CalendarIcon,
     CalendarSearchIcon,
     FunctionSquareIcon,
-    HelpCircleIcon,
     LayoutDashboardIcon,
     MailsIcon,
-    SearchIcon,
     SettingsIcon,
     TicketIcon,
 } from "lucide-react";
@@ -73,18 +71,7 @@ const data = {
             url: "/user",
             icon: SettingsIcon,
         },
-        {
-            title: "Dokumentation",
-            url: "/docs",
-            icon: HelpCircleIcon,
-            isDisabled: true, // Placeholder for future search functionality
-        },
-        {
-            title: "Suche",
-            url: "#",
-            icon: SearchIcon,
-            isDisabled: true, // Placeholder for future search functionality
-        },
+        
         
     ],
     myEvents: [
