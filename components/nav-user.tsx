@@ -19,7 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { BellIcon, EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
+import { EllipsisVerticalIcon, LogOutIcon, Moon, Sun, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
@@ -101,10 +101,6 @@ export function NavUser() {
                   Konto
                 </DropdownMenuItem>
               </Link>
-              <DropdownMenuItem disabled>
-                <BellIcon className="mr-2 h-4 w-4" />
-                Benachrichtigungen
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleTheme} >
                 <div className="mr-2 h-4 w-4 relative">
                   <Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
