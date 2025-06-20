@@ -38,14 +38,6 @@ export default function Page() {
         .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
         .slice(0, 6); // Zeige nur die nächsten 6 Events an
 
-    // Initialen für Avatar-Fallback generieren
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map(part => part[0])
-            .join('')
-            .toUpperCase();
-    };
 
     // Definiere Schnellaktionen
     const quickActions: QuickAction[] = [
@@ -83,7 +75,7 @@ export default function Page() {
 
                     {/* Mitglieder-Tab - verwendet die TeamMembers-Komponente */}
                     <TabsContent value="members">
-                        <TeamMembers members={members ?? []} orgId={currentOrg.id} />
+                        <TeamMembers members={members ?? []} orgId={orgId} />
                     </TabsContent>
 
                     {/* Events-Tab */}

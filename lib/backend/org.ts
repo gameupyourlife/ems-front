@@ -27,28 +27,47 @@ export async function updateMemberRole(
   newRole: number,
   token: string
 ): Promise<OrgUser> {
+  guardUUID(orgId);
   guardUUID(userId);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/users/roles/${userId}`,
-    {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
-      },
-      body: JSON.stringify({ userId, orgId, newRole }),
-    }
-  );
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/orgs/${orgId}/users/${userId}/role`;
+  
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+    body: JSON.stringify({ userId, organizationId: orgId, newRole }),
+  });
+
+  const text = await res.text();
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Failed to update member role: ${err}`);
+    throw new Error(`Failed to update member role: ${text}`);
   }
 
-  return res.json();
-}
+  if (text.trim() === "") {
+    return {
+      id: userId,
+      fullName: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      createdAt: new Date().toISOString(),
+      role: newRole,
+      organizationId: orgId,
+      organization: {
+        id: orgId,
+        name: "",
+        profilePicture: ""
+      },
+      profilePicture: ""
+    } as OrgUser;
+  }
 
+  return JSON.parse(text) as OrgUser;
+}
 
 
 export async function deleteMember(userId: string, token: string): Promise<void> {

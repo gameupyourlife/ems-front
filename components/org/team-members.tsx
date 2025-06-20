@@ -2,14 +2,16 @@
 
 import { useState, useMemo } from "react"
 import { useSession } from "next-auth/react"
-import { useUpdateMemberRole, useDeleteMember, useMembers } from "@/lib/backend/hooks/use-org"
+import { useUpdateMemberRole, useDeleteMember } from "@/lib/backend/hooks/use-org"
 import type { OrgUser } from "@/lib/types-old"
+
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import type { Row } from "@tanstack/react-table"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { SearchIcon, FilterIcon, ShieldIcon, XIcon, MoreHorizontal, UserPlusIcon, ClipboardIcon } from "lucide-react"
+import { SearchIcon, FilterIcon, ShieldIcon, XIcon, MoreHorizontal, ClipboardIcon } from "lucide-react"
 
 import {
   type ColumnDef,
@@ -94,14 +96,8 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
 
   const { data: session } = useSession()
   const token = session?.user?.jwt ?? ""
-  const { data: membersData, refetch } = useMembers(orgId, token);
-  const updateRole = useUpdateMemberRole(orgId, token, {
-  onSuccess: () => {
-    refetch();
-  },
-});
-  const deleteMember = useDeleteMember(orgId, token)
-
+const updateRole = useUpdateMemberRole(orgId, token);
+const deleteMember = useDeleteMember(orgId, token);
   // Hilfsfunktionen
   const getInitials = (name: string) =>
     name
@@ -123,27 +119,35 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     setSelectedNewRole("")
   }
 
-  const handleRoleSelect = () => {
-    if (roleChangeDialog.member && selectedNewRole !== "") {
-      const newRole = Number.parseInt(selectedNewRole)
-      setRoleChangeDialog({ isOpen: false, member: null })
-      setConfirmDialog({
-        isOpen: true,
-        member: roleChangeDialog.member,
-        newRole,
-      })
-    }
+const handleRoleSelect = () => {
+  if (roleChangeDialog.member && selectedNewRole !== "") {
+    const newRole = Number.parseInt(selectedNewRole, 10)
+    setRoleChangeDialog({ isOpen: false, member: null })
+    setConfirmDialog({
+      isOpen: true,
+      member: roleChangeDialog.member,
+      newRole,
+    })
+  }
+}
+
+const confirmRoleChange = async () => {
+  if (!confirmDialog.member) {
+    setConfirmDialog({ isOpen: false, member: null, newRole: 0 })
+    return
   }
 
-  const confirmRoleChange = () => {
-    if (confirmDialog.member) {
-      updateRole.mutate({
-        userId: confirmDialog.member.id,
-        newRole: confirmDialog.newRole,
-      })
-    }
+  try {
+    await updateRole.mutateAsync({
+      userId: confirmDialog.member.id,
+      newRole: confirmDialog.newRole,
+    })
+  } catch {
+    // bei Bedarf hier Fehler-UI anzeigen
+  } finally {
     setConfirmDialog({ isOpen: false, member: null, newRole: 0 })
   }
+}
 
   // table columns
   const columns: ColumnDef<OrgUser>[] = useMemo(
@@ -228,8 +232,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
     [updateRole],
   )
 
-  // custom global filter
-  const globalFilterFn = (row: any, _columnId: string, filterValue: string) => {
+  const globalFilterFn = (row: Row<OrgUser>, _columnId: string, filterValue: string) => {
     const term = filterValue.toLowerCase()
     return row.original.fullName.toLowerCase().includes(term) || row.original.email.toLowerCase().includes(term)
   }
@@ -270,7 +273,11 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
             onChange={(e) => {
               const v = e.target.value
               setSearchQuery(v)
-              v ? table.setGlobalFilter(v) : table.resetGlobalFilter()
+              if (v) {
+                table.setGlobalFilter(v)
+              } else {
+                table.resetGlobalFilter()
+              }
             }}
           />
         </div>
@@ -412,8 +419,7 @@ export default function TeamMembers({ members, orgId }: TeamMembersProps) {
           <DialogHeader>
             <DialogTitle>Rolle ändern bestätigen</DialogTitle>
             <DialogDescription>
-              Möchten Sie die Rolle von {confirmDialog.member?.fullName} wirklich zu "
-              {roleLabels[confirmDialog.newRole]}" ändern?
+              Möchten Sie die Rolle von {confirmDialog.member?.fullName} wirklich zu &quot;{roleLabels[confirmDialog.newRole]}&quot; ändern?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
